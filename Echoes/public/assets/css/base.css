@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Cal+Sans&display=swap');
+
+:root{
+   --color-text: #000;
+   --color-yellow: #f0efeb;
+   --color-white: #fff;
+   --color-red: #74070d;
+   --color-green: #46462a;
+   --font: "Cal Sans", sans-serif;
+}
+
+*{
+    box-sizing: border-box;
+}
+
+body{
+    font-family: var(--font); /*toàn bộ trang font này*/   
+    background: #f0efeb;
+    overflow-x: hidden;
+} 
+
+a{
+    text-decoration: none !important; /*toàn bộ link ko có gạch chân*/
+}
+
+
+/* ===== FOOTER ===== */
+.footer .footer-top {
+    margin-top: 50px;
+    display: flex;
+    justify-content: space-evenly;
+    background-color: #525233;
+    padding: 30px 10px;
+}
+.footer .footer-top .about-us { margin-right: 20px; width: 300px; }
+.footer .footer-top .about-us h1 { margin-top: 20px; font-size: 20px; color: white; margin-bottom: 10px; }
+.footer .footer-top .about-us .list-box {
+    background-color: #e1cfac;
+    height: 10px; border-radius: 15px; margin-bottom: 20px;
+}
+.footer .footer-top .about-us ul { list-style-type: none; padding: 0; }
+.footer .footer-top .about-us ul li { margin-bottom: 10px; }
+.footer .footer-top .about-us ul li a { transition: 0.3s; color: white; }
+.footer .footer-top .about-us ul li a:hover { color: white; padding-left: 5px; }
+.footer .footer-top .about-us ul li p { color: white; margin-bottom: 0; }
+.footer .footer-top .about-us .social { display: flex; align-items: center; }
+.footer .footer-top .about-us .social li { margin-right: 10px; }
+.footer .footer-top .about-us .social li .inner-image { height: 40px; width: 40px; }
+.footer .footer-top .about-us .social li .inner-image img { height: 100%; width: 100%; }
+
+.footer-bottom {
+    font-size: 14px; line-height: 1.5;
+    background-color: #272719;
+    display: flex; align-items: center;
+    padding: 10px 110px;
+}
+.footer-bottom .inner-logo { height: 100px; width: auto; }
+.footer-bottom .inner-logo img { height: 90px; width: 90px; margin-right: 20px; padding-top: 10px; }
+.footer-bottom .inner-content ul { list-style: none; }
+.footer-bottom .inner-content ul li p { color: white; }
+
+@media screen and (max-width: 1024px) {
+    .footer .footer-top { flex-direction: column; align-items: center; gap: 30px; padding: 30px 20px; }
+    .footer .footer-top .about-us { margin-right: 0; width: 100%; max-width: 400px; text-align: center; }
+    .footer .footer-top .about-us ul li { text-align: center; }
+    .footer .footer-top .about-us .social { justify-content: center; }
+    .footer-bottom { flex-direction: column; align-items: center; text-align: center; padding: 20px; gap: 20px; }
+}
+@media screen and (max-width: 768px) {
+    .footer .footer-top { padding: 25px 15px; gap: 25px; }
+    .footer .footer-top .about-us { max-width: 350px; }
+    .footer .footer-top .about-us h1 { font-size: 18px; margin-top: 15px; }
+    .footer .footer-top .about-us ul li a,
+    .footer .footer-top .about-us ul li p { font-size: 14px; }
+    .footer-bottom { padding: 15px; }
+    .footer-bottom .inner-logo img { height: 55px; width: 55px; }
+    .footer-bottom .inner-content ul li p { font-size: 13px; }
+    .footer .footer-top .about-us .social li .inner-image { height: 32px; width: 32px; }
+}
+@media screen and (max-width: 480px) {
+    .footer .footer-top { padding: 20px 10px; gap: 20px; }
+    .footer .footer-top .about-us { max-width: 300px; }
+    .footer .footer-top .about-us h1 { font-size: 16px; margin-top: 10px; }
+    .footer .footer-top .about-us ul li a,
+    .footer .footer-top .about-us ul li p { font-size: 13px; }
+    .footer-bottom { padding: 10px; }
+    .footer-bottom .inner-logo img { height: 45px; width: 45px; }
+    .footer-bottom .inner-content ul li p { font-size: 12px; line-height: 1.5; }
+    .footer .footer-top .about-us .social li .inner-image { height: 28px; width: 28px; }
+    .footer .footer-top .about-us .social li { margin-right: 8px; }
+}

@@ -1,0 +1,65 @@
+/* =========================================
+   Modal Overlay - Login / Auth
+   Dùng chung cho tất cả trang
+   ========================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    display: none;
+    z-index: 99999;
+}
+
+.modal-overlay.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-container {
+    position: relative;
+    width: 850px;
+    max-width: 95%;
+    border-radius: 10px;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: none;
+}
+
+.login-iframe {
+    width: 100%;
+    height: 550px;
+    background: transparent;
+    border-radius: 10px;
+    border: none;
+}
+
+.close-modal {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+    z-index: 100000;
+    background: rgba(255, 255, 255, 0.95);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 1px solid #ccc;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #000;
+    border-color: #999;
+    transform: scale(1.1);
+}

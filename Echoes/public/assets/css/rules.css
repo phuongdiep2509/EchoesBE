@@ -1,0 +1,117 @@
+:root{
+   --color-text: #000;
+   --color-yellow: #f0efeb;
+   --color-white: #fff;
+   --color-red: #74070d;
+   --color-green: #46462a;
+   --font: "Cal Sans", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-yellow);
+  font-family: var(--font);
+  color: var(--text);
+  line-height: 1.4;
+}
+
+
+.breadcrumb-pill{
+    background-color: var(--color-green); /* Màu rêu đặc trưng */
+    color: white;
+    padding: 12px 20px;
+    font-size: 14px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.policy-page {
+  max-width: 1200px;
+  margin: 90px auto;
+  padding: 0 24px 80px;
+}
+
+/* TITLE */
+.page-title {
+  color: var(--color-green);
+  font-family: var(--font);
+  text-transform: uppercase;
+  font-size: 60px;
+  margin-bottom: 12px;
+  margin-top: 50px;
+}
+
+.page-sub {
+  max-width: 1200px;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+/* POLICY LIST */
+.policy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.policy-item {
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 32px;
+  transition: all 0.3s ease; 
+}
+
+.policy-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 32px rgba(70, 70, 42, 0.25);  /* Shadow màu xanh rêu nhẹ */
+    cursor: pointer;
+    border-color: var(--color-green);  /* Đổi màu border khi hover */
+}
+
+.policy-item h2 {
+  font-family: var(--font);
+  text-transform: uppercase;
+  font-size: 26px;
+  margin-bottom: 16px;
+  color: var(--color-green);
+}
+
+.policy-item ul {
+  padding-left: 20px;
+}
+
+.policy-item li {
+  margin-bottom:7px;
+  font-size: 18px;
+}
+
+/* FOOTER */
+.policy-footer {
+  margin-top: 40px;
+  border-top: 1px dashed var(--line);
+  font-size: 16px;
+  color: #555;
+}
+
+.policy-footer strong {
+  color: var(--color-green);
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .page-title {
+    font-size: 34px;
+  }
+
+  .policy-item {
+    padding: 22px;
+  }
+}

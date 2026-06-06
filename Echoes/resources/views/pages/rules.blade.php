@@ -1,0 +1,87 @@
+@extends('layouts.app')
+
+@section('title', 'Quy định & Chính sách | Echoes')
+
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/rules.css') }}">
+@endsection
+
+@section('content')
+
+<section class="policy-page">
+    <div class="section-content">
+
+        <div class="breadcrumb-pill">
+            <a href="{{ url('/') }}">TRANG CHỦ</a> / QUY ĐỊNH
+        </div>
+
+        <h1 class="page-title">Quy định &amp; Chính sách</h1>
+
+        <p class="page-sub">
+            Các quy định dưới đây nhằm đảm bảo trải nghiệm công bằng, an toàn và minh bạch
+            cho tất cả khán giả của Echoes.
+        </p>
+
+        <div class="policy-list">
+
+            <article class="policy-item">
+                <h2>1. Quy định mua vé</h2>
+                <ul>
+                    <li>Mỗi vé chỉ có giá trị sử dụng cho một người và một suất diễn.</li>
+                    <li>Vé đã mua không được hoàn tiền dưới mọi hình thức.</li>
+                    <li>Thông tin người nhận cần được cung cấp chính xác khi mua vé.</li>
+                    <li>Echoes không chịu trách nhiệm nếu vé bị mất do cung cấp sai email.</li>
+                </ul>
+            </article>
+
+            <article class="policy-item">
+                <h2>2. Chính sách đổi / huỷ vé</h2>
+                <ul>
+                    <li>Vé không hỗ trợ đổi hoặc hoàn sau khi giao dịch thành công.</li>
+                    <li>Trong trường hợp chương trình bị huỷ từ phía Echoes, vé sẽ được hoàn tiền hoặc đổi sang sự kiện khác.</li>
+                    <li>Thời gian xử lý hoàn tiền (nếu có): 7–14 ngày làm việc.</li>
+                </ul>
+            </article>
+
+            <article class="policy-item">
+                <h2>3. Quy định sử dụng vé</h2>
+                <ul>
+                    <li>Khán giả cần xuất trình mã QR hợp lệ khi check-in.</li>
+                    <li>Mỗi mã QR chỉ được quét một lần.</li>
+                    <li>Vé đã sử dụng sẽ tự động chuyển trạng thái "Đã dùng".</li>
+                    <li>Echoes có quyền từ chối check-in với vé không hợp lệ.</li>
+                </ul>
+            </article>
+
+            <article class="policy-item">
+                <h2>4. Quy định tham dự sự kiện</h2>
+                <ul>
+                    <li>Vui lòng đến trước giờ diễn ít nhất 30 phút.</li>
+                    <li>Không mang vật sắc nhọn, chất dễ cháy nổ vào khu vực sự kiện.</li>
+                    <li>Tuân thủ hướng dẫn của ban tổ chức và đội ngũ an ninh.</li>
+                    <li>Echoes có quyền từ chối phục vụ khán giả vi phạm nội quy.</li>
+                </ul>
+            </article>
+
+            <article class="policy-item">
+                <h2>5. Quyền &amp; trách nhiệm của Echoes</h2>
+                <ul>
+                    <li>Echoes được quyền thay đổi lịch diễn trong trường hợp bất khả kháng.</li>
+                    <li>Mọi thay đổi sẽ được thông báo qua email hoặc website chính thức.</li>
+                    <li>Echoes cam kết bảo mật thông tin cá nhân của khách hàng.</li>
+                </ul>
+            </article>
+
+        </div>
+
+        <div class="policy-footer">
+            <p>
+                Nếu bạn có bất kỳ câu hỏi nào liên quan đến quy định &amp; chính sách, vui lòng liên hệ:
+                <strong>support@echoes.vn</strong>
+            </p>
+        </div>
+
+    </div>
+</section>
+
+@endsection
