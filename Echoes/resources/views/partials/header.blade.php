@@ -204,12 +204,18 @@ mark { background-color: #ffeb3b; color: #333; padding: 1px 2px; border-radius: 
             </li>
             <li>
                 <img src="{{ asset('assets/images/index/user-icon.png') }}" alt="">
-                <a href="javascript:void(0)" onclick="openModal()">TÀI KHOẢN</a>
-                <span id="userBox" style="display:none;">
-                    <span id="account-name"></span>
-                    |
-                    <a href="javascript:void(0)" id="logoutBtn">ĐĂNG XUẤT</a>
-                </span>
+                @auth
+                    <a href="#" onclick="openProfilePopup('view'); return false;">{{ Auth::user()->HoTen }}</a>
+                    &nbsp;|&nbsp;
+                    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" id="logoutBtn" style="background:none;border:none;padding:0;cursor:pointer;font-size:inherit;font-family:inherit;color:#74070d;font-weight:500;">
+                            ĐĂNG XUẤT
+                        </button>
+                    </form>
+                @else
+                    <a href="#" onclick="openAuthPopup('login'); return false;">TÀI KHOẢN</a>
+                @endauth
             </li>
         </ul>
     </div>

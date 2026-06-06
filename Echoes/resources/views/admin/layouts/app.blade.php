@@ -7,6 +7,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
     <style>
         body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
@@ -129,6 +130,36 @@
                 <i class="fas fa-chart-pie"></i> Dashboard
             </a>
 
+            @if(auth()->user()?->isAdmin())
+            <div class="nav-section">Quản lý tài khoản</div>
+            <a href="{{ route('admin.tai-khoan.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.tai-khoan.*') ? 'active' : '' }}">
+                <i class="fas fa-key"></i> Tài khoản
+            </a>
+            @endif
+
+            @if(auth()->user()?->isAdmin() || auth()->user()?->isNhanVien())
+            @if(auth()->user()?->isAdmin())
+            <a href="{{ route('admin.khach-hang.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.khach-hang.*') ? 'active' : '' }}">
+                <i class="fas fa-users"></i> Khách hàng
+            </a>
+            @else
+            <div class="nav-section">Quản lý khách hàng</div>
+            <a href="{{ route('admin.khach-hang.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.khach-hang.*') ? 'active' : '' }}">
+                <i class="fas fa-users"></i> Khách hàng
+            </a>
+            @endif
+            @endif
+
+            @if(auth()->user()?->isAdmin())
+            <a href="{{ route('admin.nhan-vien.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.nhan-vien.*') ? 'active' : '' }}">
+                <i class="fas fa-id-badge"></i> Nhân viên
+            </a>
+            @endif
+
             <div class="nav-section">Quản lý nội dung</div>
             <a href="{{ route('admin.concerts.index') }}"
                class="sidebar-link {{ request()->routeIs('admin.concerts.*') ? 'active' : '' }}">
@@ -157,11 +188,38 @@
         <!-- TOPBAR -->
         <div class="admin-topbar">
             <span class="topbar-title">@yield('title', 'Dashboard')</span>
-            <div class="d-flex align-items: center; gap: 12px">
+            <div class="d-flex align-items-center gap-3">
                 <a href="{{ route('home') }}" target="_blank"
                    class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-external-link-alt"></i> Xem website
                 </a>
+                @auth
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i> {{ auth()->user()->HoTen }}
+                        <span class="badge bg-{{ auth()->user()->isAdmin() ? 'warning text-dark' : 'info' }} ms-1" style="font-size:10px;">
+                            {{ auth()->user()->isAdmin() ? 'Admin' : 'Nhân viên' }}
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="#"
+                               onclick="openProfilePopup('view'); return false;">
+                                <i class="fas fa-user me-2"></i>Hồ sơ cá nhân
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                @endauth
             </div>
         </div>
 
@@ -189,6 +247,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@include('partials.profile-popup')
 @yield('scripts')
 </body>
 </html>
