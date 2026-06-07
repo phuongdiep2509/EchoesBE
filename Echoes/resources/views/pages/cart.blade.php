@@ -16,14 +16,6 @@
                 <span class="booking-kicker">Giữ chỗ vé</span>
                 <h1 style="margin:10px 0 0;">Giỏ hàng</h1>
             </div>
-            <form method="GET" action="{{ route('cart') }}">
-                <div>
-                    <label>Mã khách hàng</label>
-                    <input class="booking-input" type="number" min="1" name="MaKhachHang" value="{{ $customerId }}">
-                </div>
-                <button class="booking-button">Xem giỏ</button>
-                <a class="booking-button secondary" href="{{ route('my-ticket', ['MaKhachHang' => $customerId]) }}">Lịch sử đặt vé</a>
-            </form>
         </div>
 
         @if(session('success'))
@@ -65,7 +57,6 @@
                 <h2 style="margin:0;">Tổng tiền: {{ number_format($cart['TongTien'], 0, ',', '.') }}đ</h2>
                 <form method="POST" action="{{ route('orders.create') }}">
                     @csrf
-                    <input type="hidden" name="MaKhachHang" value="{{ $customerId }}">
                     <button class="booking-button">Tạo đơn đặt vé</button>
                 </form>
             </div>

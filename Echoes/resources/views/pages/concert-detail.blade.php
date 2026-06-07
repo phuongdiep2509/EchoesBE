@@ -64,11 +64,7 @@
                     <div class="ticket-option-price">{{ number_format($ticket->price, 0, ',', '.') }}đ</div>
                     <div class="ticket-option-note">Còn {{ max(0, $ticket->total - $ticket->sold) }} vé</div>
 
-                    <div class="booking-form-row">
-                        <div>
-                            <label>Mã khách hàng</label>
-                            <input class="booking-input" type="number" min="1" name="MaKhachHang" value="{{ session('MaKhachHang', 1) }}">
-                        </div>
+                    <div class="booking-form-row single">
                         <div>
                             <label>Số lượng</label>
                             <input class="booking-input" type="number" min="1" name="SoLuong" value="1">

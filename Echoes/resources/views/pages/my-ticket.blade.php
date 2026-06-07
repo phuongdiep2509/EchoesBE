@@ -16,14 +16,6 @@
                 <span class="booking-kicker">Lịch sử đặt vé</span>
                 <h1 style="margin:10px 0 0;">Vé của tôi</h1>
             </div>
-            <form method="GET" action="{{ route('my-ticket') }}">
-                <div>
-                    <label>Mã khách hàng</label>
-                    <input class="booking-input" type="number" min="1" name="MaKhachHang" value="{{ $customerId }}">
-                </div>
-                <button class="booking-button">Xem lịch sử</button>
-                <a class="booking-button secondary" href="{{ route('cart', ['MaKhachHang' => $customerId]) }}">Giỏ hàng</a>
-            </form>
         </div>
 
         @if(session('success'))
@@ -56,7 +48,6 @@
                         @if($order->TrangThai === 'ChoThanhToan')
                             <form method="POST" action="{{ route('orders.cancel', $order->MaDonHang) }}">
                                 @csrf
-                                <input type="hidden" name="MaKhachHang" value="{{ $customerId }}">
                                 <button class="booking-button secondary" onclick="return confirm('Hủy đơn này?')">Hủy đơn</button>
                             </form>
                         @endif
