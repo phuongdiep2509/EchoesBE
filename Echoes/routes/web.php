@@ -77,14 +77,10 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
     // ── Chỉ Admin ─────────────────────────────────────
     Route::middleware('admin')->group(function () {
 
-        // Quản lý Tài khoản
+        // Quản lý Tài khoản — chỉ xem và khóa
         Route::prefix('tai-khoan')->name('tai-khoan.')->group(function () {
             Route::get('/',                    [TaiKhoanController::class, 'index'])->name('index');
-            Route::get('/them',                [TaiKhoanController::class, 'create'])->name('create');
-            Route::post('/',                   [TaiKhoanController::class, 'store'])->name('store');
             Route::get('/{taiKhoan}',          [TaiKhoanController::class, 'show'])->name('show');
-            Route::get('/{taiKhoan}/sua',      [TaiKhoanController::class, 'edit'])->name('edit');
-            Route::put('/{taiKhoan}',          [TaiKhoanController::class, 'update'])->name('update');
             Route::patch('/{taiKhoan}/toggle', [TaiKhoanController::class, 'toggleTrangThai'])->name('toggle');
         });
 
@@ -102,14 +98,10 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
 
     // ── Admin + Nhân viên ─────────────────────────────
 
-    // Quản lý Khách hàng (Admin + Nhân viên)
+    // Quản lý Khách hàng (Admin + Nhân viên) — chỉ xem và khóa
     Route::prefix('khach-hang')->name('khach-hang.')->group(function () {
         Route::get('/',                    [KhachHangController::class, 'index'])->name('index');
-        Route::get('/them',                [KhachHangController::class, 'create'])->name('create');
-        Route::post('/',                   [KhachHangController::class, 'store'])->name('store');
         Route::get('/{khachHang}',         [KhachHangController::class, 'show'])->name('show');
-        Route::get('/{khachHang}/sua',     [KhachHangController::class, 'edit'])->name('edit');
-        Route::put('/{khachHang}',         [KhachHangController::class, 'update'])->name('update');
         Route::patch('/{khachHang}/toggle',[KhachHangController::class, 'toggleTrangThai'])->name('toggle');
     });
     Route::get('/concerts',           [ConcertController::class, 'index'])->name('concerts.index');
