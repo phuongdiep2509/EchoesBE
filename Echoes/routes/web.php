@@ -33,8 +33,10 @@ Route::get('/music',      [MusicController::class, 'index'])->name('music.index'
 Route::get('/music/{id}', [MusicController::class, 'show'])->where('id', '[0-9]+')->name('music.show');
 
 // ─── Concert ──────────────────────────────────────────
-Route::get('/concert',      [ConcertController::class, 'publicIndex'])->name('concert.index');
-Route::get('/concert/{id}', [ConcertController::class, 'show'])->where('id', '[0-9]+')->name('concert.show');
+Route::get('/concert',          [ConcertController::class, 'publicIndex'])->name('concert.index');
+Route::get('/concert/{id}',     [ConcertController::class, 'show'])->where('id', '[0-9]+')->name('concert.show');
+Route::get('/booking/{id}',     [ConcertController::class, 'booking'])->where('id', '[0-9]+')->name('booking');
+Route::post('/booking',         [ConcertController::class, 'storeBooking'])->name('booking.store')->middleware('auth.custom');
 
 // ─── Auth ─────────────────────────────────────────────
 Route::middleware('guest')->group(function () {

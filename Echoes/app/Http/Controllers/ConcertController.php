@@ -13,18 +13,37 @@ class ConcertController extends Controller
     {
         return DB::table('su_kien as sk')
             ->leftJoin('dia_diem_to_chuc as dd', 'sk.MaDiaDiem', '=', 'dd.MaDiaDiem')
+            ->leftJoin('khu_vuc_su_kien as kv', 'sk.MaSuKien', '=', 'kv.MaSuKien')
+            ->leftJoin('hang_ve as hv', 'kv.MaKhuVuc', '=', 'hv.MaKhuVuc')
             ->select([
-                'sk.MaSuKien   as id',
-                'sk.TenSuKien  as title',
-                'sk.AnhBia     as image',
-                'sk.MoTa       as description',
+                'sk.MaSuKien as id',
+                'sk.TenSuKien as title',
+                'sk.AnhBia as image',
+                'sk.MoTa as description',
                 'sk.DiemNoiBat as highlights',
-                'sk.ThoiGianBatDau  as event_date',
+                'sk.ThoiGianBatDau as event_date',
                 'sk.ThoiGianKetThuc as event_end',
-                'sk.TrangThai  as status',
+                'sk.TrangThai as status',
+                'sk.slug as slug',
+
                 'dd.TenDiaDiem as location',
                 'dd.DiaChiChiTiet as address',
-                'dd.ThanhPho   as city',
+                'dd.ThanhPho as city',
+
+                'sk.DieuKienVaDieuKhoan as terms',
+
+                // Khu vực
+                'kv.MaKhuVuc',
+                'kv.TenKhuVuc',
+                'kv.SucChua',
+
+                // Hạng vé
+                'hv.MaHangVe',
+                'hv.TenHangVe',
+                'hv.GiaVe as price',
+                'hv.SoLuongMoBan',
+                'hv.SoLuongDaBan',
+                'hv.QuyenLoi'
             ]);
     }
 
@@ -88,7 +107,49 @@ class ConcertController extends Controller
         return redirect()->route('admin.concerts.index')->with('success', 'Đã xóa sự kiện.');
     }
 
-    // ─── PUBLIC ──────────────────────────────────────────
+    // ─── Booking page ────────────────────────────────────
+    public function booking($id)
+    {
+        $concert = $this->concertQuery()
+            ->where('sk.MaSuKien', $id)
+            ->first();
+
+        if (!$concert) abort(404);
+
+        $hangVe = DB::table('hang_ve as hv')
+            ->join('khu_vuc_su_kien as kv', 'hv.MaKhuVuc', '=', 'kv.MaKhuVuc')
+            ->where('kv.MaSuKien', $id)
+            ->select([
+                'kv.MaKhuVuc          as zone_id',
+                'kv.TenKhuVuc         as zone',
+                'hv.MaHangVe          as ticket_id',
+                'hv.TenHangVe         as ticket_name',
+                'hv.GiaVe             as price',
+                'hv.SoLuongMoBan      as total',
+                'hv.SoLuongDaBan      as sold',
+                'hv.QuyenLoi          as benefits',
+                'hv.ThoiGianMoBan     as open_at',
+                'hv.ThoiGianKetThucBan as close_at',
+            ])
+            ->get();
+
+        $gheNgoi = DB::table('ghe_ngoi as g')
+            ->join('khu_vuc_su_kien as kv', 'g.MaKhuVuc', '=', 'kv.MaKhuVuc')
+            ->where('kv.MaSuKien', $id)
+            ->select([
+                'g.MaGhe      as seat_id',
+                'g.HangGhe    as row',
+                'g.SoGhe      as number',
+                'g.TrangThai  as status',
+                'g.MaKhuVuc   as zone_id',
+                'kv.TenKhuVuc as zone',
+            ])
+            ->orderBy('g.HangGhe')
+            ->orderByRaw('CAST(g.SoGhe AS UNSIGNED)')
+            ->get();
+
+        return view('pages.booking', compact('concert', 'hangVe', 'gheNgoi'));
+    }
 
     public function publicIndex()
     {
