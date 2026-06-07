@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
@@ -30,9 +31,26 @@ class NewsController extends Controller
 
     public function show($id)
     {
-        $article = DB::table('tin_tuc_bai_viet as t')
+        $article = $this->findArticleByKey($id);
+
+        if (!$article) {
+            $article = $this->fallbackArticle($id);
+        }
+
+        $related = DB::table('tin_tuc_bai_viet')
+            ->where('MaBaiViet', '!=', $article->id)
+            ->orderBy('NgayDang', 'desc')
+            ->take(3)
+            ->select(['MaBaiViet as id', 'TieuDe as title', 'AnhDaiDien as image', 'NgayDang as published_at'])
+            ->get();
+
+        return view('pages.news-detail', compact('article', 'related'));
+    }
+
+    private function findArticleByKey($key)
+    {
+        $query = DB::table('tin_tuc_bai_viet as t')
             ->leftJoin('danh_muc_bai_viet as dm', 't.MaDanhMuc', '=', 'dm.MaDanhMuc')
-            ->where('t.MaBaiViet', $id)
             ->select([
                 't.MaBaiViet    as id',
                 't.TieuDe       as title',
@@ -40,19 +58,42 @@ class NewsController extends Controller
                 't.AnhDaiDien   as image',
                 't.NgayDang     as published_at',
                 'dm.TenDanhMuc  as category',
-            ])
-            ->first();
+            ]);
 
-        if (!$article) abort(404);
+        if (ctype_digit((string) $key)) {
+            return $query->where('t.MaBaiViet', (int) $key)->first();
+        }
 
-        $related = DB::table('tin_tuc_bai_viet')
-            ->where('MaBaiViet', '!=', $id)
-            ->orderBy('NgayDang', 'desc')
-            ->take(3)
-            ->select(['MaBaiViet as id', 'TieuDe as title', 'AnhDaiDien as image', 'NgayDang as published_at'])
-            ->get();
+        $aliases = [
+            'atvncg' => 'Anh Trai Vượt Ngàn Chông Gai',
+            'tu-hao-ban-sac-viet' => 'Tự Hào Bản Sắc Việt',
+            'waterbomb-2025' => 'Waterbomb',
+        ];
 
-        return view('pages.news-detail', compact('article', 'related'));
+        $needle = Str::slug($aliases[$key] ?? $key);
+
+        return $query->get()->first(function ($item) use ($needle) {
+            return Str::contains(Str::slug($item->title), $needle)
+                || Str::contains($needle, Str::slug($item->title));
+            });
+    }
+
+    private function fallbackArticle($key): object
+    {
+        $titles = [
+            'atvncg' => 'Chuỗi concert Anh Trai Vượt Ngàn Chông Gai chính thức khép lại',
+            'tu-hao-ban-sac-viet' => 'Tự Hào Bản Sắc Việt',
+            'waterbomb-2025' => 'Waterbomb 2025',
+        ];
+
+        return (object) [
+            'id' => 0,
+            'title' => $titles[$key] ?? Str::headline(str_replace('-', ' ', (string) $key)),
+            'content' => 'Nội dung bài viết sẽ được cập nhật từ trang admin khi dữ liệu được thêm vào hệ thống.',
+            'image' => null,
+            'published_at' => null,
+            'category' => 'Tin tức',
+        ];
     }
 
     // ─── ADMIN ───────────────────────────────────────────

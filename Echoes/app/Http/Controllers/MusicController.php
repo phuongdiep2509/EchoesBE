@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class MusicController extends Controller
 {
@@ -46,16 +47,19 @@ class MusicController extends Controller
 
     public function show($id)
     {
-        $event = $this->musicQuery()
-            ->where('sk.MaSuKien', $id)
-            ->first();
+        $event = $this->findMusicByKey($id);
 
-        if (!$event) abort(404);
+        if (!$event) {
+            $event = $this->fallbackMusic($id);
+        }
 
-        $hangVe = DB::table('hang_ve as hv')
+        $eventId = $event->id ?? null;
+
+        $hangVe = $eventId ? DB::table('hang_ve as hv')
             ->join('khu_vuc_su_kien as kv', 'hv.MaKhuVuc', '=', 'kv.MaKhuVuc')
-            ->where('kv.MaSuKien', $id)
+            ->where('kv.MaSuKien', $eventId)
             ->select([
+                'hv.MaHangVe             as id',
                 'kv.TenKhuVuc           as zone',
                 'hv.TenHangVe           as ticket_name',
                 'hv.GiaVe               as price',
@@ -65,11 +69,11 @@ class MusicController extends Controller
                 'hv.ThoiGianMoBan       as open_at',
                 'hv.ThoiGianKetThucBan  as close_at',
             ])
-            ->get();
+            ->get() : collect();
 
-        $artists = DB::table('tham_gia_bieu_dien as tg')
+        $artists = $eventId ? DB::table('tham_gia_bieu_dien as tg')
             ->join('nghe_si as ns', 'tg.MaNgheSi', '=', 'ns.MaNgheSi')
-            ->where('tg.MaSuKien', $id)
+            ->where('tg.MaSuKien', $eventId)
             ->select([
                 'ns.TenNgheSi        as name',
                 'ns.NgheDanh         as stage_name',
@@ -78,16 +82,65 @@ class MusicController extends Controller
                 'tg.ThoiGianBieuDien as perform_at',
             ])
             ->orderBy('tg.ThuTuBieuDien')
-            ->get();
+            ->get() : collect();
 
-        $related = $this->musicQuery()
+        $related = $eventId ? $this->musicQuery()
             ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
-            ->where('sk.MaSuKien', '!=', $id)
+            ->where('sk.MaSuKien', '!=', $eventId)
             ->orderBy('sk.ThoiGianBatDau', 'asc')
             ->take(4)
-            ->get();
+            ->get() : collect();
 
         return view('pages.music-detail', compact('event', 'hangVe', 'artists', 'related'));
+    }
+
+    private function findMusicByKey($key)
+    {
+        if (ctype_digit((string) $key)) {
+            return $this->musicQuery()->where('sk.MaSuKien', (int) $key)->first();
+        }
+
+        $aliases = [
+            'concert-bon-canh-chim-troi' => 'Bốn Cánh Chim Trời',
+            'a-tale-of-two-christmas' => 'A Tale Of Two Christmas',
+            'when-i-remember-this-life' => 'When I Remember This Life',
+            'concert-the-rose' => 'The Rose',
+        ];
+
+        $needle = Str::slug($aliases[$key] ?? $key);
+
+        return $this->musicQuery()
+            ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
+            ->get()
+            ->first(function ($item) use ($needle) {
+                return Str::contains(Str::slug($item->title), $needle)
+                    || Str::contains($needle, Str::slug($item->title));
+            });
+    }
+
+    private function fallbackMusic($key): object
+    {
+        $titles = [
+            'concert-bon-canh-chim-troi' => 'Bốn Cánh Chim Trời',
+            'a-tale-of-two-christmas' => 'A Tale Of Two Christmas',
+            'when-i-remember-this-life' => 'When I Remember This Life',
+            'concert-the-rose' => 'The Rose',
+        ];
+
+        return (object) [
+            'id' => null,
+            'title' => $titles[$key] ?? Str::headline(str_replace('-', ' ', (string) $key)),
+            'image' => 'assets/images/music/lc16.1.jpg',
+            'description' => 'Thông tin sự kiện sẽ được cập nhật từ trang admin khi dữ liệu được thêm vào hệ thống.',
+            'highlights' => null,
+            'event_date' => 'Đang cập nhật',
+            'event_end' => null,
+            'status' => 'SapDienRa',
+            'location' => 'Đang cập nhật',
+            'address' => 'Đang cập nhật',
+            'city' => null,
+            'event_type' => 'Nhạc sống',
+        ];
     }
 
     // ─── ADMIN ───────────────────────────────────────────
