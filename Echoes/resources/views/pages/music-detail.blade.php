@@ -1,14 +1,11 @@
 @extends('layouts.app')
 
-@section('title', (($music->title ?? $event->title ?? 'Chi tiết')) . ' | Echoes')
+@section('title', ($event->title ?? $music->title ?? 'Chi tiết') . ' | Echoes')
 
 @php
-    if (!isset($music) && isset($event)) {
-        $music = $event;
-    }
-    if (!isset($event) && isset($music)) {
-        $event = $music;
-    }
+    // Normalize: controller passes $event, legacy view used $music
+    if (!isset($music) && isset($event)) { $music = $event; }
+    if (!isset($event) && isset($music)) { $event = $music; }
 @endphp
 
 @section('styles')
@@ -283,31 +280,10 @@
     gap: 5px;
 }
 .note-box ul { list-style: none; padding: 0; margin: 0; line-height: 1.9; }
-</style>
+</style>    
 @endsection
 
 @section('content')
-
-@php
-    if (!isset($music) && isset($event)) {
-        $music = $event;
-    }
-    if (!isset($event) && isset($music)) {
-        $event = $music;
-    }
-@endphp
-
-@if(empty($music))
-    <div class="detail-wrap">
-        <div class="detail-info-card">
-            <div class="section-bar">LỖI</div>
-            <h1 class="detail-title">Không tìm thấy sự kiện</h1>
-            <p style="color:#555;line-height:1.7">
-                Thông tin sự kiện chưa có sẵn. Vui lòng quay lại trang trước hoặc thử lại sau.
-            </p>
-        </div>
-    </div>
-@else
 
 {{-- ── Breadcrumb ──────────────────────────────── --}}
 <div class="detail-breadcrumb">
@@ -540,8 +516,6 @@
         </div>
     </div>
 </section>
-@endif
-
 @endif
 
 @endsection
