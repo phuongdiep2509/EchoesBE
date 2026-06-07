@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Concert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ConcertController extends Controller
 {
@@ -102,17 +103,21 @@ class ConcertController extends Controller
 
     public function show($id)
     {
-        $concert = $this->concertQuery()
-            ->where('sk.MaSuKien', $id)
-            ->first();
+        $concert = $this->findConcertByKey($id);
 
-        if (!$concert) abort(404);
+        if (!$concert) {
+            $concert = $this->fallbackConcert($id);
+        }
+
+        $event = $concert;
+        $eventId = $concert->id ?? null;
 
         // Lấy hạng vé của concert này (qua khu vực)
-        $hangVe = DB::table('hang_ve as hv')
+        $hangVe = $eventId ? DB::table('hang_ve as hv')
             ->join('khu_vuc_su_kien as kv', 'hv.MaKhuVuc', '=', 'kv.MaKhuVuc')
-            ->where('kv.MaSuKien', $id)
+            ->where('kv.MaSuKien', $eventId)
             ->select([
+                'hv.MaHangVe as id',
                 'kv.TenKhuVuc as zone',
                 'hv.TenHangVe as ticket_name',
                 'hv.GiaVe      as price',
@@ -122,12 +127,12 @@ class ConcertController extends Controller
                 'hv.ThoiGianMoBan      as open_at',
                 'hv.ThoiGianKetThucBan as close_at',
             ])
-            ->get();
+            ->get() : collect();
 
         // Nghệ sĩ biểu diễn
-        $artists = DB::table('tham_gia_bieu_dien as tg')
+        $artists = $eventId ? DB::table('tham_gia_bieu_dien as tg')
             ->join('nghe_si as ns', 'tg.MaNgheSi', '=', 'ns.MaNgheSi')
-            ->where('tg.MaSuKien', $id)
+            ->where('tg.MaSuKien', $eventId)
             ->select([
                 'ns.TenNgheSi   as name',
                 'ns.NgheDanh    as stage_name',
@@ -136,15 +141,63 @@ class ConcertController extends Controller
                 'tg.ThoiGianBieuDien as perform_at',
             ])
             ->orderBy('tg.ThuTuBieuDien')
-            ->get();
+            ->get() : collect();
 
-        $related = $this->concertQuery()
+        $related = $eventId ? $this->concertQuery()
             ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
-            ->where('sk.MaSuKien', '!=', $id)
+            ->where('sk.MaSuKien', '!=', $eventId)
             ->orderBy('sk.ThoiGianBatDau', 'asc')
             ->take(4)
-            ->get();
+            ->get() : collect();
 
-        return view('pages.concert-detail', compact('concert', 'hangVe', 'artists', 'related'));
+        return view('pages.concert-detail', compact('concert', 'event', 'hangVe', 'artists', 'related'));
+    }
+
+    private function findConcertByKey($key)
+    {
+        if (ctype_digit((string) $key)) {
+            return $this->concertQuery()->where('sk.MaSuKien', (int) $key)->first();
+        }
+
+        $aliases = [
+            'YConcert' => 'Y CONCERT 2025',
+            'nhung-thanh-pho-mo-mang' => 'Những Thành Phố Mơ Màng',
+            'anh-trai-say-hi-2025' => 'ANH TRAI SAY HI',
+            'mr-siro-concert' => 'Ai Cũng Giấu Trong Lòng Tảng Băng',
+        ];
+
+        $needle = Str::slug($aliases[$key] ?? $key);
+
+        return $this->concertQuery()
+            ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
+            ->get()
+            ->first(function ($item) use ($needle) {
+                return Str::contains(Str::slug($item->title), $needle)
+                    || Str::contains($needle, Str::slug($item->title));
+            });
+    }
+
+    private function fallbackConcert($key): object
+    {
+        $titles = [
+            'YConcert' => 'Y Concert 2025',
+            'nhung-thanh-pho-mo-mang' => 'Những Thành Phố Mơ Màng Year End 2025',
+            'anh-trai-say-hi-2025' => 'Anh Trai Say Hi 2025 Concert',
+            'mr-siro-concert' => 'Ai Cũng Giấu Trong Lòng Tảng Băng',
+        ];
+
+        return (object) [
+            'id' => null,
+            'title' => $titles[$key] ?? Str::headline(str_replace('-', ' ', (string) $key)),
+            'image' => 'assets/images/concert/hot1.png',
+            'description' => 'Thông tin sự kiện sẽ được cập nhật từ trang admin khi dữ liệu được thêm vào hệ thống.',
+            'highlights' => null,
+            'event_date' => 'Đang cập nhật',
+            'event_end' => null,
+            'status' => 'SapDienRa',
+            'location' => 'Đang cập nhật',
+            'address' => 'Đang cập nhật',
+            'city' => null,
+        ];
     }
 }
