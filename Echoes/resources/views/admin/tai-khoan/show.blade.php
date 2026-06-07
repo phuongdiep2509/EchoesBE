@@ -115,9 +115,12 @@
 </div>
 
 <div class="d-flex gap-2 mt-4">
-    <a href="{{ route('admin.tai-khoan.edit', $taiKhoan->MaTaiKhoan) }}" class="btn btn-warning">
-        <i class="fas fa-edit me-2"></i>Chỉnh sửa
+    @if($taiKhoan->VaiTro === 'NhanVien' && $taiKhoan->nhanVien)
+    <a href="{{ route('admin.nhan-vien.edit', $taiKhoan->nhanVien->MaNhanVien) }}"
+       class="btn btn-warning">
+        <i class="fas fa-edit me-2"></i>Chỉnh sửa nhân viên
     </a>
+    @endif
     <form action="{{ route('admin.tai-khoan.toggle', $taiKhoan->MaTaiKhoan) }}" method="POST">
         @csrf @method('PATCH')
         <button type="submit"

@@ -7,9 +7,6 @@
         <h4 class="mb-0 fw-bold"><i class="fas fa-key me-2 text-primary"></i>Quản lý tài khoản</h4>
         <small class="text-muted">Tổng: {{ $danhSach->total() }} tài khoản</small>
     </div>
-    <a href="{{ route('admin.tai-khoan.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i> Thêm tài khoản
-    </a>
 </div>
 
 {{-- Bộ lọc --}}
@@ -100,10 +97,12 @@
                                class="btn btn-outline-info" title="Xem chi tiết">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('admin.tai-khoan.edit', $tk->MaTaiKhoan) }}"
-                               class="btn btn-outline-warning" title="Chỉnh sửa">
+                            @if($tk->VaiTro === 'NhanVien' && $tk->nhanVien)
+                            <a href="{{ route('admin.nhan-vien.edit', $tk->nhanVien->MaNhanVien) }}"
+                               class="btn btn-outline-warning" title="Chỉnh sửa nhân viên">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            @endif
                             <form action="{{ route('admin.tai-khoan.toggle', $tk->MaTaiKhoan) }}" method="POST" class="d-inline">
                                 @csrf @method('PATCH')
                                 <button type="submit"

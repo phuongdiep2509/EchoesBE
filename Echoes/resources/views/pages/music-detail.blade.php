@@ -449,67 +449,24 @@
                 </button>
             @endif
 
-            {{-- Notes --}}
-            <div class="note-box">
-                <div class="note-title">💡 LƯU Ý QUAN TRỌNG:</div>
-                <ul>
-                    <li>• Vé đã mua không được hoàn trả</li>
-                    <li>• Vui lòng đến trước 30 phút</li>
-                    <li>• Không mang đồ uống có cồn, rượu bia, các chất gây nghiện</li>
-                    <li>• Không dẫn theo thú cưng</li>
-                </ul>
-            </div>
+            @forelse($hangVe as $ticket)
+                <form method="POST" action="{{ route('cart.add') }}" class="ticket-option">
+                    @csrf
+                    <input type="hidden" name="MaHangVe" value="{{ $ticket->id }}">
+                    <div class="ticket-option-title">{{ $ticket->ticket_name }}</div>
+                    <div class="ticket-option-note">{{ $ticket->zone }}</div>
+                    <div class="ticket-option-price">{{ number_format($ticket->price, 0, ',', '.') }}đ</div>
+                    <div class="ticket-option-note">Còn {{ max(0, $ticket->total - $ticket->sold) }} vé</div>
 
-        </div>
-    </div>
-    </div>
-
-</div>{{-- /.detail-wrap --}}
-
-{{-- Related --}}
-@if(isset($related) && $related->count() > 0)
-<section style="padding:48px 0 60px;background:var(--color-yellow,#f0efeb)">
-    <div style="max-width:1200px;margin:0 auto;padding:0 20px">
-
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:30px">
-            <div style="flex:1;height:1px;background:rgba(116,7,13,.2)"></div>
-            <h2 style="font-size:1.1rem;color:var(--color-red,#74070d);
-                       letter-spacing:2px;text-transform:uppercase;white-space:nowrap">
-                🎵 BẠN CÓ THỂ THÍCH
-            </h2>
-            <div style="flex:1;height:1px;background:rgba(116,7,13,.2)"></div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px">
-            @foreach($related as $r)
-                <a href="{{ url('/music/' . $r->id) }}"
-                   style="display:block;background:#fff;border-radius:12px;overflow:hidden;
-                          text-decoration:none;color:inherit;
-                          box-shadow:0 3px 12px rgba(0,0,0,.07);
-                          transition:transform .2s,box-shadow .2s"
-                   onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.13)'"
-                   onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(0,0,0,.07)'">
-                    <div style="aspect-ratio:4/3;overflow:hidden;background:#e1cfac">
-                        <img src="{{ asset($r->image ?? 'assets/images/music/default.png') }}"
-                             alt="{{ $r->title }}"
-                             style="width:100%;height:100%;object-fit:cover">
-                    </div>
-                    <div style="padding:12px 14px 14px">
-                        <p style="font-size:0.85rem;font-weight:700;
-                                  color:var(--color-green,#46462a);
-                                  margin:0 0 6px;line-height:1.3;
-                                  display:-webkit-box;-webkit-line-clamp:2;
-                                  -webkit-box-orient:vertical;overflow:hidden">
-                            {{ $r->title }}
-                        </p>
-                        @if(!empty($r->event_date))
-                        <p style="font-size:0.75rem;color:#aaa;margin:0 0 8px">
-                            {{ \Carbon\Carbon::parse($r->event_date)->format('d/m/Y') }}
-                        </p>
-                        @endif
-                        <span style="display:inline-block;background:var(--color-green,#46462a);
-                                     color:#fff;font-size:0.72rem;font-weight:700;
-                                     padding:4px 12px;border-radius:999px">XEM NGAY</span>
+                    <div class="booking-form-row">
+                        <div>
+                            <label>Mã khách hàng</label>
+                            <input class="booking-input" type="number" min="1" name="MaKhachHang" value="{{ session('MaKhachHang', 1) }}">
+                        </div>
+                        <div>
+                            <label>Số lượng</label>
+                            <input class="booking-input" type="number" min="1" name="SoLuong" value="1">
+                        </div>
                     </div>
                 </a>
             @endforeach

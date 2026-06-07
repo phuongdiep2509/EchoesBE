@@ -7,9 +7,6 @@
         <h4 class="mb-0 fw-bold"><i class="fas fa-users me-2 text-success"></i>Quản lý khách hàng</h4>
         <small class="text-muted">Tổng: {{ $danhSach->total() }} khách hàng</small>
     </div>
-    <a href="{{ route('admin.khach-hang.create') }}" class="btn btn-success">
-        <i class="fas fa-user-plus me-1"></i> Thêm khách hàng
-    </a>
 </div>
 
 <div class="card shadow-sm mb-4">
@@ -99,10 +96,6 @@
                             <a href="{{ route('admin.khach-hang.show', $kh->MaKhachHang) }}"
                                class="btn btn-outline-info" title="Xem">
                                 <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ route('admin.khach-hang.edit', $kh->MaKhachHang) }}"
-                               class="btn btn-outline-warning" title="Sửa">
-                                <i class="fas fa-edit"></i>
                             </a>
                             <form action="{{ route('admin.khach-hang.toggle', $kh->MaKhachHang) }}" method="POST" class="d-inline">
                                 @csrf @method('PATCH')

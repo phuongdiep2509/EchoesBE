@@ -9,6 +9,12 @@ use App\Http\Controllers\ConcertController;
 use App\Http\Controllers\MusicController;
 use App\Http\Controllers\MerchandiseController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\AdminPaymentController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\MyTicketController;
+use App\Http\Controllers\TicketGiftController;
 use App\Http\Controllers\BookingPageController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\Admin\TaiKhoanController;
@@ -17,6 +23,10 @@ use App\Http\Controllers\Admin\NhanVienController;
 
 Route::get('/', fn() => view('pages.home'))->name('home');
 
+// ─── Public pages ────────────────────────────────────
+Route::get('/about',       fn() => view('pages.about'))->name('about');
+Route::get('/rules',       fn() => view('pages.rules'))->name('rules');
+//Route::get('/my-ticket',   fn() => view('pages.my-ticket'))->name('my-ticket');
 // Public pages
 Route::get('/about', fn() => view('pages.about'))->name('about');
 Route::get('/rules', fn() => view('pages.rules'))->name('rules');
@@ -45,9 +55,9 @@ Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/music', [MusicController::class, 'index'])->name('music.index');
 Route::get('/music/{id}', [MusicController::class, 'show'])->name('music.show');
 
-// ─── Concert ──────────────────────────────────────────
-Route::get('/concert',      [ConcertController::class, 'publicIndex'])->name('concert.index');
-Route::get('/concert/{id}', [ConcertController::class, 'show'])->where('id', '[0-9]+')->name('concert.show');
+// Concert
+Route::get('/concert', [ConcertController::class, 'publicIndex'])->name('concert.index');
+Route::get('/concert/{id}', [ConcertController::class, 'show'])->name('concert.show');
 
 // Auth
 Route::middleware('guest')->group(function () {
@@ -92,13 +102,11 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
         ->name('orders.status');
 
     Route::middleware('admin')->group(function () {
+
+        // Quản lý Tài khoản — chỉ xem và khóa
         Route::prefix('tai-khoan')->name('tai-khoan.')->group(function () {
-            Route::get('/', [TaiKhoanController::class, 'index'])->name('index');
-            Route::get('/them', [TaiKhoanController::class, 'create'])->name('create');
-            Route::post('/', [TaiKhoanController::class, 'store'])->name('store');
-            Route::get('/{taiKhoan}', [TaiKhoanController::class, 'show'])->name('show');
-            Route::get('/{taiKhoan}/sua', [TaiKhoanController::class, 'edit'])->name('edit');
-            Route::put('/{taiKhoan}', [TaiKhoanController::class, 'update'])->name('update');
+            Route::get('/',                    [TaiKhoanController::class, 'index'])->name('index');
+            Route::get('/{taiKhoan}',          [TaiKhoanController::class, 'show'])->name('show');
             Route::patch('/{taiKhoan}/toggle', [TaiKhoanController::class, 'toggleTrangThai'])->name('toggle');
         });
 
@@ -113,14 +121,13 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
         });
     });
 
+    // ── Admin + Nhân viên ─────────────────────────────
+
+    // Quản lý Khách hàng — chỉ xem và khóa
     Route::prefix('khach-hang')->name('khach-hang.')->group(function () {
-        Route::get('/', [KhachHangController::class, 'index'])->name('index');
-        Route::get('/them', [KhachHangController::class, 'create'])->name('create');
-        Route::post('/', [KhachHangController::class, 'store'])->name('store');
-        Route::get('/{khachHang}', [KhachHangController::class, 'show'])->name('show');
-        Route::get('/{khachHang}/sua', [KhachHangController::class, 'edit'])->name('edit');
-        Route::put('/{khachHang}', [KhachHangController::class, 'update'])->name('update');
-        Route::patch('/{khachHang}/toggle', [KhachHangController::class, 'toggleTrangThai'])->name('toggle');
+        Route::get('/',                    [KhachHangController::class, 'index'])->name('index');
+        Route::get('/{khachHang}',         [KhachHangController::class, 'show'])->name('show');
+        Route::patch('/{khachHang}/toggle',[KhachHangController::class, 'toggleTrangThai'])->name('toggle');
     });
 
     Route::get('/concerts', [ConcertController::class, 'index'])->name('concerts.index');
@@ -148,6 +155,28 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
     Route::get('/merchandise/create', [MerchandiseController::class, 'adminCreate'])->name('merchandise.create');
     Route::post('/merchandise', [MerchandiseController::class, 'adminStore'])->name('merchandise.store');
     Route::get('/merchandise/{id}/edit', [MerchandiseController::class, 'adminEdit'])->name('merchandise.edit');
+    Route::put('/merchandise/{id}',      [MerchandiseController::class, 'adminUpdate'])->name('merchandise.update');
+    Route::delete('/merchandise/{id}',   [MerchandiseController::class, 'adminDestroy'])->name('merchandise.destroy');
+
+        // Payment Management
+    Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/{id}', [AdminPaymentController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('payments.show');
+
+    Route::post('/payments/{id}/mark-success', [AdminPaymentController::class, 'markSuccess'])
+        ->where('id', '[0-9]+')
+        ->name('payments.markSuccess');
+
+    Route::post('/payments/{id}/mark-failed', [AdminPaymentController::class, 'markFailed'])
+        ->where('id', '[0-9]+')
+        ->name('payments.markFailed');
+
+    // Reports
+    Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+    Route::get('/reports/revenue/export', [ReportController::class, 'exportRevenueCsv'])->name('reports.revenue.export');
+    Route::get('/reports/tickets', [ReportController::class, 'tickets'])->name('reports.tickets');
     Route::put('/merchandise/{id}', [MerchandiseController::class, 'adminUpdate'])->name('merchandise.update');
     Route::delete('/merchandise/{id}', [MerchandiseController::class, 'adminDestroy'])->name('merchandise.destroy');
+});
 });

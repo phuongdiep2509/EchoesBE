@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class KhachHang extends Model
 {
-    protected $table      = 'KHACH_HANG';
+    // Specify the table and primary key once
+    protected $table = 'KHACH_HANG';
     protected $primaryKey = 'MaKhachHang';
-    public $timestamps    = false;
+    public $timestamps = false;
 
     protected $fillable = [
         'MaTaiKhoan',
@@ -17,13 +18,18 @@ class KhachHang extends Model
         'DiaChi',
     ];
 
-    protected function casts(): array
-    {
-        return ['NgaySinh' => 'date'];
-    }
+    // Use the $casts property for attribute casting
+    protected $casts = [
+        'NgaySinh' => 'date',
+    ];
 
     public function taiKhoan()
     {
         return $this->belongsTo(TaiKhoan::class, 'MaTaiKhoan', 'MaTaiKhoan');
+    }
+
+    public function donHangs()
+    {
+        return $this->hasMany(DonHang::class, 'MaKhachHang', 'MaKhachHang');
     }
 }

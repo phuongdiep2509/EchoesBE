@@ -177,6 +177,10 @@
     margin-top: 14px;
 }
 
+.booking-form-row.single {
+    grid-template-columns: 120px;
+}
+
 .booking-input,
 .booking-select {
     width: 100%;
