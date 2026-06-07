@@ -44,13 +44,11 @@ class BookingPageController extends Controller
     public function addToCart(Request $request)
     {
         $data = $request->validate([
-            'MaKhachHang' => ['required', 'integer', 'min:1'],
             'MaHangVe' => ['required', 'integer', 'min:1'],
             'SoLuong' => ['required', 'integer', 'min:1'],
         ]);
 
-        $customerId = (int) $data['MaKhachHang'];
-        session(['MaKhachHang' => $customerId]);
+        $customerId = $this->customerId($request);
 
         $ticketClass = $this->findTicketClass((int) $data['MaHangVe']);
         if (!$ticketClass) {
@@ -171,7 +169,19 @@ class BookingPageController extends Controller
 
     private function customerId(Request $request): int
     {
-        $customerId = (int) $request->input('MaKhachHang', session('MaKhachHang', 1));
+        if (auth()->check()) {
+            $accountId = auth()->user()->MaTaiKhoan ?? null;
+            $customerId = $accountId
+                ? DB::table('khach_hang')->where('MaTaiKhoan', $accountId)->value('MaKhachHang')
+                : null;
+
+            if ($customerId) {
+                session(['MaKhachHang' => (int) $customerId]);
+                return (int) $customerId;
+            }
+        }
+
+        $customerId = (int) session('MaKhachHang', 1);
         session(['MaKhachHang' => $customerId]);
 
         return $customerId;
