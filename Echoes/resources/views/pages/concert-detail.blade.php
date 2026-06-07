@@ -1,163 +1,84 @@
 @extends('layouts.app')
 
+@section('title', $event->title ?? 'Chi tiết concert')
+
 @section('content')
-
-<main class="container my-5">
-
-    <nav class="breadcrumb-custom mb-4">
-        <a href="{{ url('/') }}">TRANG CHỦ</a> /
-        <a href="{{ url('/concert') }}">CONCERT</a> /
-        <span>{{ $concert->title }}</span>
+<main class="booking-page">
+    <nav class="booking-breadcrumb">
+        <a href="{{ url('/') }}">Trang chủ</a>
+        <span>/</span>
+        <a href="{{ url('/concert') }}">Concert</a>
+        <span>/</span>
+        <strong>{{ $event->title }}</strong>
     </nav>
 
-    <div class="row">
-
-        <!-- LEFT -->
-        <div class="col-lg-8">
-
-            <!-- POSTER -->
-            <div class="mb-4">
-                <img src="{{ asset($event->image) }}"
-                     class="img-fluid rounded shadow"
-                     style="width:100%;height:400px;object-fit:cover;">
+    <section class="booking-hero">
+        <img src="{{ asset($event->image) }}" alt="{{ $event->title }}">
+        <div class="booking-hero-content">
+            <span class="booking-kicker">Concert âm nhạc</span>
+            <h1>{{ $event->title }}</h1>
+            <div class="booking-meta">
+                <span>{{ $event->event_date }}</span>
+                <span>{{ $event->location }}</span>
+                <span>{{ $event->address }}</span>
             </div>
-
-            <!-- INFO -->
-            <div class="card shadow-sm mb-4">
-
-                <div class="card-header text-white bg-danger">
-                    <h3>✶ THÔNG TIN SỰ KIỆN</h3>
-                </div>
-
-                <div class="card-body">
-
-                    <h1 class="fw-bold text-danger mb-4">
-                        {{ $event->title }}
-                    </h1>
-
-                    <div class="row">
-
-                        <div class="col-md-6 mb-3">
-                            <small>THỜI GIAN</small>
-                            <div>{{ $event->event_date }}</div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <small>ĐỊA ĐIỂM</small>
-                            <div>{{ $event->location }}</div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <small>THỜI LƯỢNG</small>
-                            <div>{{ $event->duration ?? '---' }}</div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <small>THỂ LOẠI</small>
-                            <div>{{ $event->genre ?? 'Concert' }}</div>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- DESCRIPTION -->
-            <div class="card shadow-sm mb-4">
-
-                <div class="card-header text-white bg-success">
-                    <h3>✶ GIỚI THIỆU</h3>
-                </div>
-
-                <div class="card-body">
-
-                    <p>{!! $event->description !!}</p>
-
-                    <h5 class="mt-4 text-success">ĐIỂM NỔI BẬT</h5>
-
-                    <ul>
-                        @foreach(explode('|', $event->highlights ?? '') as $item)
-                            <li>{{ $item }}</li>
-                        @endforeach
-                    </ul>
-
-                    @if($event->terms)
-                    <div class="mt-4">
-                        <h5 class="text-danger">ĐIỀU KHOẢN</h5>
-                        <div class="p-3 bg-light">
-                            {!! $event->terms !!}
-                        </div>
-                    </div>
-                    @endif
-
-                </div>
-            </div>
-
         </div>
+    </section>
 
-        <!-- RIGHT BOOKING -->
-        <div class="col-lg-4">
+    <div class="booking-grid">
+        <section class="booking-panel">
+            <h2>Giới thiệu</h2>
+            <p>{!! $event->description !!}</p>
 
-            <div class="card shadow-sm sticky-top" style="top:100px;">
+            @if($event->highlights)
+                <h3>Điểm nổi bật</h3>
+                <ul>
+                    @foreach(explode('|', $event->highlights) as $item)
+                        <li>{{ $item }}</li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
 
-                <div class="card-header text-white bg-success">
-                    <h3>THÔNG TIN VÉ</h3>
+        <aside class="booking-panel booking-side">
+            <div class="booking-side-heading">
+                <div>
+                    <span class="booking-kicker">Đặt vé</span>
+                    <h2>Chọn hạng vé</h2>
                 </div>
-
-                <div class="card-body">
-
-                    <h4 class="text-danger">
-                        {{ $event->price }}
-                    </h4>
-
-                    <button class="btn btn-danger w-100 mt-3">
-                        🎫 ĐẶT NGAY
-                    </button>
-
-                    <div class="mt-4 p-3 bg-light small">
-
-                        <strong>LƯU Ý:</strong><br>
-                        • Vé không hoàn trả<br>
-                        • Đến trước 30 phút<br>
-                        • Không mang đồ cấm
-
-                    </div>
-
-                </div>
-
             </div>
 
-        </div>
+            @if(session('success'))
+                <div class="booking-alert">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="booking-alert error">{{ session('error') }}</div>
+            @endif
 
+            @forelse($hangVe as $ticket)
+                <form method="POST" action="{{ route('cart.add') }}" class="ticket-option">
+                    @csrf
+                    <input type="hidden" name="MaHangVe" value="{{ $ticket->id }}">
+                    <div class="ticket-option-title">{{ $ticket->ticket_name }}</div>
+                    <div class="ticket-option-note">{{ $ticket->zone }}</div>
+                    <div class="ticket-option-price">{{ number_format($ticket->price, 0, ',', '.') }}đ</div>
+                    <div class="ticket-option-note">Còn {{ max(0, $ticket->total - $ticket->sold) }} vé</div>
+
+                    <div class="booking-form-row single">
+                        <div>
+                            <label>Số lượng</label>
+                            <input class="booking-input" type="number" min="1" name="SoLuong" value="1">
+                        </div>
+                    </div>
+
+                    <button class="booking-button ticket-submit" type="submit">Thêm vào giỏ</button>
+                </form>
+            @empty
+                <div class="booking-empty">
+                    Sự kiện chưa có hạng vé. Khi admin thêm hạng vé trong database, khu vực đặt vé sẽ tự hiển thị tại đây.
+                </div>
+            @endforelse
+        </aside>
     </div>
-
 </main>
-
-<!-- RELATED -->
-<section class="py-5 bg-light">
-
-    <div class="container">
-
-        <h2 class="text-center text-danger mb-5">
-            🎵 BẠN CÓ THỂ THÍCH
-        </h2>
-
-        <div class="row">
-
-            @foreach($related as $item)
-                <div class="col-md-3">
-                    <a href="{{ url('event/'.$item->slug) }}">
-                        <img src="{{ asset($item->image) }}"
-                             class="img-fluid rounded">
-                        <h6 class="mt-2">{{ $item->title }}</h6>
-                    </a>
-                </div>
-            @endforeach
-
-        </div>
-
-    </div>
-
-</section>
-
 @endsection

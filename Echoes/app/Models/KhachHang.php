@@ -6,11 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class KhachHang extends Model
 {
-    protected $table = 'khach_hang';
+    // Specify the table and primary key once
+    protected $table = 'KHACH_HANG';
     protected $primaryKey = 'MaKhachHang';
     public $timestamps = false;
 
-    protected $fillable = ['MaTaiKhoan', 'NgaySinh', 'GioiTinh', 'DiaChi'];
+    protected $fillable = [
+        'MaTaiKhoan',
+        'NgaySinh',
+        'GioiTinh',
+        'DiaChi',
+    ];
+
+    // Use the $casts property for attribute casting
+    protected $casts = [
+        'NgaySinh' => 'date',
+    ];
 
     public function taiKhoan()
     {

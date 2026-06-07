@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Echoes')</title>
 
     <link rel="icon" href="{{ asset('assets/images/index/favicon.png') }}">
@@ -19,12 +20,15 @@
     <link rel="stylesheet" href="{{ asset('assets/css/modal.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/gift-popup.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/mobileMenuRe.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/booking.css') }}">
 
     @yield('styles')
 </head>
 <body>
 
     @include('partials.header')
+    @include('partials.auth-popup')
+    @include('partials.profile-popup')
 
     <main>
         @yield('content')
