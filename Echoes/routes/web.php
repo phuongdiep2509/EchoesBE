@@ -5,6 +5,8 @@ use App\Http\Controllers\ConcertController;
 use App\Http\Controllers\MusicController;
 use App\Http\Controllers\MerchandiseController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\BookingPageController;
+use App\Http\Controllers\AdminOrderController;
 
 // ─── Trang chủ ───────────────────────────────────────
 Route::get('/', fn() => view('pages.home'))->name('home');
@@ -12,7 +14,12 @@ Route::get('/', fn() => view('pages.home'))->name('home');
 // ─── Public pages ────────────────────────────────────
 Route::get('/about',       fn() => view('pages.about'))->name('about');
 Route::get('/rules',       fn() => view('pages.rules'))->name('rules');
-Route::get('/my-ticket',   fn() => view('pages.my-ticket'))->name('my-ticket');
+Route::get('/auth/login',  fn() => view('auth.login'))->name('auth.login');
+Route::get('/my-ticket',   [BookingPageController::class, 'myTickets'])->name('my-ticket');
+Route::get('/cart',        [BookingPageController::class, 'cart'])->name('cart');
+Route::post('/cart/tickets', [BookingPageController::class, 'addToCart'])->name('cart.add');
+Route::post('/orders',     [BookingPageController::class, 'createOrder'])->name('orders.create');
+Route::post('/orders/{orderId}/cancel', [BookingPageController::class, 'cancelOrder'])->where('orderId', '[0-9]+')->name('orders.cancel');
 
 // ─── Merchandise ─────────────────────────────────────
 Route::get('/merchandise',        [MerchandiseController::class, 'index'])->name('merchandise.index');
@@ -20,21 +27,24 @@ Route::get('/merchandise/{id}',   [MerchandiseController::class, 'show'])->where
 
 // ─── Tin tức ─────────────────────────────────────────
 Route::get('/news',        [NewsController::class, 'index'])->name('news.index');
-Route::get('/news/{id}',   [NewsController::class, 'show'])->where('id', '[0-9]+')->name('news.show');
+Route::get('/news/{id}',   [NewsController::class, 'show'])->name('news.show');
 
 // ─── Nhạc sống ───────────────────────────────────────
 Route::get('/music',       [MusicController::class, 'index'])->name('music.index');
-Route::get('/music/{id}',  [MusicController::class, 'show'])->where('id', '[0-9]+')->name('music.show');
+Route::get('/music/{id}',  [MusicController::class, 'show'])->name('music.show');
 
 // ─── Concert ─────────────────────────────────────────
 Route::get('/concert',      [ConcertController::class, 'publicIndex'])->name('concert.index');
-Route::get('/concert/{id}', [ConcertController::class, 'show'])->where('id', '[0-9]+')->name('concert.show');
+Route::get('/concert/{id}', [ConcertController::class, 'show'])->name('concert.show');
 
 // ─── Admin ───────────────────────────────────────────
 Route::prefix('admin')->name('admin.')->group(function () {
 
     // Dashboard
     Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
+
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::patch('/orders/{orderId}/status', [AdminOrderController::class, 'updateStatus'])->where('orderId', '[0-9]+')->name('orders.status');
 
     // Concert CRUD
     Route::get('/concerts',           [ConcertController::class, 'index'])->name('concerts.index');

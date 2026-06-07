@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/modal.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/gift-popup.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/mobileMenuRe.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/booking.css') }}">
 
     @yield('styles')
 </head>

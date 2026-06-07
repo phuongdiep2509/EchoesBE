@@ -42,13 +42,20 @@ body { padding-top: 50px; font-family: var(--font); }
     display: flex;
     list-style: none;
     align-items: center;
-    gap: 60px;
+    gap: 34px;
 }
 .inner-wrap-1 ul li a { color: #000; text-decoration: none; }
 .inner-wrap-1 ul li a:hover { color: #74070d; text-decoration: none; }
 .inner-wrap-1 ul li img {
     height: 16px; width: auto;
     vertical-align: middle; margin-right: 5px;
+}
+.header-cart-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    color: #000;
+    vertical-align: middle;
 }
 
 .inner-wrap-2 {
@@ -201,6 +208,13 @@ mark { background-color: #ffeb3b; color: #333; padding: 1px 2px; border-radius: 
             <li>
                 <img src="{{ asset('assets/images/index/ticket-icon.png') }}" alt="">
                 <a href="{{ url('/my-ticket') }}">VÉ CỦA TÔI</a>
+            </li>
+            <li>
+                <svg class="header-cart-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                     viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7.3 18.3a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM3.2 2.5a1 1 0 0 0 0 2h1.4l2.3 11.1A2.4 2.4 0 0 0 9.2 17h8.4a2.4 2.4 0 0 0 2.3-1.8l1.8-7.4A1 1 0 0 0 20.7 6H7L6.5 3.3a1 1 0 0 0-1-.8H3.2Z"/>
+                </svg>
+                <a href="{{ url('/cart') }}">GIỎ HÀNG</a>
             </li>
             <li>
                 <img src="{{ asset('assets/images/index/user-icon.png') }}" alt="">

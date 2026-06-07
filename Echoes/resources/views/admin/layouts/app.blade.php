@@ -147,6 +147,12 @@
                 <i class="fas fa-newspaper"></i> Tin tức
             </a>
 
+            <div class="nav-section">Đặt vé</div>
+            <a href="{{ route('admin.orders.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                <i class="fas fa-receipt"></i> Đơn hàng
+            </a>
+
         </nav>
 
     </aside>
