@@ -1,21 +1,10 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', (($concert->title ?? $event->title ?? 'Chi tiết')) . ' | Echoes'); ?>
 
-@section('title', (($music->title ?? $event->title ?? 'Chi tiết')) . ' | Echoes')
-
-@php
-    if (!isset($music) && isset($event)) {
-        $music = $event;
-    }
-    if (!isset($event) && isset($music)) {
-        $event = $music;
-    }
-@endphp
-
-@section('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/eventDetail.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/eventDetailRe.css') }}">
+<?php $__env->startSection('styles'); ?>
+<link rel="stylesheet" href="<?php echo e(asset('assets/css/eventDetail.css')); ?>">
+<link rel="stylesheet" href="<?php echo e(asset('assets/css/eventDetailRe.css')); ?>">
 <style>
-    /* ── Breadcrumb bar ───────────────────────────── */
+/* ── Breadcrumb bar ───────────────────────────── */
 .detail-breadcrumb {
     background: var(--color-green, #46462a);
     color: #fff;
@@ -284,146 +273,145 @@
 }
 .note-box ul { list-style: none; padding: 0; margin: 0; line-height: 1.9; }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
-@php
-    if (!isset($music) && isset($event)) {
-        $music = $event;
-    }
-    if (!isset($event) && isset($music)) {
-        $event = $music;
-    }
-@endphp
 
-@if(empty($music))
-    <div class="detail-wrap">
-        <div class="detail-info-card">
-            <div class="section-bar">LỖI</div>
-            <h1 class="detail-title">Không tìm thấy sự kiện</h1>
-            <p style="color:#555;line-height:1.7">
-                Thông tin sự kiện chưa có sẵn. Vui lòng quay lại trang trước hoặc thử lại sau.
-            </p>
-        </div>
-    </div>
-@else
+<?php
+    if (!isset($concert) && isset($event)) { $concert = $event; }
+    if (!isset($event) && isset($concert)) { $event = $concert; }
+    $concertMissing = empty($concert);
+?>
 
-{{-- ── Breadcrumb ──────────────────────────────── --}}
+<?php if($concertMissing): ?>
+<div style="max-width:800px;margin:120px auto 60px;padding:0 20px;text-align:center">
+    <h1 style="color:var(--color-red,#74070d);margin-bottom:12px">Không tìm thấy sự kiện</h1>
+    <p style="color:#555">Thông tin sự kiện chưa có sẵn. Vui lòng <a href="<?php echo e(url('/concert')); ?>">quay lại danh sách</a>.</p>
+</div>
+<?php else: ?>
+
+
 <div class="detail-breadcrumb">
     <div class="inner">
-        <a href="{{ url('/') }}">TRANG CHỦ</a>
+        <a href="<?php echo e(url('/')); ?>">TRANG CHỦ</a>
         <span class="sep">/</span>
-        <a href="{{ url('/music') }}">NHẠC SỐNG</a>
+        <a href="<?php echo e(url('/concert')); ?>">CONCERT</a>
         <span class="sep">/</span>
-        <span class="current">{{ \Illuminate\Support\Str::limit($music->title ?? '', 60) }}</span>
+        <span class="current"><?php echo e(\Illuminate\Support\Str::limit($concert->title ?? '', 60)); ?></span>
     </div>
 </div>
 
-{{-- ── 2-column layout ─────────────────────────── --}}
+
 <div class="detail-wrap">
 
-    {{-- ═══════ LEFT ═══════ --}}
+    
     <div>
 
-        {{-- Poster --}}
+        
         <div class="detail-poster">
-            @if(!empty($music->image))
-                <img src="{{ asset($music->image) }}" alt="{{ $music->title }}">
-            @else
+            <?php if(!empty($concert->image)): ?>
+                <img src="<?php echo e(asset($concert->image)); ?>" alt="<?php echo e($concert->title); ?>">
+            <?php else: ?>
                 <div style="width:100%;height:360px;background:var(--color-beige,#e1cfac);
                             display:flex;align-items:center;justify-content:center;font-size:3rem">
                     🎵
                 </div>
-            @endif
-            @php
-                $statusLabel = match($music->status ?? '') {
+            <?php endif; ?>
+            <?php
+                $statusLabel = match($concert->status ?? '') {
                     'SapDienRa' => 'SẮP DIỄN RA',
                     'DangMoBan' => 'ĐANG MỞ BÁN',
                     'DaKetThuc' => 'ĐÃ KẾT THÚC',
                     'DaHuy'     => 'ĐÃ HỦY',
                     default     => 'MỞ BÁN',
                 };
-            @endphp
-            <span class="status-pill">{{ $statusLabel }}</span>
+            ?>
+            <span class="status-pill"><?php echo e($statusLabel); ?></span>
         </div>
 
-        {{-- Thông tin sự kiện --}}
+        
         <div class="detail-info-card">
             <div class="section-bar">✶ THÔNG TIN SỰ KIỆN</div>
 
-            <h1 class="detail-title">{{ $music->title }}</h1>
+            <h1 class="detail-title"><?php echo e($concert->title); ?></h1>
 
             <div class="detail-meta-grid">
                 <div class="detail-meta-item">
                     <span class="detail-meta-label">✶ THỜI GIAN</span>
                     <span class="detail-meta-value">
-                        @if(!empty($music->event_date) && $music->event_date !== 'Đang cập nhật')
-                            {{ \Carbon\Carbon::parse($music->event_date)->format('H:i, d/m/Y') }}
-                        @else
+                        <?php if(!empty($concert->event_date) && $concert->event_date !== 'Đang cập nhật'): ?>
+                            <?php echo e(\Carbon\Carbon::parse($concert->event_date)->format('H:i, d/m/Y')); ?>
+
+                        <?php else: ?>
                             Đang cập nhật
-                        @endif
+                        <?php endif; ?>
                     </span>
                 </div>
                 <div class="detail-meta-item">
                     <span class="detail-meta-label">✶ ĐỊA ĐIỂM</span>
                     <span class="detail-meta-value">
-                        {{ $music->location ?? ($music->city ?? 'Đang cập nhật') }}
+                        <?php echo e($concert->location ?? ($concert->city ?? 'Đang cập nhật')); ?>
+
                     </span>
                 </div>
                 <div class="detail-meta-item">
                     <span class="detail-meta-label">✶ THỜI LƯỢNG</span>
                     <span class="detail-meta-value">
-                        @if(!empty($music->event_date) && !empty($music->event_end)
-                            && $music->event_date !== 'Đang cập nhật')
-                            {{ \Carbon\Carbon::parse($music->event_date)->format('H:i') }}
-                            – {{ \Carbon\Carbon::parse($music->event_end)->format('H:i') }}
-                        @else
+                        <?php if(!empty($concert->event_date) && !empty($concert->event_end)
+                            && $concert->event_date !== 'Đang cập nhật'): ?>
+                            <?php echo e(\Carbon\Carbon::parse($concert->event_date)->format('H:i')); ?>
+
+                            – <?php echo e(\Carbon\Carbon::parse($concert->event_end)->format('H:i')); ?>
+
+                        <?php else: ?>
                             Đang cập nhật
-                        @endif
+                        <?php endif; ?>
                     </span>
                 </div>
                 <div class="detail-meta-item">
                     <span class="detail-meta-label">✶ THỂ LOẠI</span>
                     <span class="detail-meta-value">
-                        {{ $music->event_type ?? 'music âm nhạc' }}
+                        <?php echo e($concert->event_type ?? 'Concert âm nhạc'); ?>
+
                     </span>
                 </div>
             </div>
         </div>
 
-        {{-- Giới thiệu --}}
-        @if(!empty($music->description))
+        
+        <?php if(!empty($concert->description)): ?>
         <div class="detail-section">
             <div class="section-bar">✶ GIỚI THIỆU</div>
-            <p>{!! nl2br(e($music->description)) !!}</p>
+            <p><?php echo nl2br(e($concert->description)); ?></p>
 
-            @if(!empty($music->highlights))
+            <?php if(!empty($concert->highlights)): ?>
                 <p style="font-weight:700;color:#222;margin-bottom:8px">ĐIỂM NỔI BẬT</p>
                 <ul class="highlights-list">
-                    @foreach(preg_split('/[\n|•]+/', $music->highlights, -1, PREG_SPLIT_NO_EMPTY) as $item)
-                        @if(trim($item))
-                            <li><span style="color:var(--color-red,#74070d)">✦</span> {{ trim($item) }}</li>
-                        @endif
-                    @endforeach
+                    <?php $__currentLoopData = preg_split('/[\n|•]+/', $concert->highlights, -1, PREG_SPLIT_NO_EMPTY); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(trim($item)): ?>
+                            <li><span style="color:var(--color-red,#74070d)">✦</span> <?php echo e(trim($item)); ?></li>
+                        <?php endif; ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </ul>
-            @endif
+            <?php endif; ?>
         </div>
-        @endif
+        <?php endif; ?>
 
-        {{-- Điều kiện & điều khoản --}}
-        @if(!empty($music->terms))
+        
+        <?php if(!empty($concert->terms)): ?>
         <div class="detail-section">
             <div class="section-bar">🗂 ĐIỀU KIỆN & ĐIỀU KHOẢN</div>
             <div class="terms-block">
-                {!! nl2br(e($music->terms)) !!}
+                <?php echo nl2br(e($concert->terms)); ?>
+
             </div>
         </div>
-        @endif
+        <?php endif; ?>
 
     </div>
 
-    {{-- ═══════ RIGHT: Booking card ═══════ --}}
+    
     <div>
     <div class="booking-card-new">
 
@@ -431,34 +419,34 @@
 
         <div class="booking-card-body">
 
-            @if(isset($hangVe) && $hangVe->count() > 0)
+            <?php if(isset($hangVe) && $hangVe->count() > 0): ?>
                 <p class="price-section-title">GIÁ VÉ</p>
 
                 <table class="price-table" id="priceTable">
-                    @foreach($hangVe as $hv)
-                    <tr class="{{ $loop->first ? 'selected' : '' }}"
-                        onclick="selectRow(this, {{ (int)$hv->price }}, '{{ addslashes($hv->ticket_name) }}')">
-                        <td>{{ $hv->ticket_name }}</td>
-                        <td>{{ number_format($hv->price, 0, ',', '.') }} ₫</td>
+                    <?php $__currentLoopData = $hangVe; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $hv): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <tr class="<?php echo e($loop->first ? 'selected' : ''); ?>"
+                        onclick="selectRow(this, <?php echo e((int)$hv->price); ?>, '<?php echo e(addslashes($hv->ticket_name)); ?>')">
+                        <td><?php echo e($hv->ticket_name); ?></td>
+                        <td><?php echo e(number_format($hv->price, 0, ',', '.')); ?> ₫</td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </table>
 
                 <p class="price-min">
-                    Giá vé từ {{ number_format($hangVe->min('price') ?? 0, 0, ',', '.') }} ₫
+                    Giá vé từ <?php echo e(number_format($hangVe->min('price') ?? 0, 0, ',', '.')); ?> ₫
                 </p>
-            @else
+            <?php else: ?>
                 <p style="text-align:center;color:#aaa;padding:16px 0;font-size:0.875rem">
                     Thông tin vé đang được cập nhật
                 </p>
-            @endif
+            <?php endif; ?>
 
-            {{-- CTA --}}
-            @if(!empty($music->id))
-                <a href="{{ url('/booking/' . $music->id) }}" class="btn-buy-now">
+            
+            <?php if(!empty($concert->id)): ?>
+                <a href="<?php echo e(url('/booking/' . $concert->id)); ?>" class="btn-buy-now">
                     🎫 ĐẶT NGAY
                 </a>
-                <a href="{{ url('/booking/' . $music->id . '?gift=1') }}"
+                <a href="<?php echo e(url('/booking/' . $concert->id . '?gift=1')); ?>"
                    style="display:block;text-align:center;color:var(--color-green,#46462a);
                           font-size:0.875rem;font-weight:600;padding:8px;
                           border:2px solid var(--color-green,#46462a);border-radius:8px;
@@ -467,13 +455,13 @@
                    onmouseout="this.style.background='';this.style.color='var(--color-green,#46462a)'">
                     🎁 TẶNG VÉ
                 </a>
-            @else
+            <?php else: ?>
                 <button class="btn-buy-now" disabled style="opacity:.5;cursor:not-allowed">
                     🎫 SẮP MỞ BÁN
                 </button>
-            @endif
+            <?php endif; ?>
 
-            {{-- Notes --}}
+            
             <div class="note-box">
                 <div class="note-title">💡 LƯU Ý QUAN TRỌNG:</div>
                 <ul>
@@ -488,10 +476,10 @@
     </div>
     </div>
 
-</div>{{-- /.detail-wrap --}}
+</div>
 
-{{-- Related --}}
-@if(isset($related) && $related->count() > 0)
+
+<?php if(isset($related) && $related->count() > 0): ?>
 <section style="padding:48px 0 60px;background:var(--color-yellow,#f0efeb)">
     <div style="max-width:1200px;margin:0 auto;padding:0 20px">
 
@@ -505,8 +493,8 @@
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px">
-            @foreach($related as $r)
-                <a href="{{ url('/music/' . $r->id) }}"
+            <?php $__currentLoopData = $related; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $r): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <a href="<?php echo e(url('/concert/' . $r->id)); ?>"
                    style="display:block;background:#fff;border-radius:12px;overflow:hidden;
                           text-decoration:none;color:inherit;
                           box-shadow:0 3px 12px rgba(0,0,0,.07);
@@ -514,8 +502,8 @@
                    onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.13)'"
                    onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(0,0,0,.07)'">
                     <div style="aspect-ratio:4/3;overflow:hidden;background:#e1cfac">
-                        <img src="{{ asset($r->image ?? 'assets/images/music/default.png') }}"
-                             alt="{{ $r->title }}"
+                        <img src="<?php echo e(asset($r->image ?? 'assets/images/concert/default.png')); ?>"
+                             alt="<?php echo e($r->title); ?>"
                              style="width:100%;height:100%;object-fit:cover">
                     </div>
                     <div style="padding:12px 14px 14px">
@@ -524,33 +512,37 @@
                                   margin:0 0 6px;line-height:1.3;
                                   display:-webkit-box;-webkit-line-clamp:2;
                                   -webkit-box-orient:vertical;overflow:hidden">
-                            {{ $r->title }}
+                            <?php echo e($r->title); ?>
+
                         </p>
-                        @if(!empty($r->event_date))
+                        <?php if(!empty($r->event_date)): ?>
                         <p style="font-size:0.75rem;color:#aaa;margin:0 0 8px">
-                            {{ \Carbon\Carbon::parse($r->event_date)->format('d/m/Y') }}
+                            <?php echo e(\Carbon\Carbon::parse($r->event_date)->format('d/m/Y')); ?>
+
                         </p>
-                        @endif
+                        <?php endif; ?>
                         <span style="display:inline-block;background:var(--color-green,#46462a);
                                      color:#fff;font-size:0.72rem;font-weight:700;
                                      padding:4px 12px;border-radius:999px">XEM NGAY</span>
                     </div>
                 </a>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
 </section>
-@endif
+<?php endif; ?>
 
-@endif
+<?php endif; ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script>
 function selectRow(tr, price, name) {
     document.querySelectorAll('#priceTable tr').forEach(r => r.classList.remove('selected'));
     tr.classList.add('selected');
 }
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>

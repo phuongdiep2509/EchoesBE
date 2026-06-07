@@ -432,6 +432,91 @@
     transform: none;
 }
 
+/* Price list box (matches design screenshot) */
+.price-list {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 18px;
+}
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 8px;
+}
+.price-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.price-row:hover {
+    background: rgba(116,7,13,0.03);
+}
+.price-row.selected {
+    background: rgba(116,7,13,0.08);
+    border-left: 4px solid #74070d;
+}
+.price-row + .price-row {
+    border-top: 1px solid rgba(0,0,0,0.04);
+}
+.price-label {
+    font-weight: 700;
+    color: #333;
+}
+.price-value {
+    font-weight: 900;
+    color: #a00a12; /* strong red */
+    font-size: 1.1rem;
+}
+.price-sub {
+    font-size: 0.85rem;
+    color: #888;
+    padding: 10px 16px;
+    border-top: 1px solid rgba(0,0,0,0.04);
+    background: #faf9f6;
+}
+
+/* Large buy button matching screenshot */
+.buy-now-btn {
+    display:block;
+    width:100%;
+    padding:16px 18px;
+    border-radius:10px;
+    background: linear-gradient(135deg, #a00a12, #74070d);
+    color:#fff;
+    font-weight:800;
+    text-align:center;
+    text-decoration:none;
+    box-shadow:0 12px 30px rgba(160,10,18,0.25);
+}
+
+.small-note-box {
+    background: rgba(116,7,13,0.05);
+    padding:14px;
+    border-radius:10px;
+    border:1px solid rgba(116,7,13,0.08);
+    font-size:0.85rem;
+    color:#444;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+    .event-grid {
+        grid-template-columns: 1fr;
+    }
+    .booking-card.sticky {
+        position: static;
+    }
+    .poster-badge {
+        top: 18px;
+        right: 18px;
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+}
+
 /* Ticket Options */
 .ticket-option {
     border: 2px solid #e9ecef;
