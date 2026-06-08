@@ -205,6 +205,17 @@ class PaymentController extends Controller
     // Giỏ hàng merchandise chỉ được xóa sau khi thanh toán thành công.
     if ($result === 'success') {
         $request->session()->forget('merchandise_cart');
+
+        // Đóng TicketHold của khách hàng sau khi thanh toán thành công
+        if ($paidOrder) {
+            $customerId = optional($paidOrder->khachHang)->MaKhachHang;
+            if ($customerId) {
+                DB::table('giu_cho_ve')
+                    ->where('MaKhachHang', $customerId)
+                    ->where('TrangThai', 'DangGiuCho')
+                    ->update(['TrangThai' => 'DaThanhToan']);
+            }
+        }
     }
 
     if ($result === 'already_paid') {
