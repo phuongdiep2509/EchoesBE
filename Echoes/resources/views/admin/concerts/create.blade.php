@@ -29,14 +29,14 @@
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label for="MaLoaiSuKien" class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
-                    <select class="form-select @error('MaLoaiSuKien') is-invalid @enderror" id="MaLoaiSuKien" name="MaLoaiSuKien" required>
-                        <option value="">-- Chọn danh mục --</option>
+                    <label for="DanhMuc" class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
+                    <input type="text" list="danhMucList" class="form-control @error('DanhMuc') is-invalid @enderror" id="DanhMuc" name="DanhMuc" value="{{ old('DanhMuc') }}" placeholder="Nhập hoặc chọn danh mục..." autocomplete="off" required>
+                    <datalist id="danhMucList">
                         @foreach($loaiSuKiens as $loai)
-                            <option value="{{ $loai->MaLoaiSuKien }}" {{ old('MaLoaiSuKien') == $loai->MaLoaiSuKien ? 'selected' : '' }}>{{ $loai->TenLoai }}</option>
+                            <option value="{{ $loai->TenLoai }}"></option>
                         @endforeach
-                    </select>
-                    @error('MaLoaiSuKien') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </datalist>
+                    @error('DanhMuc') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-4">
                     <label for="BanToChuc" class="form-label fw-bold">Ban tổ chức <span class="text-danger">*</span></label>
@@ -75,7 +75,7 @@
                     <label for="TrangThai" class="form-label fw-bold">Trạng thái <span class="text-danger">*</span></label>
                     <select class="form-select @error('TrangThai') is-invalid @enderror" id="TrangThai" name="TrangThai" required>
                         <option value="SapDienRa" {{ old('TrangThai') == 'SapDienRa' ? 'selected' : '' }}>Sắp diễn ra</option>
-                        <option value="DangMoBan" {{ old('TrangThai') == 'DangMoBan' ? 'selected' : '' }}>Đang mở bán</option>
+                        <option value="DangDienRa" {{ old('TrangThai') == 'DangDienRa' ? 'selected' : '' }}>Đang diễn ra</option>
                         <option value="DaKetThuc" {{ old('TrangThai') == 'DaKetThuc' ? 'selected' : '' }}>Đã kết thúc</option>
                         <option value="DaHuy" {{ old('TrangThai') == 'DaHuy' ? 'selected' : '' }}>Đã hủy</option>
                     </select>

@@ -21,28 +21,37 @@
             
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="MaKhuVuc" class="form-label fw-bold">Thuộc khu vực / Sự kiện <span class="text-danger">*</span></label>
-                    <select class="form-select @error('MaKhuVuc') is-invalid @enderror" id="MaKhuVuc" name="MaKhuVuc" required>
-                        <option value="">-- Chọn khu vực --</option>
+                    <label for="MaSuKien" class="form-label fw-bold">Thuộc Sự kiện <span class="text-danger">*</span></label>
+                    <select class="form-select @error('MaSuKien') is-invalid @enderror" id="MaSuKien" name="MaSuKien" required>
+                        <option value="">-- Chọn sự kiện --</option>
                         @foreach($concerts as $concert)
-                            @if($concert->khuVuc->count() > 0)
-                                <optgroup label="{{ $concert->TenSuKien }}">
-                                    @foreach($concert->khuVuc as $kv)
-                                        <option value="{{ $kv->MaKhuVuc }}" {{ old('MaKhuVuc') == $kv->MaKhuVuc ? 'selected' : '' }}>
-                                            {{ $kv->TenKhuVuc }}
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
+                            <option value="{{ $concert->MaSuKien }}" {{ old('MaSuKien') == $concert->MaSuKien ? 'selected' : '' }}>
+                                {{ $concert->TenSuKien }}
+                            </option>
                         @endforeach
                     </select>
-                    @error('MaKhuVuc')
+                    @error('MaSuKien')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="col-md-6">
+                    <label for="KhuVuc" class="form-label fw-bold">Khu vực <span class="text-danger">*</span></label>
+                    <input type="text" list="khuVucList" class="form-control @error('KhuVuc') is-invalid @enderror" id="KhuVuc" name="KhuVuc" value="{{ old('KhuVuc') }}" placeholder="VD: VIP, ZONE A, Tầng 1..." required>
+                    <datalist id="khuVucList">
+                        @foreach($khuVucs as $kv)
+                            <option value="{{ $kv }}">
+                        @endforeach
+                    </datalist>
+                    @error('KhuVuc')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
                     <label for="TenHangVe" class="form-label fw-bold">Tên hạng vé <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('TenHangVe') is-invalid @enderror" id="TenHangVe" name="TenHangVe" value="{{ old('TenHangVe') }}" placeholder="VD: VIP, GA, VVIP..." required>
+                    <input type="text" class="form-control @error('TenHangVe') is-invalid @enderror" id="TenHangVe" name="TenHangVe" value="{{ old('TenHangVe') }}" placeholder="VD: Vé VIP, Vé Thường..." required>
                     @error('TenHangVe')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

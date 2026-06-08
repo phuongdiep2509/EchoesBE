@@ -13,4 +13,9 @@ class LoaiSuKien extends Model
     protected $fillable = [
         'TenLoai',
     ];
+
+    public function concerts()
+    {
+        return $this->hasMany(Concert::class, 'MaLoaiSuKien', 'MaLoaiSuKien');
+    }
 }

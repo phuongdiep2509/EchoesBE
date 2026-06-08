@@ -22,11 +22,26 @@
             
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label class="form-label fw-bold text-muted">Thuộc khu vực / Sự kiện</label>
-                    <input type="text" class="form-control" value="{{ $ticket->khuVuc->concert->TenSuKien ?? '' }} - {{ $ticket->khuVuc->TenKhuVuc ?? '' }}" disabled>
-                    <small class="text-muted">Không thể thay đổi sự kiện/khu vực sau khi đã tạo.</small>
+                    <label class="form-label fw-bold text-muted">Thuộc Sự kiện</label>
+                    <input type="text" class="form-control" value="{{ $ticket->khuVuc->concert->TenSuKien ?? '' }}" disabled>
+                    <small class="text-muted">Không thể thay đổi sự kiện sau khi đã tạo.</small>
                 </div>
                 <div class="col-md-6">
+                    <label for="KhuVuc" class="form-label fw-bold">Khu vực <span class="text-danger">*</span></label>
+                    <input type="text" list="khuVucList" class="form-control @error('KhuVuc') is-invalid @enderror" id="KhuVuc" name="KhuVuc" value="{{ old('KhuVuc', $ticket->khuVuc->TenKhuVuc ?? '') }}" required>
+                    <datalist id="khuVucList">
+                        @foreach($khuVucs as $kv)
+                            <option value="{{ $kv }}">
+                        @endforeach
+                    </datalist>
+                    @error('KhuVuc')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
                     <label for="TenHangVe" class="form-label fw-bold">Tên hạng vé <span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('TenHangVe') is-invalid @enderror" id="TenHangVe" name="TenHangVe" value="{{ old('TenHangVe', $ticket->TenHangVe) }}" required>
                     @error('TenHangVe')

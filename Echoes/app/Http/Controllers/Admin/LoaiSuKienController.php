@@ -46,6 +46,12 @@ class LoaiSuKienController extends Controller
         return redirect()->route('admin.loai-su-kien.index')->with('success', 'Đã thêm danh mục sự kiện thành công.');
     }
 
+    public function show($id)
+    {
+        $category = LoaiSuKien::with('concerts')->findOrFail($id);
+        return view('admin.loai-su-kien.show', compact('category'));
+    }
+
     public function edit($id)
     {
         $category = LoaiSuKien::findOrFail($id);

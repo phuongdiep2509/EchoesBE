@@ -59,6 +59,7 @@
                     <th>Giá vé</th>
                     <th class="text-center">Số lượng</th>
                     <th class="text-center">Đã bán</th>
+                    <th class="text-center">Trạng thái</th>
                     <th class="text-center">Thao tác</th>
                 </tr>
             </thead>
@@ -74,20 +75,59 @@
                     <td class="text-center">{{ $ticket->SoLuongMoBan }}</td>
                     <td class="text-center">{{ $ticket->SoLuongDaBan }}</td>
                     <td class="text-center">
+                        <div class="dropdown">
+                            <button class="btn btn-sm p-0 border-0 bg-transparent text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @if($ticket->TrangThaiHienTai === 'SapMoBan')
+                                    <span class="badge bg-info text-dark"><i class="fas fa-calendar-plus me-1"></i>Sắp mở bán</span>
+                                @elseif($ticket->TrangThaiHienTai === 'DangMoBan')
+                                    <span class="badge bg-success"><i class="fas fa-ticket-alt me-1"></i>Đang mở bán</span>
+                                @elseif($ticket->TrangThaiHienTai === 'HetVe')
+                                    <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Hết vé</span>
+                                @elseif($ticket->TrangThaiHienTai === 'DaKetThuc')
+                                    <span class="badge bg-secondary"><i class="fas fa-calendar-check me-1"></i>Đã kết thúc</span>
+                                @elseif($ticket->TrangThaiHienTai === 'TamDung')
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-pause-circle me-1"></i>Tạm dừng</span>
+                                @elseif($ticket->TrangThaiHienTai === 'DaHuy')
+                                    <span class="badge bg-dark"><i class="fas fa-ban me-1"></i>Đã hủy</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $ticket->TrangThaiHienTai }}</span>
+                                @endif
+                            </button>
+                            <ul class="dropdown-menu shadow-sm" style="font-size: 0.875rem;">
+                                <li>
+                                    <form action="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn bật Auto / Mở bán vé này không?');">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="TrangThai" value="DangMoBan">
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-play-circle me-2 text-success"></i>Bật Auto / Mở bán</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn tạm dừng bán vé này không?');">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="TrangThai" value="TamDung">
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-pause-circle me-2 text-warning"></i>Tạm dừng</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy vé này không?');">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="TrangThai" value="DaHuy">
+                                        <button type="submit" class="dropdown-item text-danger"><i class="fas fa-ban me-2"></i>Đã hủy</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td class="text-center">
                         <div class="btn-group btn-group-sm">
+                            <a href="{{ route('admin.hang-ve.show', $ticket->MaHangVe) }}"
+                               class="btn btn-outline-info" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="{{ route('admin.hang-ve.edit', $ticket->MaHangVe) }}"
                                class="btn btn-outline-warning" title="Chỉnh sửa">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form action="{{ route('admin.hang-ve.destroy', $ticket->MaHangVe) }}" method="POST" class="d-inline">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                    class="btn btn-outline-danger"
-                                    title="Xóa hạng vé"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa hạng vé này?');">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
                         </div>
                     </td>
                 </tr>

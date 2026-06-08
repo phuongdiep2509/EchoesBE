@@ -30,16 +30,16 @@ class TicketClassController extends Controller
 
     public function create()
     {
-        // For simplicity, we just pass all concerts.
-        // In a real app, might want to use ajax to load KhuVuc based on Concert
-        $concerts = Concert::with('khuVuc')->get();
-        return view('admin.hang-ve.create', compact('concerts'));
+        $concerts = Concert::all();
+        $khuVucs = KhuVuc::select('TenKhuVuc')->distinct()->pluck('TenKhuVuc');
+        return view('admin.hang-ve.create', compact('concerts', 'khuVucs'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'MaKhuVuc' => 'required|exists:khu_vuc_su_kien,MaKhuVuc',
+            'MaSuKien' => 'required|exists:su_kien,MaSuKien',
+            'KhuVuc'   => 'required|string|max:255',
             'TenHangVe' => 'required|string|max:100',
             'GiaVe' => 'required|numeric',
             'SoLuongMoBan' => 'required|integer|min:1',
@@ -50,10 +50,24 @@ class TicketClassController extends Controller
 
         $data = $request->all();
         $maxId = TicketClass::max('MaHangVe') ?? 0;
+
+        // Auto find or create KhuVuc for this concert
+        $maSuKien = $data['MaSuKien'];
+        $tenKhuVuc = trim($data['KhuVuc']);
+        $khuVuc = KhuVuc::where('MaSuKien', $maSuKien)->where('TenKhuVuc', $tenKhuVuc)->first();
+        if (!$khuVuc) {
+            $maxKhuVucId = KhuVuc::max('MaKhuVuc') ?? 0;
+            $khuVuc = new KhuVuc();
+            $khuVuc->MaKhuVuc = $maxKhuVucId + 1;
+            $khuVuc->MaSuKien = $maSuKien;
+            $khuVuc->TenKhuVuc = $tenKhuVuc;
+            $khuVuc->SucChua = 1000;
+            $khuVuc->save();
+        }
         
         $ticket = new TicketClass();
         $ticket->MaHangVe = $maxId + 1;
-        $ticket->MaKhuVuc = $data['MaKhuVuc'];
+        $ticket->MaKhuVuc = $khuVuc->MaKhuVuc;
         $ticket->TenHangVe = $data['TenHangVe'];
         $ticket->GiaVe = $data['GiaVe'];
         $ticket->SoLuongMoBan = $data['SoLuongMoBan'];
@@ -66,16 +80,24 @@ class TicketClassController extends Controller
         return redirect()->route('admin.hang-ve.index')->with('success', 'Đã thêm hạng vé thành công.');
     }
 
+    public function show($id)
+    {
+        $ticket = TicketClass::with(['khuVuc.concert'])->findOrFail($id);
+        return view('admin.hang-ve.show', compact('ticket'));
+    }
+
     public function edit($id)
     {
         $ticket = TicketClass::findOrFail($id);
-        $concerts = Concert::with('khuVuc')->get();
-        return view('admin.hang-ve.edit', compact('ticket', 'concerts'));
+        $concerts = Concert::all();
+        $khuVucs = KhuVuc::select('TenKhuVuc')->distinct()->pluck('TenKhuVuc');
+        return view('admin.hang-ve.edit', compact('ticket', 'concerts', 'khuVucs'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
+            'KhuVuc'    => 'required|string|max:255',
             'TenHangVe' => 'required|string|max:100',
             'GiaVe' => 'required|numeric',
             'SoLuongMoBan' => 'required|integer|min:0',
@@ -83,7 +105,27 @@ class TicketClassController extends Controller
         ]);
 
         $ticket = TicketClass::findOrFail($id);
-        $ticket->update($request->only('TenHangVe', 'GiaVe', 'SoLuongMoBan', 'SoLuongDaBan'));
+        
+        $tenKhuVuc = trim($request->KhuVuc);
+        $maSuKien = $ticket->khuVuc->MaSuKien;
+
+        $khuVuc = KhuVuc::where('MaSuKien', $maSuKien)->where('TenKhuVuc', $tenKhuVuc)->first();
+        if (!$khuVuc) {
+            $maxKhuVucId = KhuVuc::max('MaKhuVuc') ?? 0;
+            $khuVuc = new KhuVuc();
+            $khuVuc->MaKhuVuc = $maxKhuVucId + 1;
+            $khuVuc->MaSuKien = $maSuKien;
+            $khuVuc->TenKhuVuc = $tenKhuVuc;
+            $khuVuc->SucChua = 1000;
+            $khuVuc->save();
+        }
+
+        $ticket->MaKhuVuc = $khuVuc->MaKhuVuc;
+        $ticket->TenHangVe = $request->TenHangVe;
+        $ticket->GiaVe = $request->GiaVe;
+        $ticket->SoLuongMoBan = $request->SoLuongMoBan;
+        $ticket->SoLuongDaBan = $request->SoLuongDaBan;
+        $ticket->save();
 
         // Lấy concert id để broadcast
         $eventId = $ticket->khuVuc->MaSuKien ?? null;
@@ -100,11 +142,16 @@ class TicketClassController extends Controller
         return redirect()->route('admin.hang-ve.index')->with('success', 'Đã cập nhật hạng vé và đồng bộ realtime.');
     }
 
-    public function destroy($id)
+    public function updateStatus(Request $request, $id)
     {
-        $ticket = TicketClass::findOrFail($id);
-        $ticket->delete();
+        $request->validate([
+            'TrangThai' => 'required|in:DangMoBan,TamDung,HetVe,DaHuy',
+        ]);
 
-        return redirect()->route('admin.hang-ve.index')->with('success', 'Đã xóa hạng vé.');
+        $ticket = TicketClass::findOrFail($id);
+        $ticket->TrangThai = $request->TrangThai;
+        $ticket->save();
+
+        return redirect()->route('admin.hang-ve.index')->with('success', 'Đã cập nhật trạng thái hạng vé.');
     }
 }

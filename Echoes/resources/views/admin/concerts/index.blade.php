@@ -80,46 +80,64 @@
                     <td class="small">{{ \Carbon\Carbon::parse($concert->ThoiGianBatDau)->format('d/m/Y H:i') }}</td>
                     <td class="small">{{ \Carbon\Carbon::parse($concert->ThoiGianKetThuc)->format('d/m/Y H:i') }}</td>
                     <td>
-                        @if($concert->TrangThaiHienTai === 'SapDienRa')
-                            <span class="badge bg-info text-dark"><i class="fas fa-calendar-plus me-1"></i>Sắp diễn ra</span>
-                        @elseif($concert->TrangThaiHienTai === 'DangMoBan')
-                            <span class="badge bg-success"><i class="fas fa-ticket-alt me-1"></i>Đang mở bán</span>
-                        @elseif($concert->TrangThaiHienTai === 'DangDienRa')
-                            <span class="badge bg-primary"><i class="fas fa-play-circle me-1"></i>Đang diễn ra</span>
-                        @elseif($concert->TrangThaiHienTai === 'DaKetThuc')
-                            <span class="badge bg-secondary"><i class="fas fa-calendar-check me-1"></i>Đã kết thúc</span>
-                        @elseif($concert->TrangThaiHienTai === 'DaHuy')
-                            <span class="badge bg-danger"><i class="fas fa-ban me-1"></i>Đã hủy</span>
-                        @else
-                            <span class="badge bg-secondary">{{ $concert->TrangThaiHienTai }}</span>
-                        @endif
+                        <div class="dropdown">
+                            <button class="btn btn-sm p-0 border-0 bg-transparent text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @if($concert->TrangThaiHienTai === 'SapDienRa')
+                                    <span class="badge bg-info text-dark"><i class="fas fa-calendar-plus me-1"></i>Sắp diễn ra</span>
+                                @elseif($concert->TrangThaiHienTai === 'DangMoBan')
+                                    <span class="badge bg-success"><i class="fas fa-ticket-alt me-1"></i>Đang mở bán</span>
+                                @elseif($concert->TrangThaiHienTai === 'DangDienRa')
+                                    <span class="badge bg-primary"><i class="fas fa-play-circle me-1"></i>Đang diễn ra</span>
+                                @elseif($concert->TrangThaiHienTai === 'DaKetThuc')
+                                    <span class="badge bg-secondary"><i class="fas fa-calendar-check me-1"></i>Đã kết thúc</span>
+                                @elseif($concert->TrangThaiHienTai === 'DaHuy')
+                                    <span class="badge bg-danger"><i class="fas fa-ban me-1"></i>Đã hủy</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $concert->TrangThaiHienTai }}</span>
+                                @endif
+                            </button>
+                            <ul class="dropdown-menu shadow-sm" style="font-size: 0.875rem;">
+                                <li>
+                                    <form action="{{ route('admin.concerts.updateStatus', $concert->MaSuKien) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="TrangThai" value="SapDienRa">
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-calendar-plus me-2 text-info"></i>Sắp diễn ra</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ route('admin.concerts.updateStatus', $concert->MaSuKien) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="TrangThai" value="DangMoBan">
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-ticket-alt me-2 text-success"></i>Đang mở bán</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ route('admin.concerts.updateStatus', $concert->MaSuKien) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="TrangThai" value="DaKetThuc">
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-calendar-check me-2 text-secondary"></i>Đã kết thúc</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ route('admin.concerts.updateStatus', $concert->MaSuKien) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="TrangThai" value="DaHuy">
+                                        <button type="submit" class="dropdown-item text-danger"><i class="fas fa-ban me-2"></i>Đã hủy</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     </td>
                     <td class="text-center">
                         <div class="btn-group btn-group-sm">
+                            <a href="{{ route('admin.concerts.show', $concert->MaSuKien) }}"
+                               class="btn btn-outline-info" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="{{ route('admin.concerts.edit', $concert->MaSuKien) }}"
                                class="btn btn-outline-warning" title="Chỉnh sửa">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            @if(!in_array($concert->TrangThaiHienTai, ['DaHuy', 'DaKetThuc']))
-                            <form action="{{ route('admin.concerts.cancel', $concert->MaSuKien) }}" method="POST" class="d-inline">
-                                @csrf @method('PATCH')
-                                <button type="submit"
-                                    class="btn btn-outline-danger"
-                                    title="Hủy sự kiện (thủ công)"
-                                    onclick="return confirm('Bạn có chắc chắn muốn HỦY sự kiện này?');">
-                                    <i class="fas fa-times-circle"></i>
-                                </button>
-                            </form>
-                            @endif
-                            <form action="{{ route('admin.concerts.destroy', $concert->MaSuKien) }}" method="POST" class="d-inline">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                    class="btn btn-outline-dark"
-                                    title="Xóa sự kiện"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa sự kiện này khỏi hệ thống?');">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
                         </div>
                     </td>
                 </tr>

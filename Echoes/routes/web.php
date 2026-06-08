@@ -122,14 +122,17 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
         Route::patch('/{khachHang}/toggle',[KhachHangController::class, 'toggleTrangThai'])->name('toggle');
     });
 
-    Route::resource('loai-su-kien', LoaiSuKienController::class)->except(['show']);
-    Route::resource('hang-ve', TicketClassController::class)->except(['show']);
+    Route::resource('loai-su-kien', LoaiSuKienController::class);
+    Route::patch('/hang-ve/{hang_ve}/status', [TicketClassController::class, 'updateStatus'])->name('hang-ve.updateStatus');
+    Route::resource('hang-ve', TicketClassController::class);
 
     Route::get('/concerts', [ConcertController::class, 'index'])->name('concerts.index');
     Route::get('/concerts/create', [ConcertController::class, 'create'])->name('concerts.create');
     Route::post('/concerts', [ConcertController::class, 'store'])->name('concerts.store');
     Route::get('/concerts/{id}/edit', [ConcertController::class, 'edit'])->name('concerts.edit');
+    Route::get('/concerts/{id}/show', [ConcertController::class, 'adminShow'])->name('concerts.show');
     Route::put('/concerts/{id}', [ConcertController::class, 'update'])->name('concerts.update');
+    Route::patch('/concerts/{id}/status', [ConcertController::class, 'updateStatus'])->name('concerts.updateStatus');
     Route::patch('/concerts/{id}/cancel', [ConcertController::class, 'cancel'])->name('concerts.cancel');
     Route::delete('/concerts/{id}', [ConcertController::class, 'destroy'])->name('concerts.destroy');
 

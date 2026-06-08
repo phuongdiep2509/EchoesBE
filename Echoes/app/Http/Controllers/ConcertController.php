@@ -95,10 +95,10 @@ class ConcertController extends Controller
             'TenSuKien'       => 'required|string|max:255',
             'ThoiGianBatDau'  => 'required|date',
             'ThoiGianKetThuc' => 'required|date|after:ThoiGianBatDau',
-            'TrangThai'       => 'required|in:SapDienRa,DangMoBan,DaKetThuc,DaHuy',
+            'TrangThai'       => 'required|in:SapDienRa,DangDienRa,DaKetThuc,DaHuy',
             'BanToChuc'       => 'required|string',
             'DiaDiem'         => 'required|string',
-            'MaLoaiSuKien'    => 'required|integer',
+            'DanhMuc'         => 'required|string',
         ]);
 
         $tenBanToChuc = trim($request->BanToChuc);
@@ -130,13 +130,26 @@ class ConcertController extends Controller
             ]);
         }
 
+        $tenDanhMuc = trim($request->DanhMuc);
+        $danhMuc = \App\Models\LoaiSuKien::where('TenLoai', $tenDanhMuc)->first();
+        if ($danhMuc) {
+            $maLoai = $danhMuc->MaLoaiSuKien;
+        } else {
+            $maxLoaiId = \App\Models\LoaiSuKien::max('MaLoaiSuKien') ?? 0;
+            $maLoai = $maxLoaiId + 1;
+            $newLoai = new \App\Models\LoaiSuKien();
+            $newLoai->MaLoaiSuKien = $maLoai;
+            $newLoai->TenLoai = $tenDanhMuc;
+            $newLoai->save();
+        }
+
         $maxId = Concert::max('MaSuKien') ?? 0;
 
         $concert = new Concert();
         $concert->MaSuKien = $maxId + 1;
         $concert->MaBTC = $maBTC;
         $concert->MaDiaDiem = $maDiaDiem;
-        $concert->MaLoaiSuKien = $request->MaLoaiSuKien;
+        $concert->MaLoaiSuKien = $maLoai;
         $concert->TenSuKien = $request->TenSuKien;
         $concert->AnhBia = $request->AnhBia;
         $concert->MoTa = $request->MoTa;
@@ -148,6 +161,15 @@ class ConcertController extends Controller
         $concert->save();
 
         return redirect()->route('admin.concerts.index')->with('success', 'Đã thêm sự kiện thành công.');
+    }
+
+    public function adminShow($id)
+    {
+        $concert = Concert::findOrFail($id);
+        $banToChuc = DB::table('ban_to_chuc')->where('MaBTC', $concert->MaBTC)->first();
+        $diaDiem = DB::table('dia_diem_to_chuc')->where('MaDiaDiem', $concert->MaDiaDiem)->first();
+        $loaiSuKien = \App\Models\LoaiSuKien::find($concert->MaLoaiSuKien);
+        return view('admin.concerts.show', compact('concert', 'banToChuc', 'diaDiem', 'loaiSuKien'));
     }
 
     public function edit($id)
@@ -165,10 +187,10 @@ class ConcertController extends Controller
             'TenSuKien'       => 'required|string|max:255',
             'ThoiGianBatDau'  => 'required|date',
             'ThoiGianKetThuc' => 'required|date|after:ThoiGianBatDau',
-            'TrangThai'       => 'required|in:SapDienRa,DangMoBan,DaKetThuc,DaHuy',
+            'TrangThai'       => 'required|in:SapDienRa,DangDienRa,DaKetThuc,DaHuy',
             'BanToChuc'       => 'required|string',
             'DiaDiem'         => 'required|string',
-            'MaLoaiSuKien'    => 'required|integer',
+            'DanhMuc'         => 'required|string',
         ]);
 
         $tenBanToChuc = trim($request->BanToChuc);
@@ -200,14 +222,28 @@ class ConcertController extends Controller
             ]);
         }
 
+        $tenDanhMuc = trim($request->DanhMuc);
+        $danhMuc = \App\Models\LoaiSuKien::where('TenLoai', $tenDanhMuc)->first();
+        if ($danhMuc) {
+            $maLoai = $danhMuc->MaLoaiSuKien;
+        } else {
+            $maxLoaiId = \App\Models\LoaiSuKien::max('MaLoaiSuKien') ?? 0;
+            $maLoai = $maxLoaiId + 1;
+            $newLoai = new \App\Models\LoaiSuKien();
+            $newLoai->MaLoaiSuKien = $maLoai;
+            $newLoai->TenLoai = $tenDanhMuc;
+            $newLoai->save();
+        }
+
         $concert = Concert::findOrFail($id);
         $concert->update(array_merge($request->only([
-            'MaLoaiSuKien', 'TenSuKien', 'AnhBia', 'MoTa',
+            'TenSuKien', 'AnhBia', 'MoTa',
             'DiemNoiBat', 'DieuKienVaDieuKhoan',
             'ThoiGianBatDau', 'ThoiGianKetThuc', 'TrangThai',
         ]), [
             'MaBTC' => $maBTC,
             'MaDiaDiem' => $maDiaDiem,
+            'MaLoaiSuKien' => $maLoai,
         ]));
 
         return redirect()->route('admin.concerts.index')->with('success', 'Đã cập nhật sự kiện.');

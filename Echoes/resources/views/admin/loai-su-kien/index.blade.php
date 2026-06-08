@@ -65,6 +65,10 @@
                     <td><strong>{{ $category->TenLoai }}</strong></td>
                     <td class="text-center">
                         <div class="btn-group btn-group-sm">
+                            <a href="{{ route('admin.loai-su-kien.show', $category->MaLoaiSuKien) }}"
+                               class="btn btn-outline-info" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="{{ route('admin.loai-su-kien.edit', $category->MaLoaiSuKien) }}"
                                class="btn btn-outline-warning" title="Chỉnh sửa">
                                 <i class="fas fa-edit"></i>
