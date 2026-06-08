@@ -20,4 +20,9 @@ class TicketClass extends Model
         'ThoiGianKetThucBan',
         'QuyenLoi',
     ];
+
+    public function khuVuc()
+    {
+        return $this->belongsTo(KhuVuc::class, 'MaKhuVuc', 'MaKhuVuc');
+    }
 }

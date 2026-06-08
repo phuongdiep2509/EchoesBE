@@ -1,92 +1,123 @@
 @extends('admin.layouts.app')
+@section('title', 'Cập nhật sự kiện')
 
 @section('content')
-
-<h2>Chỉnh sửa: {{ $concert->TenSuKien }}</h2>
-
-<form method="POST" action="{{ route('admin.concerts.update', $concert->MaSuKien) }}" class="mt-3" style="max-width:700px">
-    @csrf
-    @method('PUT')
-
-    @if($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-        </div>
-    @endif
-
-    <div class="row g-3">
-        <div class="col-12">
-            <label class="form-label">Tên sự kiện <span class="text-danger">*</span></label>
-            <input type="text" name="TenSuKien" class="form-control"
-                value="{{ old('TenSuKien', $concert->TenSuKien) }}" required>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Thời gian bắt đầu <span class="text-danger">*</span></label>
-            <input type="datetime-local" name="ThoiGianBatDau" class="form-control"
-                value="{{ old('ThoiGianBatDau', date('Y-m-d\TH:i', strtotime($concert->ThoiGianBatDau))) }}" required>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Thời gian kết thúc <span class="text-danger">*</span></label>
-            <input type="datetime-local" name="ThoiGianKetThuc" class="form-control"
-                value="{{ old('ThoiGianKetThuc', date('Y-m-d\TH:i', strtotime($concert->ThoiGianKetThuc))) }}" required>
-        </div>
-
-        <div class="col-md-4">
-            <label class="form-label">Mã ban tổ chức</label>
-            <input type="number" name="MaBTC" class="form-control" value="{{ old('MaBTC', $concert->MaBTC) }}" required>
-        </div>
-
-        <div class="col-md-4">
-            <label class="form-label">Mã địa điểm</label>
-            <input type="number" name="MaDiaDiem" class="form-control" value="{{ old('MaDiaDiem', $concert->MaDiaDiem) }}" required>
-        </div>
-
-        <div class="col-md-4">
-            <label class="form-label">Mã loại sự kiện</label>
-            <input type="number" name="MaLoaiSuKien" class="form-control" value="{{ old('MaLoaiSuKien', $concert->MaLoaiSuKien) }}" required>
-        </div>
-
-        <div class="col-12">
-            <label class="form-label">Ảnh bìa (đường dẫn)</label>
-            <input type="text" name="AnhBia" class="form-control" value="{{ old('AnhBia', $concert->AnhBia) }}">
-            @if($concert->AnhBia)
-                <img src="{{ asset($concert->AnhBia) }}" class="mt-2" style="height:80px;border-radius:4px">
-            @endif
-        </div>
-
-        <div class="col-12">
-            <label class="form-label">Mô tả</label>
-            <textarea name="MoTa" class="form-control" rows="3">{{ old('MoTa', $concert->MoTa) }}</textarea>
-        </div>
-
-        <div class="col-12">
-            <label class="form-label">Điểm nổi bật</label>
-            <textarea name="DiemNoiBat" class="form-control" rows="2">{{ old('DiemNoiBat', $concert->DiemNoiBat) }}</textarea>
-        </div>
-
-        <div class="col-12">
-            <label class="form-label">Điều kiện và điều khoản</label>
-            <textarea name="DieuKienVaDieuKhoan" class="form-control" rows="2">{{ old('DieuKienVaDieuKhoan', $concert->DieuKienVaDieuKhoan) }}</textarea>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
-            <select name="TrangThai" class="form-select" required>
-                @foreach(['SapDienRa' => 'Sắp diễn ra', 'DangMoBan' => 'Đang mở bán', 'DaKetThuc' => 'Đã kết thúc', 'DaHuy' => 'Đã hủy'] as $val => $label)
-                    <option value="{{ $val }}" {{ old('TrangThai', $concert->TrangThai) == $val ? 'selected' : '' }}>
-                        {{ $label }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0 fw-bold"><i class="fas fa-edit me-2 text-primary"></i>Cập nhật sự kiện</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ route('admin.concerts.index') }}" class="text-decoration-none">Sự kiện</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa (#{{ $concert->MaSuKien }})</li>
+            </ol>
+        </nav>
     </div>
+</div>
 
-    <div class="mt-4">
-        <button class="btn btn-primary">Cập nhật</button>
-        <a href="{{ route('admin.concerts.index') }}" class="btn btn-secondary ms-2">Hủy</a>
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+        <form action="{{ route('admin.concerts.update', $concert->MaSuKien) }}" method="POST">
+            @csrf
+            @method('PUT')
+            
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="TenSuKien" class="form-label fw-bold">Tên sự kiện <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control @error('TenSuKien') is-invalid @enderror" id="TenSuKien" name="TenSuKien" value="{{ old('TenSuKien', $concert->TenSuKien) }}" required>
+                    @error('TenSuKien') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="MaLoaiSuKien" class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
+                    <select class="form-select @error('MaLoaiSuKien') is-invalid @enderror" id="MaLoaiSuKien" name="MaLoaiSuKien" required>
+                        <option value="">-- Chọn danh mục --</option>
+                        @foreach($loaiSuKiens as $loai)
+                            <option value="{{ $loai->MaLoaiSuKien }}" {{ old('MaLoaiSuKien', $concert->MaLoaiSuKien) == $loai->MaLoaiSuKien ? 'selected' : '' }}>{{ $loai->TenLoai }}</option>
+                        @endforeach
+                    </select>
+                    @error('MaLoaiSuKien') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="BanToChuc" class="form-label fw-bold">Ban tổ chức <span class="text-danger">*</span></label>
+                    <input type="text" list="banToChucList" class="form-control @error('BanToChuc') is-invalid @enderror" id="BanToChuc" name="BanToChuc" value="{{ old('BanToChuc', $banToChucs->firstWhere('MaBTC', $concert->MaBTC)->TenToChuc ?? '') }}" placeholder="Nhập hoặc chọn ban tổ chức..." autocomplete="off" required>
+                    <datalist id="banToChucList">
+                        @foreach($banToChucs as $btc)
+                            <option value="{{ $btc->TenToChuc }}"></option>
+                        @endforeach
+                    </datalist>
+                    @error('BanToChuc') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="DiaDiem" class="form-label fw-bold">Địa điểm <span class="text-danger">*</span></label>
+                    <input type="text" list="diaDiemList" class="form-control @error('DiaDiem') is-invalid @enderror" id="DiaDiem" name="DiaDiem" value="{{ old('DiaDiem', $diaDiems->firstWhere('MaDiaDiem', $concert->MaDiaDiem)->TenDiaDiem ?? '') }}" placeholder="Nhập hoặc chọn địa điểm..." autocomplete="off" required>
+                    <datalist id="diaDiemList">
+                        @foreach($diaDiems as $dd)
+                            <option value="{{ $dd->TenDiaDiem }}"></option>
+                        @endforeach
+                    </datalist>
+                    @error('DiaDiem') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="ThoiGianBatDau" class="form-label fw-bold">Thời gian bắt đầu <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control @error('ThoiGianBatDau') is-invalid @enderror" id="ThoiGianBatDau" name="ThoiGianBatDau" value="{{ old('ThoiGianBatDau', \Carbon\Carbon::parse($concert->ThoiGianBatDau)->format('Y-m-d\TH:i')) }}" required>
+                    @error('ThoiGianBatDau') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="ThoiGianKetThuc" class="form-label fw-bold">Thời gian kết thúc <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control @error('ThoiGianKetThuc') is-invalid @enderror" id="ThoiGianKetThuc" name="ThoiGianKetThuc" value="{{ old('ThoiGianKetThuc', \Carbon\Carbon::parse($concert->ThoiGianKetThuc)->format('Y-m-d\TH:i')) }}" required>
+                    @error('ThoiGianKetThuc') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="TrangThai" class="form-label fw-bold">Trạng thái <span class="text-danger">*</span></label>
+                    <select class="form-select @error('TrangThai') is-invalid @enderror" id="TrangThai" name="TrangThai" required>
+                        <option value="SapDienRa" {{ old('TrangThai', $concert->TrangThai) == 'SapDienRa' ? 'selected' : '' }}>Sắp diễn ra</option>
+                        <option value="DangMoBan" {{ old('TrangThai', $concert->TrangThai) == 'DangMoBan' ? 'selected' : '' }}>Đang mở bán</option>
+                        <option value="DaKetThuc" {{ old('TrangThai', $concert->TrangThai) == 'DaKetThuc' ? 'selected' : '' }}>Đã kết thúc</option>
+                        <option value="DaHuy" {{ old('TrangThai', $concert->TrangThai) == 'DaHuy' ? 'selected' : '' }}>Đã hủy</option>
+                    </select>
+                    @error('TrangThai') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="AnhBia" class="form-label fw-bold">Đường dẫn ảnh bìa</label>
+                <input type="text" class="form-control @error('AnhBia') is-invalid @enderror" id="AnhBia" name="AnhBia" value="{{ old('AnhBia', $concert->AnhBia) }}">
+                @error('AnhBia') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="mb-3">
+                <label for="MoTa" class="form-label fw-bold">Mô tả</label>
+                <textarea class="form-control @error('MoTa') is-invalid @enderror" id="MoTa" name="MoTa" rows="3">{{ old('MoTa', $concert->MoTa) }}</textarea>
+                @error('MoTa') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="DiemNoiBat" class="form-label fw-bold">Điểm nổi bật</label>
+                    <textarea class="form-control @error('DiemNoiBat') is-invalid @enderror" id="DiemNoiBat" name="DiemNoiBat" rows="3">{{ old('DiemNoiBat', $concert->DiemNoiBat) }}</textarea>
+                    @error('DiemNoiBat') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-6">
+                    <label for="DieuKienVaDieuKhoan" class="form-label fw-bold">Điều kiện và điều khoản</label>
+                    <textarea class="form-control @error('DieuKienVaDieuKhoan') is-invalid @enderror" id="DieuKienVaDieuKhoan" name="DieuKienVaDieuKhoan" rows="3">{{ old('DieuKienVaDieuKhoan', $concert->DieuKienVaDieuKhoan) }}</textarea>
+                    @error('DieuKienVaDieuKhoan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <a href="{{ route('admin.concerts.index') }}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-times me-1"></i>Hủy
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Cập nhật
+                </button>
+            </div>
+        </form>
     </div>
-</form>
-
+</div>
 @endsection

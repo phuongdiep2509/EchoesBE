@@ -14,6 +14,8 @@ use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\Admin\TaiKhoanController;
 use App\Http\Controllers\Admin\KhachHangController;
 use App\Http\Controllers\Admin\NhanVienController;
+use App\Http\Controllers\Admin\LoaiSuKienController;
+use App\Http\Controllers\Admin\TicketClassController;
 
 Route::get('/', fn() => view('pages.home'))->name('home');
 
@@ -120,11 +122,15 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
         Route::patch('/{khachHang}/toggle',[KhachHangController::class, 'toggleTrangThai'])->name('toggle');
     });
 
+    Route::resource('loai-su-kien', LoaiSuKienController::class)->except(['show']);
+    Route::resource('hang-ve', TicketClassController::class)->except(['show']);
+
     Route::get('/concerts', [ConcertController::class, 'index'])->name('concerts.index');
     Route::get('/concerts/create', [ConcertController::class, 'create'])->name('concerts.create');
     Route::post('/concerts', [ConcertController::class, 'store'])->name('concerts.store');
     Route::get('/concerts/{id}/edit', [ConcertController::class, 'edit'])->name('concerts.edit');
     Route::put('/concerts/{id}', [ConcertController::class, 'update'])->name('concerts.update');
+    Route::patch('/concerts/{id}/cancel', [ConcertController::class, 'cancel'])->name('concerts.cancel');
     Route::delete('/concerts/{id}', [ConcertController::class, 'destroy'])->name('concerts.destroy');
 
     Route::get('/music', [MusicController::class, 'adminIndex'])->name('music.index');

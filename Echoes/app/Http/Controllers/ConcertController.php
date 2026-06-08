@@ -31,15 +31,28 @@ class ConcertController extends Controller
 
     // ─── ADMIN ───────────────────────────────────────────
 
-    public function index()
+    public function index(Request $request)
     {
-        $concerts = Concert::orderBy('ThoiGianBatDau', 'desc')->get();
-        return view('admin.concerts.index', compact('concerts'));
+        $search = $request->get('search');
+        $query = Concert::orderBy('ThoiGianBatDau', 'desc');
+        $concerts = $query->get();
+
+        if ($search) {
+            $searchTerm = mb_strtolower($search, 'UTF-8');
+            $concerts = $concerts->filter(function ($concert) use ($searchTerm) {
+                return mb_stripos(mb_strtolower($concert->TenSuKien, 'UTF-8'), $searchTerm) !== false;
+            });
+        }
+
+        return view('admin.concerts.index', compact('concerts', 'search'));
     }
 
     public function create()
     {
-        return view('admin.concerts.create');
+        $banToChucs = DB::table('ban_to_chuc')->get();
+        $diaDiems = DB::table('dia_diem_to_chuc')->get();
+        $loaiSuKiens = \App\Models\LoaiSuKien::all();
+        return view('admin.concerts.create', compact('banToChucs', 'diaDiems', 'loaiSuKiens'));
     }
 
     public function store(Request $request)
@@ -49,17 +62,56 @@ class ConcertController extends Controller
             'ThoiGianBatDau'  => 'required|date',
             'ThoiGianKetThuc' => 'required|date|after:ThoiGianBatDau',
             'TrangThai'       => 'required|in:SapDienRa,DangMoBan,DaKetThuc,DaHuy',
-            'MaBTC'           => 'required|integer',
-            'MaDiaDiem'       => 'required|integer',
+            'BanToChuc'       => 'required|string',
+            'DiaDiem'         => 'required|string',
             'MaLoaiSuKien'    => 'required|integer',
         ]);
 
-        Concert::create($request->only([
-            'MaBTC', 'MaDiaDiem', 'MaLoaiSuKien',
-            'TenSuKien', 'AnhBia', 'MoTa',
-            'DiemNoiBat', 'DieuKienVaDieuKhoan',
-            'ThoiGianBatDau', 'ThoiGianKetThuc', 'TrangThai',
-        ]));
+        $tenBanToChuc = trim($request->BanToChuc);
+        $btc = DB::table('ban_to_chuc')->where('TenToChuc', $tenBanToChuc)->first();
+        if ($btc) {
+            $maBTC = $btc->MaBTC;
+        } else {
+            $maxBtcId = DB::table('ban_to_chuc')->max('MaBTC') ?? 0;
+            $maBTC = $maxBtcId + 1;
+            DB::table('ban_to_chuc')->insert([
+                'MaBTC' => $maBTC,
+                'TenToChuc' => $tenBanToChuc
+            ]);
+        }
+
+        $tenDiaDiem = trim($request->DiaDiem);
+        $dd = DB::table('dia_diem_to_chuc')->where('TenDiaDiem', $tenDiaDiem)->first();
+        if ($dd) {
+            $maDiaDiem = $dd->MaDiaDiem;
+        } else {
+            $maxDdId = DB::table('dia_diem_to_chuc')->max('MaDiaDiem') ?? 0;
+            $maDiaDiem = $maxDdId + 1;
+            DB::table('dia_diem_to_chuc')->insert([
+                'MaDiaDiem' => $maDiaDiem,
+                'TenDiaDiem' => $tenDiaDiem,
+                'DiaChiChiTiet' => 'Đang cập nhật',
+                'ThanhPho' => 'Đang cập nhật',
+                'SucChuaToiDa' => 0
+            ]);
+        }
+
+        $maxId = Concert::max('MaSuKien') ?? 0;
+
+        $concert = new Concert();
+        $concert->MaSuKien = $maxId + 1;
+        $concert->MaBTC = $maBTC;
+        $concert->MaDiaDiem = $maDiaDiem;
+        $concert->MaLoaiSuKien = $request->MaLoaiSuKien;
+        $concert->TenSuKien = $request->TenSuKien;
+        $concert->AnhBia = $request->AnhBia;
+        $concert->MoTa = $request->MoTa;
+        $concert->DiemNoiBat = $request->DiemNoiBat;
+        $concert->DieuKienVaDieuKhoan = $request->DieuKienVaDieuKhoan;
+        $concert->ThoiGianBatDau = $request->ThoiGianBatDau;
+        $concert->ThoiGianKetThuc = $request->ThoiGianKetThuc;
+        $concert->TrangThai = $request->TrangThai;
+        $concert->save();
 
         return redirect()->route('admin.concerts.index')->with('success', 'Đã thêm sự kiện thành công.');
     }
@@ -67,20 +119,73 @@ class ConcertController extends Controller
     public function edit($id)
     {
         $concert = Concert::findOrFail($id);
-        return view('admin.concerts.edit', compact('concert'));
+        $banToChucs = DB::table('ban_to_chuc')->get();
+        $diaDiems = DB::table('dia_diem_to_chuc')->get();
+        $loaiSuKiens = \App\Models\LoaiSuKien::all();
+        return view('admin.concerts.edit', compact('concert', 'banToChucs', 'diaDiems', 'loaiSuKiens'));
     }
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'TenSuKien'       => 'required|string|max:255',
+            'ThoiGianBatDau'  => 'required|date',
+            'ThoiGianKetThuc' => 'required|date|after:ThoiGianBatDau',
+            'TrangThai'       => 'required|in:SapDienRa,DangMoBan,DaKetThuc,DaHuy',
+            'BanToChuc'       => 'required|string',
+            'DiaDiem'         => 'required|string',
+            'MaLoaiSuKien'    => 'required|integer',
+        ]);
+
+        $tenBanToChuc = trim($request->BanToChuc);
+        $btc = DB::table('ban_to_chuc')->where('TenToChuc', $tenBanToChuc)->first();
+        if ($btc) {
+            $maBTC = $btc->MaBTC;
+        } else {
+            $maxBtcId = DB::table('ban_to_chuc')->max('MaBTC') ?? 0;
+            $maBTC = $maxBtcId + 1;
+            DB::table('ban_to_chuc')->insert([
+                'MaBTC' => $maBTC,
+                'TenToChuc' => $tenBanToChuc
+            ]);
+        }
+
+        $tenDiaDiem = trim($request->DiaDiem);
+        $dd = DB::table('dia_diem_to_chuc')->where('TenDiaDiem', $tenDiaDiem)->first();
+        if ($dd) {
+            $maDiaDiem = $dd->MaDiaDiem;
+        } else {
+            $maxDdId = DB::table('dia_diem_to_chuc')->max('MaDiaDiem') ?? 0;
+            $maDiaDiem = $maxDdId + 1;
+            DB::table('dia_diem_to_chuc')->insert([
+                'MaDiaDiem' => $maDiaDiem,
+                'TenDiaDiem' => $tenDiaDiem,
+                'DiaChiChiTiet' => 'Đang cập nhật',
+                'ThanhPho' => 'Đang cập nhật',
+                'SucChuaToiDa' => 0
+            ]);
+        }
+
         $concert = Concert::findOrFail($id);
-        $concert->update($request->only([
-            'MaBTC', 'MaDiaDiem', 'MaLoaiSuKien',
-            'TenSuKien', 'AnhBia', 'MoTa',
+        $concert->update(array_merge($request->only([
+            'MaLoaiSuKien', 'TenSuKien', 'AnhBia', 'MoTa',
             'DiemNoiBat', 'DieuKienVaDieuKhoan',
             'ThoiGianBatDau', 'ThoiGianKetThuc', 'TrangThai',
+        ]), [
+            'MaBTC' => $maBTC,
+            'MaDiaDiem' => $maDiaDiem,
         ]));
 
         return redirect()->route('admin.concerts.index')->with('success', 'Đã cập nhật sự kiện.');
+    }
+
+    public function cancel($id)
+    {
+        $concert = Concert::findOrFail($id);
+        $concert->TrangThai = 'DaHuy';
+        $concert->save();
+
+        return redirect()->route('admin.concerts.index')->with('success', 'Đã hủy sự kiện thành công.');
     }
 
     public function destroy($id)

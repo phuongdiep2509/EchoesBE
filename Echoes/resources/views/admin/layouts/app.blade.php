@@ -165,6 +165,14 @@
                class="sidebar-link {{ request()->routeIs('admin.concerts.*') ? 'active' : '' }}">
                 <i class="fas fa-calendar-alt"></i> Concert
             </a>
+            <a href="{{ route('admin.loai-su-kien.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.loai-su-kien.*') ? 'active' : '' }}">
+                <i class="fas fa-list-alt"></i> Danh mục sự kiện
+            </a>
+            <a href="{{ route('admin.hang-ve.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.hang-ve.*') ? 'active' : '' }}">
+                <i class="fas fa-ticket-alt"></i> Hạng vé
+            </a>
             <a href="{{ route('admin.music.index') }}"
                class="sidebar-link {{ request()->routeIs('admin.music.*') ? 'active' : '' }}">
                 <i class="fas fa-music"></i> Nhạc sống

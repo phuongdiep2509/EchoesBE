@@ -51,4 +51,27 @@ class Concert extends Model
     {
         return $this->belongsTo(DiaDiem::class, 'MaDiaDiem', 'MaDiaDiem');
     }
+
+    // Accessor: tính trạng thái hiện tại
+    public function getTrangThaiHienTaiAttribute()
+    {
+        if ($this->TrangThai === 'DaHuy') {
+            return 'DaHuy';
+        }
+
+        $now = \Carbon\Carbon::now();
+        $start = \Carbon\Carbon::parse($this->ThoiGianBatDau);
+        $end = \Carbon\Carbon::parse($this->ThoiGianKetThuc);
+
+        if ($now->greaterThan($end)) {
+            return 'DaKetThuc';
+        } elseif ($now->between($start, $end)) {
+            return 'DangDienRa';
+        } elseif ($now->lessThan($start)) {
+            // Có thể kiểm tra thêm logic DangMoBan nếu cần, tạm thời trả về TrangThai gốc hoặc SapDienRa
+            return $this->TrangThai !== 'DangDienRa' && $this->TrangThai !== 'DaKetThuc' ? $this->TrangThai : 'SapDienRa';
+        }
+
+        return $this->TrangThai;
+    }
 }

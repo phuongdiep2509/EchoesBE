@@ -62,7 +62,7 @@
                     <div class="ticket-option-title">{{ $ticket->ticket_name }}</div>
                     <div class="ticket-option-note">{{ $ticket->zone }}</div>
                     <div class="ticket-option-price">{{ number_format($ticket->price, 0, ',', '.') }}đ</div>
-                    <div class="ticket-option-note">Còn {{ max(0, $ticket->total - $ticket->sold) }} vé</div>
+                    <div class="ticket-option-note fw-bold text-success" id="ticket-remaining-{{ $ticket->id }}">Còn {{ max(0, $ticket->total - $ticket->sold) }} vé</div>
 
                     <div class="booking-form-row single">
                         <div>
@@ -81,4 +81,34 @@
         </aside>
     </div>
 </main>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.Echo !== 'undefined') {
+            window.Echo.channel(`concert.{{ $event->id ?? 0 }}`)
+                .listen('TicketQuantityUpdated', (e) => {
+                    const ticketId = e.ticketClassId;
+                    const remaining = Math.max(0, e.total - e.sold);
+                    const el = document.getElementById(`ticket-remaining-${ticketId}`);
+                    
+                    if (el) {
+                        el.innerText = `Còn ${remaining} vé`;
+                        
+                        // Add a visual highlight effect
+                        el.style.transition = 'background-color 0.3s, color 0.3s';
+                        el.style.backgroundColor = '#dcfce7'; // light green
+                        el.style.color = '#166534';
+                        
+                        setTimeout(() => {
+                            el.style.backgroundColor = 'transparent';
+                        }, 1500);
+                    }
+                });
+        } else {
+            console.warn("Laravel Echo chưa được load. Vui lòng chạy 'npm run dev' hoặc 'npm run build'.");
+        }
+    });
+</script>
 @endsection
