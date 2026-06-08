@@ -95,25 +95,13 @@
                             </button>
                             <ul class="dropdown-menu shadow-sm" style="font-size: 0.875rem;">
                                 <li>
-                                    <form action="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn bật Auto / Mở bán vé này không?');">
-                                        @csrf @method('PATCH')
-                                        <input type="hidden" name="TrangThai" value="DangMoBan">
-                                        <button type="submit" class="dropdown-item"><i class="fas fa-play-circle me-2 text-success"></i>Bật Auto / Mở bán</button>
-                                    </form>
+                                    <button class="dropdown-item btn-change-status" data-url="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" data-status="DangMoBan" data-status-name="Bật Auto / Mở bán"><i class="fas fa-play-circle me-2 text-success"></i>Bật Auto / Mở bán</button>
                                 </li>
                                 <li>
-                                    <form action="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn tạm dừng bán vé này không?');">
-                                        @csrf @method('PATCH')
-                                        <input type="hidden" name="TrangThai" value="TamDung">
-                                        <button type="submit" class="dropdown-item"><i class="fas fa-pause-circle me-2 text-warning"></i>Tạm dừng</button>
-                                    </form>
+                                    <button class="dropdown-item btn-change-status" data-url="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" data-status="TamDung" data-status-name="Tạm dừng"><i class="fas fa-pause-circle me-2 text-warning"></i>Tạm dừng</button>
                                 </li>
                                 <li>
-                                    <form action="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy vé này không?');">
-                                        @csrf @method('PATCH')
-                                        <input type="hidden" name="TrangThai" value="DaHuy">
-                                        <button type="submit" class="dropdown-item text-danger"><i class="fas fa-ban me-2"></i>Đã hủy</button>
-                                    </form>
+                                    <button class="dropdown-item btn-change-status text-danger" data-url="{{ route('admin.hang-ve.updateStatus', $ticket->MaHangVe) }}" data-status="DaHuy" data-status-name="Đã hủy"><i class="fas fa-ban me-2"></i>Đã hủy</button>
                                 </li>
                             </ul>
                         </div>
@@ -143,4 +131,59 @@
         </table>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-change-status').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.getAttribute('data-url');
+                const status = this.getAttribute('data-status');
+                const statusName = this.getAttribute('data-status-name');
+                
+                Swal.fire({
+                    title: 'Xác nhận thay đổi?',
+                    text: `Bạn có chắc chắn muốn đổi trạng thái hạng vé sang "${statusName}" không?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Lưu',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(url, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ TrangThai: status })
+                        })
+                        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                        .then(res => {
+                            if (res.status === 200 && res.body.success) {
+                                Swal.fire('Thành công!', res.body.message, 'success').then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                let errorMsg = res.body.message || 'Thay đổi trạng thái thất bại.';
+                                if (res.body.errors && res.body.errors.TrangThai) {
+                                    errorMsg = res.body.errors.TrangThai[0];
+                                }
+                                Swal.fire('Thất bại!', errorMsg, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Lỗi!', 'Thay đổi trạng thái thất bại. Không thể kết nối tới máy chủ.', 'error');
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endsection

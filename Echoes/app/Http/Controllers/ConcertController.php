@@ -251,15 +251,40 @@ class ConcertController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'TrangThai' => 'required|in:SapDienRa,DangDienRa,DaKetThuc,DaHuy',
-        ]);
+        try {
+            $request->validate([
+                'TrangThai' => 'required|in:SapDienRa,DangDienRa,DaKetThuc,DaHuy',
+            ]);
 
-        $concert = Concert::findOrFail($id);
-        $concert->TrangThai = $request->TrangThai;
-        $concert->save();
+            $concert = Concert::findOrFail($id);
+            $now = \Carbon\Carbon::now();
+            $start = \Carbon\Carbon::parse($concert->ThoiGianBatDau);
+            $end = \Carbon\Carbon::parse($concert->ThoiGianKetThuc);
 
-        return redirect()->route('admin.concerts.index')->with('success', 'Đã cập nhật trạng thái sự kiện.');
+            if ($request->TrangThai === 'SapDienRa' && $now->greaterThanOrEqualTo($start)) {
+                throw new \Exception('Sự kiện đã bắt đầu hoặc kết thúc, không thể chuyển về "Sắp diễn ra".');
+            }
+            if ($request->TrangThai === 'DangDienRa' && ($now->lessThan($start) || $now->greaterThanOrEqualTo($end))) {
+                throw new \Exception('Chưa đến thời gian hoặc sự kiện đã kết thúc, không thể chuyển sang "Đang diễn ra".');
+            }
+            if ($request->TrangThai === 'DaKetThuc' && $now->lessThan($end)) {
+                throw new \Exception('Sự kiện chưa đến thời gian kết thúc, không thể chuyển sang "Đã kết thúc".');
+            }
+
+            $concert->TrangThai = $request->TrangThai;
+            $concert->save();
+
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Đã cập nhật trạng thái sự kiện thành công.']);
+            }
+
+            return redirect()->route('admin.concerts.index')->with('success', 'Đã cập nhật trạng thái sự kiện.');
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Thay đổi trạng thái thất bại: ' . $e->getMessage()], 400);
+            }
+            return redirect()->route('admin.concerts.index')->with('error', 'Thay đổi trạng thái thất bại.');
+        }
     }
 
     public function cancel($id)

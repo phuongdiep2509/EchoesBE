@@ -144,14 +144,25 @@ class TicketClassController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'TrangThai' => 'required|in:DangMoBan,TamDung,HetVe,DaHuy',
-        ]);
+        try {
+            $request->validate([
+                'TrangThai' => 'required|in:DangMoBan,TamDung,HetVe,DaHuy',
+            ]);
 
-        $ticket = TicketClass::findOrFail($id);
-        $ticket->TrangThai = $request->TrangThai;
-        $ticket->save();
+            $ticket = TicketClass::findOrFail($id);
+            $ticket->TrangThai = $request->TrangThai;
+            $ticket->save();
 
-        return redirect()->route('admin.hang-ve.index')->with('success', 'Đã cập nhật trạng thái hạng vé.');
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Đã cập nhật trạng thái hạng vé thành công.']);
+            }
+
+            return redirect()->route('admin.hang-ve.index')->with('success', 'Đã cập nhật trạng thái hạng vé.');
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Thay đổi trạng thái thất bại: ' . $e->getMessage()], 400);
+            }
+            return redirect()->route('admin.hang-ve.index')->with('error', 'Thay đổi trạng thái thất bại.');
+        }
     }
 }
