@@ -40,8 +40,6 @@
                     <div>
                         @if($concert->TrangThaiHienTai === 'SapDienRa')
                             <span class="badge bg-info text-dark fs-6"><i class="fas fa-calendar-plus me-1"></i>Sắp diễn ra</span>
-                        @elseif($concert->TrangThaiHienTai === 'DangMoBan')
-                            <span class="badge bg-success fs-6"><i class="fas fa-ticket-alt me-1"></i>Đang mở bán</span>
                         @elseif($concert->TrangThaiHienTai === 'DangDienRa')
                             <span class="badge bg-primary fs-6"><i class="fas fa-play-circle me-1"></i>Đang diễn ra</span>
                         @elseif($concert->TrangThaiHienTai === 'DaKetThuc')

@@ -81,8 +81,6 @@
                         <td>
                             @if($concert->TrangThaiHienTai === 'SapDienRa')
                                 <span class="badge bg-info text-dark">Sắp diễn ra</span>
-                            @elseif($concert->TrangThaiHienTai === 'DangMoBan')
-                                <span class="badge bg-success">Đang mở bán</span>
                             @elseif($concert->TrangThaiHienTai === 'DangDienRa')
                                 <span class="badge bg-primary">Đang diễn ra</span>
                             @elseif($concert->TrangThaiHienTai === 'DaKetThuc')

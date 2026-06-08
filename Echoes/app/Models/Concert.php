@@ -67,11 +67,8 @@ class Concert extends Model
             return 'DaKetThuc';
         } elseif ($now->between($start, $end)) {
             return 'DangDienRa';
-        } elseif ($now->lessThan($start)) {
-            // Có thể kiểm tra thêm logic DangMoBan nếu cần, tạm thời trả về TrangThai gốc hoặc SapDienRa
-            return $this->TrangThai !== 'DangDienRa' && $this->TrangThai !== 'DaKetThuc' ? $this->TrangThai : 'SapDienRa';
+        } else {
+            return 'SapDienRa';
         }
-
-        return $this->TrangThai;
     }
 }

@@ -84,8 +84,6 @@
                             <button class="btn btn-sm p-0 border-0 bg-transparent text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 @if($concert->TrangThaiHienTai === 'SapDienRa')
                                     <span class="badge bg-info text-dark"><i class="fas fa-calendar-plus me-1"></i>Sắp diễn ra</span>
-                                @elseif($concert->TrangThaiHienTai === 'DangMoBan')
-                                    <span class="badge bg-success"><i class="fas fa-ticket-alt me-1"></i>Đang mở bán</span>
                                 @elseif($concert->TrangThaiHienTai === 'DangDienRa')
                                     <span class="badge bg-primary"><i class="fas fa-play-circle me-1"></i>Đang diễn ra</span>
                                 @elseif($concert->TrangThaiHienTai === 'DaKetThuc')
@@ -107,8 +105,8 @@
                                 <li>
                                     <form action="{{ route('admin.concerts.updateStatus', $concert->MaSuKien) }}" method="POST">
                                         @csrf @method('PATCH')
-                                        <input type="hidden" name="TrangThai" value="DangMoBan">
-                                        <button type="submit" class="dropdown-item"><i class="fas fa-ticket-alt me-2 text-success"></i>Đang mở bán</button>
+                                        <input type="hidden" name="TrangThai" value="DangDienRa">
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-play-circle me-2 text-primary"></i>Đang diễn ra</button>
                                     </form>
                                 </li>
                                 <li>

@@ -249,6 +249,19 @@ class ConcertController extends Controller
         return redirect()->route('admin.concerts.index')->with('success', 'Đã cập nhật sự kiện.');
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'TrangThai' => 'required|in:SapDienRa,DangDienRa,DaKetThuc,DaHuy',
+        ]);
+
+        $concert = Concert::findOrFail($id);
+        $concert->TrangThai = $request->TrangThai;
+        $concert->save();
+
+        return redirect()->route('admin.concerts.index')->with('success', 'Đã cập nhật trạng thái sự kiện.');
+    }
+
     public function cancel($id)
     {
         $concert = Concert::findOrFail($id);
