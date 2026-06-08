@@ -44,7 +44,9 @@
             <div class="trending-list">
                 @foreach($trending as $e)
                     @php
-                        $isPast = $e->event_date && \Carbon\Carbon::parse($e->event_date)->isPast();
+                        $isPast = $e->event_end
+                            ? \Carbon\Carbon::parse($e->event_end)->isPast()
+                            : ($e->event_date && \Carbon\Carbon::parse($e->event_date)->isPast());
                     @endphp
                     <a href="{{ url('/music/' . $e->id) }}"
                        class="trending-item {{ $isPast ? 'expired-event' : '' }}"
@@ -94,7 +96,9 @@
         <div class="event-list">
             @foreach($events as $e)
                 @php
-                    $isPast   = $e->event_date && \Carbon\Carbon::parse($e->event_date)->isPast();
+                    $isPast = $e->event_end
+                        ? \Carbon\Carbon::parse($e->event_end)->isPast()
+                        : ($e->event_date && \Carbon\Carbon::parse($e->event_date)->isPast());
                     $isSoldOut = ($e->status ?? '') === 'DaKetThuc' || ($e->status ?? '') === 'DaHuy';
                 @endphp
                 <div class="event-wrapper {{ $isPast || $isSoldOut ? 'expired-event' : '' }}">

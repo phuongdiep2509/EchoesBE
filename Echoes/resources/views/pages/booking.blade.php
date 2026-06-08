@@ -134,6 +134,11 @@
                         <input type="hidden" name="concert_id" value="{{ $concert->id }}">
                         <input type="hidden" name="is_gift" id="isGift" value="0">
                         <input type="hidden" name="selected_tickets" id="selectedTicketsInput" value="">
+                        <input type="hidden" name="gift_name" id="giftName" value="">
+                        <input type="hidden" name="gift_email" id="giftEmail" value="">
+                        <input type="hidden" name="gift_phone" id="giftPhone" value="">
+                        <input type="hidden" name="gift_card_type" id="giftCardType" value="">
+                        <input type="hidden" name="gift_message" id="giftMessage" value="">
 
                         <h4 class="fw-bold mb-3" style="color:var(--color-red);text-align:center">THÔNG TIN ĐẶT VÉ</h4>
 
@@ -185,7 +190,7 @@
                             <button type="button"
                                     class="btn btn-outline-danger w-100 mb-3 button-gift disabled"
                                     id="giftTicket"
-                                    onclick="handleProceed(true)">
+                                    onclick="openGiftModal()">
                                 <i class="fas fa-gift me-2"></i>TẶNG VÉ
                             </button>
 
@@ -214,6 +219,52 @@
         </div>{{-- /.row --}}
     </div>{{-- /.container --}}
 </main>
+
+{{-- ── Modal tặng vé ── --}}
+<div id="giftModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:24px;padding:32px;width:min(480px,95vw);box-shadow:0 24px 60px rgba(0,0,0,.2);position:relative;">
+        <button onclick="closeGiftModal()" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280;">✕</button>
+        <h3 style="margin:0 0 6px;font-size:20px;font-weight:800;color:#111827;">🎁 Tặng vé cho người khác</h3>
+        <p style="margin:0 0 22px;font-size:13px;color:#6b7280;">Điền thông tin người nhận. Sau khi xác nhận, bạn sẽ chuyển sang trang thanh toán.</p>
+
+        <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Tên người nhận *</label>
+            <input id="modalGiftName" type="text" maxlength="255" placeholder="Nhập tên người nhận"
+                   style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Email người nhận *</label>
+            <input id="modalGiftEmail" type="email" maxlength="255" placeholder="email@example.com"
+                   style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Số điện thoại</label>
+            <input id="modalGiftPhone" type="text" maxlength="15" placeholder="Không bắt buộc"
+                   style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Loại thiệp</label>
+            <select id="modalGiftCardType"
+                    style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;box-sizing:border-box;">
+                <option value="">Không chọn</option>
+                <option value="Bạn bè">Bạn bè</option>
+                <option value="Sinh nhật">Sinh nhật</option>
+                <option value="Cảm ơn">Cảm ơn</option>
+                <option value="Bất ngờ">Bất ngờ</option>
+            </select>
+        </div>
+        <div style="margin-bottom:22px;">
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Lời chúc</label>
+            <textarea id="modalGiftMessage" maxlength="1000" placeholder="Viết lời nhắn gửi người nhận..."
+                      style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;min-height:80px;resize:vertical;box-sizing:border-box;"></textarea>
+        </div>
+        <div id="giftModalError" style="display:none;background:#fff0f0;color:#b91c1c;border:1px solid #ffcaca;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;"></div>
+        <button onclick="confirmGiftAndProceed()"
+                style="width:100%;background:#74070d;color:#fff;border:none;border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;">
+            Xác nhận tặng vé & Tiến hành thanh toán
+        </button>
+    </div>
+</div>
 
 @endsection
 
@@ -312,5 +363,52 @@ function handleProceed(isGift) {
     document.getElementById('isGift').value = isGift ? '1' : '0';
     document.getElementById('bookingForm').submit();
 }
+
+function openGiftModal() {
+    const selected = Object.values(selectedTickets).filter(item => item.quantity > 0);
+    if (selected.length === 0) {
+        alert('Vui lòng chọn ít nhất 1 vé trước.');
+        return;
+    }
+    const modal = document.getElementById('giftModal');
+    modal.style.display = 'flex';
+}
+
+function closeGiftModal() {
+    document.getElementById('giftModal').style.display = 'none';
+    document.getElementById('giftModalError').style.display = 'none';
+}
+
+function confirmGiftAndProceed() {
+    const name  = document.getElementById('modalGiftName').value.trim();
+    const email = document.getElementById('modalGiftEmail').value.trim();
+    const errEl = document.getElementById('giftModalError');
+
+    if (!name) {
+        errEl.textContent = 'Vui lòng nhập tên người nhận.';
+        errEl.style.display = 'block';
+        return;
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errEl.textContent = 'Vui lòng nhập email hợp lệ.';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    document.getElementById('giftName').value      = name;
+    document.getElementById('giftEmail').value     = email;
+    document.getElementById('giftPhone').value     = document.getElementById('modalGiftPhone').value.trim();
+    document.getElementById('giftCardType').value  = document.getElementById('modalGiftCardType').value;
+    document.getElementById('giftMessage').value   = document.getElementById('modalGiftMessage').value.trim();
+    document.getElementById('isGift').value        = '1';
+
+    closeGiftModal();
+    document.getElementById('bookingForm').submit();
+}
+
+// Đóng modal khi click ra ngoài
+document.getElementById('giftModal').addEventListener('click', function(e) {
+    if (e.target === this) closeGiftModal();
+});
 </script>
 @endsection

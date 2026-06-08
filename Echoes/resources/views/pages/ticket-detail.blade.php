@@ -27,8 +27,9 @@
 
 @section('content')
 @php
+    use SimpleSoftwareIO\QrCode\Facades\QrCode;
     $image = !empty($ticket->AnhBia)
-        ? (\Illuminate\Support\Str::startsWith($ticket->AnhBia, ['http://','https://']) ? $ticket->AnhBia : asset($ticket->AnhBia))
+        ? (\Illuminate\Support\Str::startsWith($ticket->AnhBia, ['http://','https://']) ? $ticket->AnhBia : asset('assets/images/concert/' . trim($ticket->AnhBia)))
         : asset('assets/images/index/logo (no back).png');
 @endphp
 <section class="detail-page">
@@ -39,8 +40,8 @@
                 <div class="detail-body">
                     <h1>{{ $ticket->TenSuKien }}</h1>
 
-                    @if($ticket->TrangThai === 'ChoSuDung') <span class="badge ok">Vé chờ sử dụng</span>
-                    @elseif($ticket->TrangThai === 'DaSuDung') <span class="badge fail">Vé đã sử dụng</span>
+                    @if($ticket->TrangThaiVe === 'ChoSuDung') <span class="badge ok">Vé chờ sử dụng</span>
+                    @elseif($ticket->TrangThaiVe === 'DaSuDung') <span class="badge fail">Vé đã sử dụng</span>
                     @else <span class="badge fail">Vé đã hủy</span>
                     @endif
 
@@ -61,8 +62,23 @@
                     </div>
 
                     <div class="qr-box">
-                        <strong>Mã QR / chuỗi kiểm soát vé</strong><br>
-                        {{ $ticket->MaQR }}
+                        @php
+                            $giftPending = $gift && $gift->TrangThai === 'DangChoNhan';
+                            $giftAccepted = $gift && $gift->TrangThai === 'DaNhan';
+                        @endphp
+                        @if($giftPending)
+                            <strong>Mã QR</strong><br>
+                            <span style="color:#fbbf24;font-size:14px;">⚠️ Vé này đang chờ người nhận xác nhận. Mã QR tạm ẩn đến khi lượt tặng hoàn tất hoặc bị hủy.</span>
+                        @elseif($giftAccepted)
+                            <strong>Mã QR</strong><br>
+                            <span style="color:#9ca3af;font-size:14px;">Vé này đã được tặng và người nhận đã xác nhận. Mã QR không còn hiệu lực với bạn.</span>
+                        @else
+                            <strong>Mã QR vé</strong>
+                            <div style="background:#fff;display:inline-block;padding:12px;border-radius:12px;margin-top:12px;">
+                                {!! QrCode::size(180)->format('svg')->generate($ticket->MaQR) !!}
+                            </div>
+                            <div style="margin-top:10px;font-size:12px;color:#9ca3af;word-break:break-all;">{{ $ticket->MaQR }}</div>
+                        @endif
                     </div>
 
                     @if($gift)
@@ -75,7 +91,7 @@
                         </div>
                     @endif
 
-                    <a class="btn-back" href="{{ route('my-ticket.index', ['account_id' => $accountId]) }}">Quay lại Vé của tôi</a>
+                    <a class="btn-back" href="{{ route('my-ticket', ['account_id' => $accountId]) }}">Quay lại Vé của tôi</a>
                 </div>
             </div>
         </div>

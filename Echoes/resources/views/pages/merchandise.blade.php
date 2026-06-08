@@ -36,7 +36,7 @@
             <x-product-card
                 :name="$p->TenMerch"
                 :price="$p->GiaBan"
-                :image="$p->AnhSanPham ?? 'assets/images/merch/default.png'"
+                :image="'assets/images/merch/' . ($p->AnhSanPham ?? 'default.png')"
                 :stock="$p->SoLuongTon ?? 0"
                 :link="url('/merchandise/' . $p->MaMerch)"
             />

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Ticket;
 use App\Models\TicketHold;
+use App\Models\VeTang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -102,6 +103,19 @@ class BookingPageController extends Controller
         }
 
         $this->bulkAddTicketsToCart($customerId, $preparedTickets);
+
+        // Lưu thông tin tặng vé vào session nếu người dùng chọn tặng vé
+        if ($request->input('is_gift') === '1') {
+            $request->session()->put('pending_gift', [
+                'TenNguoiNhan'   => $request->input('gift_name', ''),
+                'EmailNguoiNhan' => $request->input('gift_email', ''),
+                'SdtNguoiNhan'   => $request->input('gift_phone', ''),
+                'LoaiThiep'      => $request->input('gift_card_type', ''),
+                'LoiChuc'        => $request->input('gift_message', ''),
+            ]);
+        } else {
+            $request->session()->forget('pending_gift');
+        }
 
         return redirect()->route('cart')->with('success', 'Đã thêm vé vào giỏ hàng.');
     }
@@ -278,13 +292,18 @@ class BookingPageController extends Controller
             return redirect()->route('cart')->with('error', 'Gio hang rong hoac da het han.');
         }
 
-        $orderId = DB::transaction(function () use ($customerId, $cart, $merchandiseCart, $hasTicketItems, $hasMerchandiseItems): int {
+        $pendingGift = $request->session()->get('pending_gift');
+        $accountId = auth()->check() ? (auth()->user()->MaTaiKhoan ?? null) : null;
+
+        $orderId = DB::transaction(function () use ($customerId, $cart, $merchandiseCart, $hasTicketItems, $hasMerchandiseItems, $pendingGift, $accountId): int {
             $order = Order::create([
                 'MaKhachHang' => $customerId,
                 'NgayDat' => now(),
                 'TongTien' => (float) ($cart['TongTien'] ?? 0) + (float) $merchandiseCart['TongTien'],
                 'TrangThai' => Order::STATUS_PENDING,
             ]);
+
+            $createdTicketIds = [];
 
             if ($hasTicketItems) {
                 foreach ($cart['ChiTiet'] as $item) {
@@ -296,7 +315,7 @@ class BookingPageController extends Controller
 
                     for ($i = 1; $i <= (int) $item->SoLuong; $i++) {
                         $code = sprintf('VE-%d-%d-%s-%02d', $order->MaDonHang, $item->MaHangVe, strtoupper(Str::random(8)), $i);
-                        Ticket::create([
+                        $ticket = Ticket::create([
                             'MaDonHang' => $order->MaDonHang,
                             'MaHangVe' => $item->MaHangVe,
                             'MaGhe' => null,
@@ -306,6 +325,7 @@ class BookingPageController extends Controller
                             'TrangThai' => self::TICKET_ACTIVE,
                             'ThoiGianCheckIn' => null,
                         ]);
+                        $createdTicketIds[] = $ticket->MaVe;
                     }
 
                     DB::table('hang_ve')
@@ -313,7 +333,26 @@ class BookingPageController extends Controller
                         ->increment('SoLuongDaBan', (int) $item->SoLuong);
                 }
 
-                TicketHold::where('MaGiuCho', $cart['MaGiuCho'])->update(['TrangThai' => self::HOLD_CONVERTED]);
+                // Nếu có thông tin tặng vé, tạo VeTang cho từng vé vừa tạo
+                if ($pendingGift && !empty($pendingGift['EmailNguoiNhan']) && $accountId && !empty($createdTicketIds)) {
+                    foreach ($createdTicketIds as $veId) {
+                        VeTang::create([
+                            'MaVe'                 => $veId,
+                            'MaTaiKhoanNguoiTang'  => $accountId,
+                            'TenNguoiNhan'         => $pendingGift['TenNguoiNhan'],
+                            'EmailNguoiNhan'       => $pendingGift['EmailNguoiNhan'],
+                            'SdtNguoiNhan'         => $pendingGift['SdtNguoiNhan'] ?: null,
+                            'LoaiThiep'            => $pendingGift['LoaiThiep'] ?: null,
+                            'LoiChuc'              => $pendingGift['LoiChuc'] ?: null,
+                            'TrangThai'            => 'DangChoNhan',
+                            'TokenNhanVe'          => Str::random(64),
+                            'ThoiGianTang'         => now(),
+                            'ThoiGianNhan'         => null,
+                        ]);
+                    }
+                }
+
+                // KHÔNG set HOLD_CONVERTED ở đây — hold chỉ được đóng sau khi thanh toán thành công.
             }
 
             if ($hasMerchandiseItems) {
@@ -330,10 +369,37 @@ class BookingPageController extends Controller
             return (int) $order->MaDonHang;
         });
 
-        $request->session()->forget('merchandise_cart');
+        // Xóa pending_gift khỏi session sau khi đã xử lý
+        $request->session()->forget('pending_gift');
 
         return redirect()->route('payment.show', $orderId)
             ->with('success', 'Da tao don hang. Vui long hoan tat thanh toan.');
+    }
+
+    public function removeTicketFromCart(Request $request, int $ticketClassId)
+    {
+        $customerId = $this->customerId($request);
+        $hold = $this->activeHold($customerId);
+
+        if (!$hold) {
+            return redirect()->route('cart')->with('error', 'Không có giỏ hàng đang hoạt động.');
+        }
+
+        DB::table('chi_tiet_giu_cho')
+            ->where('MaGiuCho', $hold->MaGiuCho)
+            ->where('MaHangVe', $ticketClassId)
+            ->delete();
+
+        // Nếu giỏ hàng vé trống sau khi xóa, hủy luôn hold
+        $remaining = DB::table('chi_tiet_giu_cho')
+            ->where('MaGiuCho', $hold->MaGiuCho)
+            ->count();
+
+        if ($remaining === 0) {
+            $hold->update(['TrangThai' => self::HOLD_EXPIRED]);
+        }
+
+        return redirect()->route('cart')->with('success', 'Đã xóa hạng vé khỏi giỏ hàng.');
     }
 
     public function cancelOrder(Request $request, int $orderId)

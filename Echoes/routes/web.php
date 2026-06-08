@@ -25,23 +25,92 @@ Route::get('/rules', fn() => view('pages.rules'))->name('rules');
 Route::get('/auth/login', fn() => redirect()->route('auth.page'))->name('auth.login');
 
 // Booking
-Route::get('/my-ticket', [BookingPageController::class, 'myTickets'])->name('my-ticket')->middleware('auth.custom');
+// News
+Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.show');
+
+Route::get('/booking/{event}', [BookingPageController::class, 'show'])->name('booking.show');
+
+/*
+|--------------------------------------------------------------------------
+| Booking / Cart / Order
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/cart', [BookingPageController::class, 'cart'])->name('cart');
-Route::post('/cart/tickets', [BookingPageController::class, 'addToCart'])->name('cart.add');
-Route::post('/orders', [BookingPageController::class, 'createOrder'])->name('orders.create');
+
+Route::post('/cart/tickets', [BookingPageController::class, 'addToCart'])
+    ->name('cart.add');
+
+Route::post('/booking/{event}', [BookingPageController::class, 'store'])
+    ->name('booking.add');
+
+Route::post('/cart/merchandise/{id}', [MerchandiseController::class, 'addToCart'])
+    ->where('id', '[0-9]+')
+    ->name('cart.merchandise.add');
+
+Route::delete('/cart/merchandise/{id}', [MerchandiseController::class, 'removeFromCart'])
+    ->where('id', '[0-9]+')
+    ->name('cart.merchandise.remove');
+
+Route::delete('/cart/tickets/{ticketClassId}', [BookingPageController::class, 'removeTicketFromCart'])
+    ->where('ticketClassId', '[0-9]+')
+    ->name('cart.ticket.remove');
+
+Route::post('/orders', [BookingPageController::class, 'createOrder'])
+    ->name('orders.create');
+
 Route::post('/orders/{orderId}/cancel', [BookingPageController::class, 'cancelOrder'])
     ->where('orderId', '[0-9]+')
     ->name('orders.cancel');
 
-// Merchandise
-Route::get('/merchandise', [MerchandiseController::class, 'index'])->name('merchandise.index');
-Route::get('/merchandise/{id}', [MerchandiseController::class, 'show'])
-    ->where('id', '[0-9]+')
-    ->name('merchandise.show');
+Route::post('/payment/{orderId}/create-pending', [PaymentController::class, 'createPending'])
+    ->where('orderId', '[0-9]+')
+    ->name('payment.createPending');
 
-// News
-Route::get('/news', [NewsController::class, 'index'])->name('news.index');
-Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.show');
+Route::post('/payment/{orderId}/mock-success', [PaymentController::class, 'mockSuccess'])
+    ->where('orderId', '[0-9]+')
+    ->name('payment.mockSuccess');
+
+Route::post('/payment/{orderId}/mock-fail', [PaymentController::class, 'mockFail'])
+    ->where('orderId', '[0-9]+')
+    ->name('payment.mockFail');
+Route::post('/payment/{orderId}/qr/create', [PaymentController::class, 'createQrPayment'])
+    ->where('orderId', '[0-9]+')
+    ->name('payment.qr.create');
+
+Route::post('/payment/{orderId}/qr/confirm', [PaymentController::class, 'confirmQrPayment'])
+    ->where('orderId', '[0-9]+')
+    ->name('payment.qr.confirm');
+
+Route::post('/payment/{orderId}/qr/expire', [PaymentController::class, 'expireQrPayment'])
+    ->where('orderId', '[0-9]+')
+    ->name('payment.qr.expire');
+
+// ─── Ticket Gift / My Ticket ─────────────────────────
+Route::get('/my-ticket', [MyTicketController::class, 'index'])
+    ->name('my-ticket');
+
+Route::get('/my-ticket/{ticketId}', [MyTicketController::class, 'show'])
+    ->where('ticketId', '[0-9]+')
+    ->name('my-ticket.show');
+
+Route::get('/gift-history', [TicketGiftController::class, 'history'])
+    ->name('ticket-gifts.history');
+
+Route::post('/tickets/{ticketId}/gift', [TicketGiftController::class, 'store'])
+    ->where('ticketId', '[0-9]+')
+    ->name('tickets.gift.store');
+
+Route::post('/ticket-gifts/{giftId}/cancel', [TicketGiftController::class, 'cancel'])
+    ->where('giftId', '[0-9]+')
+    ->name('ticket-gifts.cancel');
+
+Route::get('/receive-ticket/{token}', [TicketGiftController::class, 'receive'])
+    ->name('ticket-gifts.receive');
+
+Route::post('/receive-ticket/{token}/confirm', [TicketGiftController::class, 'confirm'])
+    ->name('ticket-gifts.confirm');
 
 // Music
 Route::get('/music', [MusicController::class, 'index'])->name('music.index');
@@ -86,7 +155,7 @@ Route::middleware('auth.custom')->prefix('profile')->name('profile.')->group(fun
 
 // Admin
 Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
-    Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::patch('/orders/{orderId}/status', [AdminOrderController::class, 'updateStatus'])
@@ -154,6 +223,32 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
     Route::get('/merchandise/create', [MerchandiseController::class, 'adminCreate'])->name('merchandise.create');
     Route::post('/merchandise', [MerchandiseController::class, 'adminStore'])->name('merchandise.store');
     Route::get('/merchandise/{id}/edit', [MerchandiseController::class, 'adminEdit'])->name('merchandise.edit');
-    Route::put('/merchandise/{id}', [MerchandiseController::class, 'adminUpdate'])->name('merchandise.update');
-    Route::delete('/merchandise/{id}', [MerchandiseController::class, 'adminDestroy'])->name('merchandise.destroy');
+    Route::put('/merchandise/{id}',      [MerchandiseController::class, 'adminUpdate'])->name('merchandise.update');
+    Route::delete('/merchandise/{id}',   [MerchandiseController::class, 'adminDestroy'])->name('merchandise.destroy');
+    Route::patch('/merchandise/{id}/toggle', [MerchandiseController::class, 'adminToggleStatus'])->name('merchandise.toggle');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Management
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+
+    Route::get('/payments/{id}', [AdminPaymentController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('payments.show');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+
+    Route::get('/reports/revenue/export', [ReportController::class, 'exportRevenueCsv'])
+        ->name('reports.revenue.export');
+
+    Route::get('/reports/tickets', [ReportController::class, 'tickets'])->name('reports.tickets');
 });

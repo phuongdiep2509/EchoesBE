@@ -19,7 +19,7 @@ use Throwable;
 class PaymentController extends Controller
 {
     /** Thá»i gian giá»¯ Ä‘Æ¡n do pháº§n Ä‘áº·t vÃ© táº¡o ra. */
-    private const ORDER_HOLD_MINUTES = 5;
+    private const ORDER_HOLD_MINUTES = 10;
 
     /** Thá»i gian hiá»‡u lá»±c cá»§a má»™t mÃ£ QR ná»™i bá»™. */
     private const QR_EXPIRE_SECONDS = 60;
@@ -138,7 +138,7 @@ class PaymentController extends Controller
      * NgÆ°á»i dÃ¹ng xÃ¡c nháº­n Ä‘Ã£ thanh toÃ¡n QR. Náº¿u cÃ²n hiá»‡u lá»±c 60 giÃ¢y thÃ¬ hoÃ n táº¥t Ä‘Æ¡n hÃ ng.
      */
     public function confirmQrPayment(Request $request, int $orderId): RedirectResponse
-{
+    {
     $result = 'failed';
     $paidOrder = null;
     $paidPayment = null;
@@ -201,6 +201,11 @@ class PaymentController extends Controller
 
         $result = 'success';
     });
+
+    // Giỏ hàng merchandise chỉ được xóa sau khi thanh toán thành công.
+    if ($result === 'success') {
+        $request->session()->forget('merchandise_cart');
+    }
 
     if ($result === 'already_paid') {
         return redirect('/my-ticket')

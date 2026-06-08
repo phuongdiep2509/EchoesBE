@@ -4,105 +4,127 @@
 
 @section('styles')
 <style>
-    .ticket-page { background:#f5f1ea; min-height:100vh; padding:48px 20px 80px; }
+    .ticket-page { background:#f5f1ea; min-height:100vh; padding:80px 20px 80px; }
     .ticket-wrap { width:min(1180px,100%); margin:0 auto; }
-    .ticket-hero { background:#111827; color:#fff; border-radius:28px; padding:34px 38px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-end; gap:24px; }
-    .ticket-hero h1 { margin:0 0 10px; font-size:36px; line-height:1.15; }
-    .ticket-hero p { margin:0; color:#d1d5db; font-size:16px; line-height:1.6; }
-    .ticket-action-link { color:#f4e5c6; border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:11px 18px; text-decoration:none; white-space:nowrap; }
+    .ticket-hero { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:20px; }
+    .ticket-hero h1 { margin:0; font-size:26px; font-weight:800; color:#111827; }
+    .ticket-action-link { color:#74070d; border:1px solid #74070d; border-radius:999px; padding:8px 16px; text-decoration:none; white-space:nowrap; font-size:13px; font-weight:600; flex-shrink:0; }
     .alert-echoes { border-radius:18px; padding:16px 18px; margin-bottom:16px; line-height:1.55; }
     .alert-echoes.success { background:#e7f8ed; color:#166534; border:1px solid #bcebc9; }
     .alert-echoes.error { background:#fff0f0; color:#b91c1c; border:1px solid #ffcaca; }
     .alert-echoes.warning { background:#fff8e6; color:#8a5b00; border:1px solid #ffe0a0; }
-    .ticket-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:22px; }
-    .ticket-card { background:#fff; border:1px solid rgba(17,24,39,.08); border-radius:26px; overflow:hidden; box-shadow:0 18px 48px rgba(17,24,39,.08); }
-    .ticket-img { width:100%; height:190px; object-fit:cover; background:#e6ded1; display:block; }
-    .ticket-body { padding:22px; }
-    .ticket-body h2 { margin:0 0 12px; font-size:23px; line-height:1.25; color:#161616; }
-    .ticket-meta { display:grid; gap:8px; margin:14px 0; color:#4b5563; font-size:14px; line-height:1.45; }
-    .ticket-code { background:#f7f3ec; border-radius:16px; padding:12px 14px; color:#111827; word-break:break-word; }
-    .badge-row { display:flex; flex-wrap:wrap; gap:8px; margin:15px 0; }
-    .badge { display:inline-flex; border-radius:999px; padding:7px 11px; font-size:12px; line-height:1; border:1px solid transparent; }
-    .badge.ok { background:#e7f8ed; color:#166534; border-color:#bcebc9; }
+
+    /* ── Card dạng dòng ── */
+    .tcard-list { display:flex; flex-direction:column; gap:14px; }
+    .tcard {
+        background:#fff;
+        border:1px solid rgba(17,24,39,.09);
+        border-radius:20px;
+        padding:22px 26px;
+        display:flex;
+        align-items:center;
+        gap:24px;
+        box-shadow:0 4px 18px rgba(17,24,39,.06);
+        border-left:4px solid #74070d;
+    }
+    .tcard-main { flex:1; min-width:0; }
+    .tcard-title { font-size:17px; font-weight:800; color:#111827; margin:0 0 10px; line-height:1.3; }
+    .tcard-meta { display:flex; flex-wrap:wrap; gap:6px 20px; font-size:13px; color:#4b5563; }
+    .tcard-meta span { display:flex; align-items:center; gap:5px; }
+    .tcard-price { font-size:17px; font-weight:800; color:#74070d; white-space:nowrap; margin-bottom:10px; }
+    .tcard-badges { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+    .tcard-actions { display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex-shrink:0; }
+
+    .badge { display:inline-flex; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:700; line-height:1; border:1px solid transparent; }
+    .badge.ok   { background:#e7f8ed; color:#166534; border-color:#bcebc9; }
     .badge.wait { background:#fff8e6; color:#8a5b00; border-color:#ffe0a0; }
     .badge.fail { background:#fff0f0; color:#b91c1c; border-color:#ffcaca; }
-    .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-    .btn-echoes { border:0; border-radius:14px; padding:11px 15px; cursor:pointer; text-decoration:none; font-size:14px; line-height:1; display:inline-flex; align-items:center; justify-content:center; }
-    .btn-primary { background:#74070d; color:#fff; }
-    .btn-light { background:#f1ede5; color:#111827; }
+
+    .btn-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn-echoes { border:0; border-radius:12px; padding:9px 16px; cursor:pointer; text-decoration:none; font-size:13px; font-weight:700; line-height:1; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; }
+    .btn-primary  { background:#74070d; color:#fff; }
+    .btn-light    { background:#f1ede5; color:#111827; }
     .btn-disabled { opacity:.45; cursor:not-allowed; }
-    .gift-form { display:none; margin-top:17px; padding:18px; border-radius:20px; background:#fbfaf7; border:1px dashed #d8c8ad; }
-    .gift-form.active { display:block; }
-    .gift-form label { display:block; margin:12px 0 7px; font-size:13px; color:#374151; font-weight:700; }
-    .gift-form input, .gift-form select, .gift-form textarea { width:100%; border:1px solid #d9cfbd; border-radius:14px; padding:11px 13px; background:#fff; font-size:14px; }
-    .gift-form textarea { min-height:86px; resize:vertical; }
-    .history-title { font-size:28px; margin:46px 0 18px; color:#111827; }
+
+    .history-title { font-size:26px; font-weight:800; margin:46px 0 16px; color:#111827; }
     .history-card { background:#fff; border-radius:24px; overflow:hidden; box-shadow:0 16px 44px rgba(17,24,39,.08); border:1px solid rgba(17,24,39,.08); }
     .history-table { width:100%; border-collapse:collapse; }
-    .history-table th, .history-table td { padding:15px 16px; border-bottom:1px solid #f0ede7; text-align:left; vertical-align:top; font-size:14px; }
+    .history-table th, .history-table td { padding:14px 16px; border-bottom:1px solid #f0ede7; text-align:left; vertical-align:top; font-size:14px; }
     .history-table th { background:#111827; color:#fff; }
     .empty-box { background:#fff; border-radius:26px; padding:36px; text-align:center; color:#4b5563; box-shadow:0 16px 44px rgba(17,24,39,.08); line-height:1.6; }
-    @media(max-width:760px){ .ticket-hero{flex-direction:column;align-items:flex-start;padding:28px 24px}.ticket-hero h1{font-size:28px}.ticket-action-link{white-space:normal}.history-card{overflow-x:auto} }
+
+    @media(max-width:760px){
+        .ticket-hero { flex-direction:column; align-items:flex-start; padding:28px 24px; }
+        .ticket-hero h1 { font-size:28px; }
+        .ticket-action-link { white-space:normal; }
+        .tcard { flex-direction:column; align-items:flex-start; }
+        .tcard-actions { align-items:flex-start; width:100%; }
+        .history-card { overflow-x:auto; }
+    }
 </style>
 @endsection
 
 @section('content')
 <section class="ticket-page">
     <div class="ticket-wrap">
+
         <div class="ticket-hero">
-            <div>
-                <h1>Vé của tôi</h1>
-                <p>Quản lý vé đã thanh toán, gửi tặng vé cho người khác và theo dõi trạng thái nhận vé.</p>
-            </div>
+            <h1>Vé của tôi</h1>
             <a href="{{ route('ticket-gifts.history', ['account_id' => $accountId]) }}" class="ticket-action-link">Xem lịch sử tặng vé</a>
         </div>
 
         @if(session('success')) <div class="alert-echoes success">{{ session('success') }}</div> @endif
         @if(session('warning')) <div class="alert-echoes warning">{{ session('warning') }}</div> @endif
-        @if(session('error')) <div class="alert-echoes error">{{ session('error') }}</div> @endif
+        @if(session('error'))   <div class="alert-echoes error">{{ session('error') }}</div>   @endif
         @if($errors->any())
             <div class="alert-echoes error">
-                @foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach
+                @foreach($errors->all() as $e)<div>{{ $e }}</div>@endforeach
             </div>
         @endif
 
         @if(!empty($needLogin))
-            <div class="empty-box">
-                <h2>Bạn cần đăng nhập để xem vé</h2>
-                <p>Trong giai đoạn demo có thể thử bằng đường dẫn <strong>/my-ticket?account_id=1</strong>.</p>
-            </div>
+            <div class="empty-box"><h2>Bạn cần đăng nhập để xem vé</h2></div>
+
         @elseif($tickets->isEmpty())
             <div class="empty-box">
                 <h2>Chưa có vé hợp lệ</h2>
                 <p>Vé sẽ xuất hiện tại đây sau khi đơn hàng được thanh toán thành công.</p>
             </div>
+
         @else
-            <div class="ticket-grid">
+            <div class="tcard-list">
                 @foreach($tickets as $ticket)
                     @php
-                        $image = !empty($ticket->AnhBia)
-                            ? (\Illuminate\Support\Str::startsWith($ticket->AnhBia, ['http://','https://']) ? $ticket->AnhBia : asset($ticket->AnhBia))
-                            : asset('assets/images/index/logo (no back).png');
-                        $isUsable = $ticket->TrangThaiVe === 'ChoSuDung';
-                        $isGiftPending = $ticket->TrangThaiTang === 'DangChoNhan';
-                        $isGiftAccepted = $ticket->TrangThaiTang === 'DaNhan';
-                        $isEventEnded = $ticket->ThoiGianKetThuc && now()->greaterThan(\Carbon\Carbon::parse($ticket->ThoiGianKetThuc));
-                        $canGift = $isUsable && !$isGiftPending && !$isGiftAccepted && !$isEventEnded && !in_array($ticket->TrangThaiSuKien, ['DaHuy','DaKetThuc'], true);
+                        $isUsable       = $ticket->TrangThaiVe === 'ChoSuDung';
+                        $isGiftPending  = ($ticket->TrangThaiTangVe ?? null) === 'DangChoNhan';
+                        $isGiftAccepted = ($ticket->TrangThaiTangVe ?? null) === 'DaNhan';
+                        $isEventEnded   = $ticket->ThoiGianKetThuc
+                                          && now()->greaterThan(\Carbon\Carbon::parse($ticket->ThoiGianKetThuc));
+                        $canGift = $isUsable && !$isGiftPending && !$isGiftAccepted && !$isEventEnded
+                                   && !in_array($ticket->TrangThaiSuKien, ['DaHuy','DaKetThuc'], true);
+                        $start = \Carbon\Carbon::parse($ticket->ThoiGianBatDau);
+                        $end   = $ticket->ThoiGianKetThuc
+                                 ? \Carbon\Carbon::parse($ticket->ThoiGianKetThuc) : null;
                     @endphp
 
-                    <article class="ticket-card">
-                        <img class="ticket-img" src="{{ $image }}" alt="{{ $ticket->TenSuKien }}">
-                        <div class="ticket-body">
-                            <h2>{{ $ticket->TenSuKien }}</h2>
-                            <div class="ticket-code"><strong>Mã vé:</strong> {{ $ticket->MaVeDienTu }}</div>
-                            <div class="ticket-meta">
-                                <div><strong>Thời gian:</strong> {{ \Carbon\Carbon::parse($ticket->ThoiGianBatDau)->format('d/m/Y H:i') }}</div>
-                                <div><strong>Hạng vé:</strong> {{ $ticket->TenHangVe }} - {{ number_format((float)$ticket->GiaVe, 0, ',', '.') }}đ</div>
-                                <div><strong>Khu vực:</strong> {{ $ticket->TenKhuVuc ?? '—' }}</div>
-                                <div><strong>Ghế:</strong> {{ ($ticket->HangGhe || $ticket->SoGhe) ? 'Ghế '.trim(($ticket->HangGhe ?? '').($ticket->SoGhe ?? '')) : 'Chưa gán ghế' }}</div>
+                    <div class="tcard">
+                        {{-- Thông tin chính --}}
+                        <div class="tcard-main">
+                            <div class="tcard-title">{{ $ticket->TenSuKien }}</div>
+
+                            <div class="tcard-meta">
+                                @if(!empty($ticket->TenDiaDiem) || !empty($ticket->ThanhPho))
+                                    <span>📍 {{ trim(($ticket->TenDiaDiem ?? '').($ticket->ThanhPho ? ' - '.$ticket->ThanhPho : '')) }}</span>
+                                @endif
+                                <span>🕐 {{ $start->format('H:i') }}{{ $end ? ' - '.$end->format('H:i') : '' }}, {{ $start->format('d/m/Y') }}</span>
+                                <span>🎫 {{ $ticket->TenHangVe }}{{ $ticket->TenKhuVuc ? ' ('.$ticket->TenKhuVuc.')' : '' }}</span>
+                                @if($ticket->HangGhe || $ticket->SoGhe)
+                                    <span>💺 Ghế {{ trim(($ticket->HangGhe ?? '').($ticket->SoGhe ?? '')) }}</span>
+                                @endif
+                                <span style="color:#9ca3af;font-size:12px;">🪪 {{ $ticket->MaVeDienTu }}</span>
                             </div>
 
-                            <div class="badge-row">
+                            <div class="tcard-badges">
                                 @if($ticket->TrangThaiVe === 'ChoSuDung')
                                     <span class="badge ok">Chờ sử dụng</span>
                                 @elseif($ticket->TrangThaiVe === 'DaSuDung')
@@ -110,71 +132,42 @@
                                 @else
                                     <span class="badge fail">Đã hủy</span>
                                 @endif
-
-                                @if($isGiftPending)
-                                    <span class="badge wait">Đã tặng - chờ nhận</span>
-                                @elseif($isGiftAccepted)
-                                    <span class="badge ok">Đã được nhận</span>
-                                @endif
+                                @if($isGiftPending)  <span class="badge wait">Đã tặng – chờ nhận</span> @endif
+                                @if($isGiftAccepted) <span class="badge ok">Đã được nhận</span>         @endif
                             </div>
 
-                            @if($isGiftPending || $isGiftAccepted)
-                                <div style="font-size:14px;color:#4b5563;line-height:1.6;margin:10px 0;">
-                                    Người nhận: <strong>{{ $ticket->TenNguoiNhan }}</strong><br>
-                                    Email: {{ $ticket->EmailNguoiNhan }}
-                                </div>
-                            @endif
-
-                            <div class="btn-row">
-                                <a class="btn-echoes btn-light" href="{{ route('my-ticket.show', ['ticketId' => $ticket->MaVe, 'account_id' => $accountId]) }}">Chi tiết</a>
-                                @if($canGift)
-                                    <button type="button" class="btn-echoes btn-primary" onclick="toggleGiftForm({{ $ticket->MaVe }})">Tặng vé</button>
-                                @else
-                                    <button type="button" class="btn-echoes btn-light btn-disabled" disabled>Không thể tặng</button>
-                                @endif
-                            </div>
-
-                            @if($canGift)
-                                <form class="gift-form" id="gift-form-{{ $ticket->MaVe }}" method="POST" action="{{ route('tickets.gift.store', ['ticketId' => $ticket->MaVe, 'account_id' => $accountId]) }}">
-                                    @csrf
-                                    <input type="hidden" name="account_id" value="{{ $accountId }}">
-
-                                    <label>Tên người nhận *</label>
-                                    <input type="text" name="TenNguoiNhan" required maxlength="255" placeholder="Nhập tên người nhận">
-
-                                    <label>Email người nhận *</label>
-                                    <input type="email" name="EmailNguoiNhan" required maxlength="255" placeholder="email@example.com">
-
-                                    <label>Số điện thoại người nhận</label>
-                                    <input type="text" name="SdtNguoiNhan" maxlength="15" placeholder="Không bắt buộc">
-
-                                    <label>Loại thiệp</label>
-                                    <select name="LoaiThiep">
-                                        <option value="">Không chọn</option>
-                                        <option value="Bạn bè">Bạn bè</option>
-                                        <option value="Sinh nhật">Sinh nhật</option>
-                                        <option value="Cảm ơn">Cảm ơn</option>
-                                        <option value="Bất ngờ">Bất ngờ</option>
-                                    </select>
-
-                                    <label>Lời chúc</label>
-                                    <textarea name="LoiChuc" maxlength="1000" placeholder="Viết lời nhắn gửi người nhận..."></textarea>
-
-                                    <button type="submit" class="btn-echoes btn-primary" style="margin-top:14px;width:100%;">Gửi tặng vé</button>
-                                </form>
-                            @endif
                         </div>
-                    </article>
+
+                        {{-- Giá + nút --}}
+                        <div class="tcard-actions">
+                            <div class="tcard-price">{{ number_format((float)$ticket->GiaVe, 0, ',', '.') }}đ</div>
+                            <div class="btn-row">
+                                <a class="btn-echoes btn-light"
+                                   href="{{ route('my-ticket.show', ['ticketId' => $ticket->MaVe, 'account_id' => $accountId]) }}">Chi tiết</a>
+                                @if($canGift)
+                                    <button type="button" class="btn-echoes btn-primary"
+                                            onclick="openMyGiftModal({{ $ticket->MaVe }})">Tặng vé</button>
+                                @elseif($isGiftPending)
+                                    <span class="btn-echoes btn-light btn-disabled" style="cursor:default;">Đã tặng</span>
+                                @elseif($isGiftAccepted)
+                                    <span class="btn-echoes btn-light btn-disabled" style="cursor:default;">Đã nhận</span>
+                                @else
+                                    <span class="btn-echoes btn-light btn-disabled" style="cursor:default;">Không thể tặng</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 @endforeach
             </div>
         @endif
 
+        {{-- Lịch sử tặng vé gần đây --}}
         @if(empty($needLogin))
             <h2 class="history-title">Lịch sử tặng vé gần đây</h2>
             @if($giftHistory->isEmpty())
                 <div class="empty-box">Bạn chưa tặng vé nào.</div>
             @else
-                <div class="history-card">
+                <div class="history-card" style="overflow-x:auto;">
                     <table class="history-table">
                         <thead>
                             <tr>
@@ -189,23 +182,24 @@
                             @foreach($giftHistory->take(5) as $gift)
                                 <tr>
                                     <td>{{ $gift->MaVeDienTu }}</td>
-                                    <td>{{ $gift->TenSuKien }}<br><small>{{ $gift->TenHangVe }} - {{ $gift->TenKhuVuc }}</small></td>
+                                    <td>{{ $gift->TenSuKien }}<br><small>{{ $gift->TenHangVe }} – {{ $gift->TenKhuVuc }}</small></td>
                                     <td>{{ $gift->TenNguoiNhan }}<br><small>{{ $gift->EmailNguoiNhan }}</small></td>
                                     <td>
-                                        @if($gift->TrangThai === 'DangChoNhan') <span class="badge wait">Chờ nhận</span>
-                                        @elseif($gift->TrangThai === 'DaNhan') <span class="badge ok">Đã nhận</span>
-                                        @else <span class="badge fail">Đã hủy</span>
+                                        @if($gift->TrangThai === 'DangChoNhan')     <span class="badge wait">Chờ nhận</span>
+                                        @elseif($gift->TrangThai === 'DaNhan')      <span class="badge ok">Đã nhận</span>
+                                        @else                                        <span class="badge fail">Đã hủy</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($gift->TrangThai === 'DangChoNhan')
-                                            <form method="POST" action="{{ route('ticket-gifts.cancel', ['giftId' => $gift->MaVeTang, 'account_id' => $accountId]) }}" onsubmit="return confirm('Hủy lượt tặng vé này?')">
+                                            <form method="POST"
+                                                  action="{{ route('ticket-gifts.cancel', ['giftId' => $gift->MaVeTang, 'account_id' => $accountId]) }}"
+                                                  onsubmit="return confirm('Hủy lượt tặng vé này?')">
                                                 @csrf
                                                 <input type="hidden" name="account_id" value="{{ $accountId }}">
                                                 <button class="btn-echoes btn-light" type="submit">Hủy tặng</button>
                                             </form>
-                                        @else
-                                            —
+                                        @else —
                                         @endif
                                     </td>
                                 </tr>
@@ -215,78 +209,77 @@
                 </div>
             @endif
         @endif
+
     </div>
 </section>
+
+{{-- ── Modal tặng vé (từ trang Vé của tôi) ── --}}
+<div id="myTicketGiftModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:24px;padding:32px;width:min(480px,95vw);box-shadow:0 24px 60px rgba(0,0,0,.2);position:relative;">
+        <button onclick="closeMyGiftModal()" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280;">✕</button>
+        <h3 style="margin:0 0 6px;font-size:20px;font-weight:800;color:#111827;">🎁 Tặng vé cho người khác</h3>
+        <p style="margin:0 0 22px;font-size:13px;color:#6b7280;">Điền thông tin người nhận vé.</p>
+
+        <form id="myGiftForm" method="POST" action="">
+            @csrf
+            <input type="hidden" name="account_id" value="{{ $accountId }}">
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Tên người nhận *</label>
+                <input name="TenNguoiNhan" type="text" required maxlength="255" placeholder="Nhập tên người nhận"
+                       style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Email người nhận *</label>
+                <input name="EmailNguoiNhan" type="email" required maxlength="255" placeholder="email@example.com"
+                       style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Số điện thoại</label>
+                <input name="SdtNguoiNhan" type="text" maxlength="15" placeholder="Không bắt buộc"
+                       style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Loại thiệp</label>
+                <select name="LoaiThiep"
+                        style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;box-sizing:border-box;">
+                    <option value="">Không chọn</option>
+                    <option value="Bạn bè">Bạn bè</option>
+                    <option value="Sinh nhật">Sinh nhật</option>
+                    <option value="Cảm ơn">Cảm ơn</option>
+                    <option value="Bất ngờ">Bất ngờ</option>
+                </select>
+            </div>
+            <div style="margin-bottom:22px;">
+                <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Lời chúc</label>
+                <textarea name="LoiChuc" maxlength="1000" placeholder="Viết lời nhắn gửi người nhận..."
+                          style="width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 13px;font-size:14px;min-height:80px;resize:vertical;box-sizing:border-box;"></textarea>
+            </div>
+            <button type="submit"
+                    style="width:100%;background:#74070d;color:#fff;border:none;border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;">
+                Gửi tặng vé
+            </button>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
 <script>
-function toggleGiftForm(ticketId) {
-    const form = document.getElementById('gift-form-' + ticketId);
-    if (!form) return;
-    form.classList.toggle('active');
+function openMyGiftModal(ticketId) {
+    const routeBase = '{{ route("tickets.gift.store", ["ticketId" => "__ID__", "account_id" => $accountId]) }}';
+    document.getElementById('myGiftForm').action = routeBase.replace('__ID__', ticketId);
+    const modal = document.getElementById('myTicketGiftModal');
+    modal.style.display = 'flex';
 }
+
+function closeMyGiftModal() {
+    document.getElementById('myTicketGiftModal').style.display = 'none';
+}
+
+document.getElementById('myTicketGiftModal').addEventListener('click', function(e) {
+    if (e.target === this) closeMyGiftModal();
+});
 </script>
-=======
-@section('title', 'Vé của tôi')
-
-@section('content')
-<main class="booking-page">
-    <nav class="booking-breadcrumb">
-        <a href="{{ url('/') }}">Trang chủ</a>
-        <span>/</span>
-        <strong>Vé của tôi</strong>
-    </nav>
-
-    <section class="booking-panel">
-        <div class="booking-toolbar">
-            <div>
-                <span class="booking-kicker">Lịch sử đặt vé</span>
-                <h1 style="margin:10px 0 0;">Vé của tôi</h1>
-            </div>
-        </div>
-
-        @if(session('success'))
-            <div class="booking-alert">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="booking-alert error">{{ session('error') }}</div>
-        @endif
-
-        <table class="booking-table">
-            <thead>
-                <tr>
-                    <th>Mã đơn</th>
-                    <th>Ngày đặt</th>
-                    <th>Số vé</th>
-                    <th>Tổng tiền</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-            @forelse($orders as $order)
-                <tr>
-                    <td>#{{ $order->MaDonHang }}</td>
-                    <td>{{ $order->NgayDat }}</td>
-                    <td>{{ $order->SoLuongVe }}</td>
-                    <td>{{ number_format($order->TongTien, 0, ',', '.') }}đ</td>
-                    <td><span class="booking-status">{{ $order->TrangThai }}</span></td>
-                    <td>
-                        @if($order->TrangThai === 'ChoThanhToan')
-                            <form method="POST" action="{{ route('orders.cancel', $order->MaDonHang) }}">
-                                @csrf
-                                <button class="booking-button secondary" onclick="return confirm('Hủy đơn này?')">Hủy đơn</button>
-                            </form>
-                        @endif
-                    </td>
-                </tr>
-            @empty
-                <tr><td colspan="6">Chưa có đơn đặt vé.</td></tr>
-            @endforelse
-            </tbody>
-        </table>
-    </section>
-</main>
->>>>>>> 4430f924381cc6ca1cfbbda3303aceb1f0fddf07
 @endsection

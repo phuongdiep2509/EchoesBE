@@ -66,7 +66,14 @@ class MerchandiseController extends Controller
         return redirect()->route('cart')->with('success', 'Da them merchandise vao gio hang.');
     }
 
-    // ─── ADMIN ───────────────────────────────────────────
+    public function removeFromCart(Request $request, $id)
+    {
+        $cart = session('merchandise_cart', []);
+        unset($cart[(int) $id]);
+        session(['merchandise_cart' => $cart]);
+
+        return redirect()->route('cart')->with('success', 'Đã xóa sản phẩm khỏi giỏ hàng.');
+    }
 
     public function adminIndex()
     {
