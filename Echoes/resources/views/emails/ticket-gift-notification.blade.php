@@ -73,6 +73,10 @@
                                 Nếu nút không hoạt động, hãy sao chép liên kết sau và mở trên trình duyệt:<br>
                                 <span style="word-break:break-all;color:#74070d;">{{ $receiveUrl }}</span>
                             </p>
+
+                            <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-top:16px;">
+                                ⚠️ Mã QR vé sẽ được hiển thị sau khi bạn <strong>xác nhận nhận vé</strong> qua nút trên. Vui lòng không chia sẻ link xác nhận với người khác.
+                            </p>
                         </td>
                     </tr>
                     <tr>

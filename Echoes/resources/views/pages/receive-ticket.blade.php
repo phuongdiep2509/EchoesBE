@@ -65,6 +65,16 @@
                     </div>
                 @endif
 
+                @if($gift->TrangThai === 'DaNhan')
+                    <div style="background:#111827;border-radius:18px;padding:20px 24px;margin-top:20px;text-align:center;">
+                        <p style="color:#d1d5db;font-size:13px;margin:0 0 12px;">Mã QR vé của bạn</p>
+                        <div style="background:#fff;display:inline-block;padding:12px;border-radius:12px;">
+                            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(180)->format('svg')->generate($ticket->MaQR) !!}
+                        </div>
+                        <p style="color:#9ca3af;font-size:11px;margin:10px 0 0;word-break:break-all;">{{ $ticket->MaQR }}</p>
+                    </div>
+                @endif
+
                 @if($gift->TrangThai === 'DangChoNhan')
                     <form class="form-box" method="POST" action="{{ route('ticket-gifts.confirm', $gift->TokenNhanVe) }}">
                         @csrf

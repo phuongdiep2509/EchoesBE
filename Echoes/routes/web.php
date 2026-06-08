@@ -55,7 +55,6 @@ Route::middleware('guest')->group(function () {
 });
 
 // Booking
-Route::get('/my-ticket', [BookingPageController::class, 'myTickets'])->name('my-ticket')->middleware('auth.custom');
 Route::get('/booking/{event}', [BookingPageController::class, 'show'])->name('booking.show');
 
 // Merchandise
@@ -82,6 +81,14 @@ Route::post('/booking/{event}', [BookingPageController::class, 'store'])
 Route::post('/cart/merchandise/{id}', [MerchandiseController::class, 'addToCart'])
     ->where('id', '[0-9]+')
     ->name('cart.merchandise.add');
+
+Route::delete('/cart/merchandise/{id}', [MerchandiseController::class, 'removeFromCart'])
+    ->where('id', '[0-9]+')
+    ->name('cart.merchandise.remove');
+
+Route::delete('/cart/tickets/{ticketClassId}', [BookingPageController::class, 'removeTicketFromCart'])
+    ->where('ticketClassId', '[0-9]+')
+    ->name('cart.ticket.remove');
 
 Route::post('/orders', [BookingPageController::class, 'createOrder'])
     ->name('orders.create');
@@ -142,12 +149,6 @@ Route::get('/receive-ticket/{token}', [TicketGiftController::class, 'receive'])
 
 Route::post('/receive-ticket/{token}/confirm', [TicketGiftController::class, 'confirm'])
     ->name('ticket-gifts.confirm');
-// ─── Admin ───────────────────────────────────────────
-Route::prefix('admin')->name('admin.')->group(function () {
-
-    // Dashboard
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-});
 
 // Concert
 Route::get('/concert', [ConcertController::class, 'publicIndex'])->name('concert.index');
@@ -196,7 +197,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 // Admin
 Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
-    Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
 
@@ -340,6 +341,7 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
     Route::get('/merchandise/{id}/edit', [MerchandiseController::class, 'adminEdit'])->name('merchandise.edit');
     Route::put('/merchandise/{id}',      [MerchandiseController::class, 'adminUpdate'])->name('merchandise.update');
     Route::delete('/merchandise/{id}',   [MerchandiseController::class, 'adminDestroy'])->name('merchandise.destroy');
+    Route::patch('/merchandise/{id}/toggle', [MerchandiseController::class, 'adminToggleStatus'])->name('merchandise.toggle');
 
     /*
     |--------------------------------------------------------------------------
