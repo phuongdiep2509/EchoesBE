@@ -63,14 +63,14 @@ class MusicController extends Controller
     /**
      * Danh sách nhạc sống (MaLoaiSuKien != 1)
      */
-    public function index()
+    public function index(Request $request)
     {
         $events = $this->musicQuery()
             ->where('sk.MaLoaiSuKien', '!=', self::CONCERT_TYPE_ID)
             ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
             ->orderBy('sk.ThoiGianBatDau', 'asc')
-            ->get()
-            ->each(fn($e) => $e->image = $this->resolveImage($e->image ?? '', 'music'));
+            ->paginate(8)
+            ->through(fn($e) => tap($e, fn($e) => $e->image = $this->resolveImage($e->image ?? '', 'music')));
 
         return view('pages.music', compact('events'));
     }

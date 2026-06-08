@@ -94,6 +94,7 @@ class MyTicketController extends Controller
                 'orders' => collect(),
                 'giftHistory' => collect(),
                 'gifts' => collect(),
+                'merchandiseOrders' => collect(),
                 'needLogin' => false,
             ])->with('warning', 'Tài khoản hiện tại chưa có thông tin khách hàng.');
         }
@@ -194,6 +195,30 @@ class MyTicketController extends Controller
          */
         $giftHistory = $this->giftHistoryQueryByCustomer($customer->MaKhachHang)->get();
 
+        /*
+         * Đơn hàng merchandise đã thanh toán.
+         */
+        $merchandiseOrders = DB::table('don_hang as dh')
+            ->join('ct_don_hang_merchandise as ctm', 'ctm.MaDonHang', '=', 'dh.MaDonHang')
+            ->join('merchandise as m', 'm.MaMerch', '=', 'ctm.MaMerch')
+            ->where('dh.MaKhachHang', $customer->MaKhachHang)
+            ->where('dh.TrangThai', 'DaThanhToan')
+            ->select([
+                'dh.MaDonHang',
+                'dh.NgayDat',
+                'dh.TongTien',
+                'dh.TrangThai as TrangThaiDonHang',
+                'ctm.MaMerch',
+                'ctm.SoLuong',
+                'ctm.DonGia',
+                'm.TenMerch',
+                'm.AnhSanPham',
+            ])
+            ->orderByDesc('dh.NgayDat')
+            ->orderBy('ctm.MaMerch')
+            ->get()
+            ->groupBy('MaDonHang');
+
         return view('pages.my-ticket', [
             'accountId' => $accountId,
             'customer' => $customer,
@@ -202,6 +227,7 @@ class MyTicketController extends Controller
             'orders' => $orders,
             'giftHistory' => $giftHistory,
             'gifts' => $giftHistory,
+            'merchandiseOrders' => $merchandiseOrders,
             'needLogin' => false,
         ]);
     }

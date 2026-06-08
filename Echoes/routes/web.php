@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ForgotPasswordController;
@@ -17,7 +18,7 @@ use App\Http\Controllers\Admin\NhanVienController;
 use App\Http\Controllers\Admin\LoaiSuKienController;
 use App\Http\Controllers\Admin\TicketClassController;
 
-Route::get('/', fn() => view('pages.home'))->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Public pages
 Route::get('/about', fn() => view('pages.about'))->name('about');

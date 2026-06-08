@@ -46,7 +46,9 @@
 
         {{-- Tickets --}}
         @if(!$cart || $cart['ChiTiet']->isEmpty())
-            <div class="booking-empty">Giỏ hàng đang trống hoặc đã hết hạn. Hãy chọn vé từ trang chi tiết sự kiện.</div>
+            @if(!isset($merchandiseCart) || $merchandiseCart['ChiTiet']->isEmpty())
+                <div class="booking-empty">Giỏ hàng đang trống hoặc đã hết hạn. Hãy chọn vé từ trang chi tiết sự kiện.</div>
+            @endif
         @else
             <p>Giữ chỗ đến: <strong>{{ \Carbon\Carbon::parse($cart['ThoiGianHetHan'])->format('H:i:s d/m/Y') }}</strong></p>
 
@@ -128,7 +130,7 @@
                 <h2 style="margin:0;">Tổng tiền: {{ number_format($grandTotal, 0, ',', '.') }}đ</h2>
                 <form method="POST" action="{{ route('orders.create') }}">
                     @csrf
-                    <button class="booking-button">Tạo đơn đặt vé</button>
+                    <button class="booking-button">{{ $hasTickets ? 'Tạo đơn đặt vé' : 'Đặt hàng merchandise' }}</button>
                 </form>
             </div>
         @endif

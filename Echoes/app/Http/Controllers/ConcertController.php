@@ -309,14 +309,14 @@ class ConcertController extends Controller
         return view('pages.booking', compact('concert', 'hangVe', 'gheNgoi'));
     }
 
-    public function publicIndex()
+    public function publicIndex(Request $request)
     {
         $concerts = $this->concertQuery()
-            ->where('sk.MaLoaiSuKien', 1)                          // loại 1 = concert
+            ->where('sk.MaLoaiSuKien', 1)
             ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
             ->orderBy('sk.ThoiGianBatDau', 'asc')
-            ->get()
-            ->each(fn($c) => $c->image = $this->resolveImage($c->image ?? '', 'concert'));
+            ->paginate(8)
+            ->through(fn($c) => tap($c, fn($c) => $c->image = $this->resolveImage($c->image ?? '', 'concert')));
 
         return view('pages.concert', compact('concerts'));
     }

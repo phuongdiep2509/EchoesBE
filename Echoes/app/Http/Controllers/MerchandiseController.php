@@ -9,12 +9,12 @@ class MerchandiseController extends Controller
 {
     // ─── PUBLIC ──────────────────────────────────────────
 
-    public function index()
+    public function index(Request $request)
     {
         $products = DB::table('merchandise')
             ->where('TrangThai', 'DangBan')
             ->orderBy('MaMerch', 'asc')
-            ->get();
+            ->paginate(12);
 
         return view('pages.merchandise', compact('products'));
     }

@@ -161,6 +161,55 @@
             </div>
         @endif
 
+        {{-- Đơn hàng merchandise --}}
+        @if(empty($needLogin))
+            @php $merOrders = $merchandiseOrders ?? collect(); @endphp
+            <h2 class="history-title">Đơn hàng merchandise</h2>
+            @if($merOrders->isEmpty())
+                <div class="empty-box">Bạn chưa có đơn hàng merchandise nào.</div>
+            @else
+                <div class="tcard-list">
+                    @foreach($merOrders as $orderId => $items)
+                        @php
+                            $firstItem = $items->first();
+                            $orderTotal = $items->sum(fn($i) => $i->DonGia * $i->SoLuong);
+                        @endphp
+                        <div class="tcard" style="border-left-color:#46462a;">
+                            <div class="tcard-main">
+                                <div class="tcard-title" style="font-size:14px;color:#6b7280;font-weight:600;margin-bottom:6px;">
+                                    Đơn #{{ $orderId }} &nbsp;·&nbsp; {{ \Carbon\Carbon::parse($firstItem->NgayDat)->format('d/m/Y H:i') }}
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    @foreach($items as $item)
+                                        <div style="display:flex;align-items:center;gap:12px;">
+                                            @if($item->AnhSanPham)
+                                                <img src="{{ asset('assets/images/merchandise/' . $item->AnhSanPham) }}"
+                                                     style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;"
+                                                     alt="{{ $item->TenMerch }}">
+                                            @else
+                                                <div style="width:44px;height:44px;background:#f1ede5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🛍️</div>
+                                            @endif
+                                            <div style="flex:1;min-width:0;">
+                                                <div style="font-weight:700;font-size:14px;color:#111827;">{{ $item->TenMerch }}</div>
+                                                <div style="font-size:12px;color:#6b7280;">x{{ $item->SoLuong }} &nbsp;·&nbsp; {{ number_format($item->DonGia, 0, ',', '.') }}đ/cái</div>
+                                            </div>
+                                            <div style="font-weight:700;color:#74070d;white-space:nowrap;font-size:13px;">
+                                                {{ number_format($item->DonGia * $item->SoLuong, 0, ',', '.') }}đ
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="tcard-actions">
+                                <div class="tcard-price">{{ number_format($orderTotal, 0, ',', '.') }}đ</div>
+                                <span class="badge ok">Đã thanh toán</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        @endif
+
         {{-- Lịch sử tặng vé gần đây --}}
         @if(empty($needLogin))
             <h2 class="history-title">Lịch sử tặng vé gần đây</h2>
