@@ -93,7 +93,9 @@
 @php
     $money = fn($amount) => number_format((float) $amount, 0, ',', '.') . 'đ';
     $eventImage = $event && !empty($event->AnhBia)
-        ? asset($event->AnhBia)
+        ? (file_exists(public_path('assets/images/concert/' . trim($event->AnhBia)))
+            ? asset('assets/images/concert/' . trim($event->AnhBia))
+            : asset('assets/images/index/favicon.png'))
         : asset('assets/images/index/favicon.png');
     $eventName = $event->TenSuKien ?? 'Sự kiện Echoes';
     $paymentStatus = $payment->TrangThai ?? null;
