@@ -4,6 +4,13 @@
 
 @section('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/merchandise.css') }}">
+    <style>
+        .pagination-wrap { display:flex; justify-content:center; align-items:center; gap:6px; margin:40px 0 20px; flex-wrap:wrap; }
+        .page-btn { display:inline-flex; align-items:center; justify-content:center; min-width:38px; height:38px; padding:0 10px; border-radius:10px; background:#fff; border:1px solid #ddd; color:#111827; font-size:14px; font-weight:600; text-decoration:none; cursor:pointer; transition:all .2s; }
+        .page-btn:hover { background:#74070d; color:#fff; border-color:#74070d; }
+        .page-btn.active { background:#74070d; color:#fff; border-color:#74070d; }
+        .page-btn.disabled { opacity:.4; cursor:not-allowed; pointer-events:none; }
+    </style>
 @endsection
 
 @section('content')
@@ -47,6 +54,31 @@
         @endforelse
 
     </div>
+
+    {{-- Pagination --}}
+    @if($products->hasPages())
+        <div class="pagination-wrap">
+            @if($products->onFirstPage())
+                <span class="page-btn disabled">&#8249;</span>
+            @else
+                <a class="page-btn" href="{{ $products->previousPageUrl() }}">&#8249;</a>
+            @endif
+
+            @foreach($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                @if($page == $products->currentPage())
+                    <span class="page-btn active">{{ $page }}</span>
+                @else
+                    <a class="page-btn" href="{{ $url }}">{{ $page }}</a>
+                @endif
+            @endforeach
+
+            @if($products->hasMorePages())
+                <a class="page-btn" href="{{ $products->nextPageUrl() }}">&#8250;</a>
+            @else
+                <span class="page-btn disabled">&#8250;</span>
+            @endif
+        </div>
+    @endif
 
 </div>
 
