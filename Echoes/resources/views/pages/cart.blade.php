@@ -79,6 +79,7 @@
                     <button class="booking-button">Tạo đơn đặt vé</button>
                 </form>
             </div>
+        @endif
         </div>
 
     </div>

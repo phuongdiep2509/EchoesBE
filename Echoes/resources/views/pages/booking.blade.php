@@ -15,8 +15,8 @@
     <nav class="breadcrumb-custom mb-4">
         <div class="container">
             <a href="{{ route('home') }}">TRANG CHỦ</a> /
-            <a href="{{ route('concert.index') }}">CONCERT</a> /
-            <a href="{{ route('concert.show', $concert->id) }}">{{ $concert->title }}</a> /
+            <a href="{{ route($eventIndexRoute) }}">CONCERT</a> /
+            <a href="{{ route($eventShowRoute, $concert->id) }}">{{ $concert->title }}</a> /
             <span>CHỌN CHỖ NGỒI</span>
         </div>
     </nav>
@@ -129,7 +129,7 @@
             {{-- ─── RIGHT: Booking Summary ──────────────────── --}}
             <div class="col-lg-4">
                 <div class="booking-summary booking-side booking-panel shadow-sm border-0">
-                    <form id="bookingForm" method="POST" action="{{ route('orders.create') }}">
+                    <form id="bookingForm" method="POST" action="{{ route('booking.add', $concert->id) }}">
                         @csrf
                         <input type="hidden" name="concert_id" value="{{ $concert->id }}">
                         <input type="hidden" name="is_gift" id="isGift" value="0">
@@ -189,7 +189,7 @@
                                 <i class="fas fa-gift me-2"></i>TẶNG VÉ
                             </button>
 
-                            <a href="{{ route('concert.show', $concert->id) }}"
+                            <a href="{{ route($eventShowRoute, $concert->id) }}"
                                class="btn btn-outline-secondary w-100"
                                id="btnCancel">
                                 <i class="fas fa-times me-2"></i>HỦY

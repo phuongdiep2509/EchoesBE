@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th6 08, 2026 lúc 11:30 AM
+-- Thời gian đã tạo: Th6 08, 2026 lúc 12:46 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -70,8 +70,8 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('laravel-cache-424f74a6a7ed4d4ed4761507ebcd209a6ef0937b', 'i:1;', 1780910467),
-('laravel-cache-424f74a6a7ed4d4ed4761507ebcd209a6ef0937b:timer', 'i:1780910467;', 1780910467);
+('laravel-cache-424f74a6a7ed4d4ed4761507ebcd209a6ef0937b', 'i:1;', 1780911461),
+('laravel-cache-424f74a6a7ed4d4ed4761507ebcd209a6ef0937b:timer', 'i:1780911461;', 1780911461);
 
 -- --------------------------------------------------------
 
@@ -96,6 +96,17 @@ CREATE TABLE `chi_tiet_giu_cho` (
   `MaHangVe` int(11) NOT NULL,
   `SoLuong` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `chi_tiet_giu_cho`
+--
+
+INSERT INTO `chi_tiet_giu_cho` (`MaGiuCho`, `MaHangVe`, `SoLuong`) VALUES
+(1, 8, 1),
+(2, 17, 1),
+(3, 8, 1),
+(4, 5, 1),
+(5, 5, 1);
 
 -- --------------------------------------------------------
 
@@ -175,6 +186,17 @@ CREATE TABLE `don_hang` (
   `TongThanhToan` decimal(12,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `don_hang`
+--
+
+INSERT INTO `don_hang` (`MaDonHang`, `MaKhachHang`, `NgayDat`, `TongTien`, `TrangThai`, `MaKhuyenMai`, `SoTienGiam`, `TongThanhToan`) VALUES
+(1, 1, '2026-06-08 10:19:04', 1600000.00, 'DaHuy', NULL, 0.00, NULL),
+(2, 1, '2026-06-08 10:26:50', 2400000.00, 'DaThanhToan', NULL, 0.00, NULL),
+(3, 1, '2026-06-08 10:29:21', 1600000.00, 'DaHuy', NULL, 0.00, NULL),
+(4, 1, '2026-06-08 10:35:44', 3500000.00, 'DaThanhToan', NULL, 0.00, NULL),
+(5, 1, '2026-06-08 10:39:13', 3500000.00, 'DaThanhToan', NULL, 0.00, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -219,6 +241,17 @@ CREATE TABLE `giu_cho_ve` (
   `TrangThai` enum('DangGiuCho','DaHetHan','DaThanhToan','DaHuy') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `giu_cho_ve`
+--
+
+INSERT INTO `giu_cho_ve` (`MaGiuCho`, `MaKhachHang`, `ThoiGianBatDau`, `ThoiGianHetHan`, `TrangThai`) VALUES
+(1, 1, '2026-06-08 10:19:02', '2026-06-08 10:29:02', 'DaThanhToan'),
+(2, 1, '2026-06-08 10:26:45', '2026-06-08 10:36:45', 'DaThanhToan'),
+(3, 1, '2026-06-08 10:29:19', '2026-06-08 10:39:19', 'DaThanhToan'),
+(4, 1, '2026-06-08 10:35:43', '2026-06-08 10:45:43', 'DaThanhToan'),
+(5, 1, '2026-06-08 10:39:11', '2026-06-08 10:49:11', 'DaThanhToan');
+
 -- --------------------------------------------------------
 
 --
@@ -246,10 +279,10 @@ INSERT INTO `hang_ve` (`MaHangVe`, `MaKhuVuc`, `TenHangVe`, `GiaVe`, `SoLuongMoB
 (2, 2, 'A1', 3500000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-12 23:59:59', 'Vé vào cổng'),
 (3, 3, 'B1', 2500000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-13 23:59:59', NULL),
 (4, 1, 'V2', 5500000.00, 100, 0, '2026-06-01 00:00:00', '2026-06-13 23:59:59', NULL),
-(5, 2, 'A2', 3500000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-13 23:59:59', NULL),
+(5, 2, 'A2', 3500000.00, 200, 2, '2026-06-01 00:00:00', '2026-06-13 23:59:59', NULL),
 (6, 3, 'B2', 2500000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-13 23:59:59', NULL),
 (7, 4, 'Trực tuyến', 650000.00, 500, 0, '2026-06-01 00:00:00', '2026-06-20 23:59:59', NULL),
-(8, 5, 'Trực tuyến', 1600000.00, 500, 0, '2026-06-01 00:00:00', '2026-06-07 23:59:59', NULL),
+(8, 5, 'Trực tuyến', 1600000.00, 500, 2, '2026-06-01 00:00:00', '2026-06-07 23:59:59', NULL),
 (9, 6, 'VIP 1', 4225000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-07 23:59:59', NULL),
 (10, 7, 'CAT 1', 3445000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-07 23:59:59', NULL),
 (11, 8, 'CAT 2', 2210000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-07 23:59:59', NULL),
@@ -258,7 +291,7 @@ INSERT INTO `hang_ve` (`MaHangVe`, `MaKhuVuc`, `TenHangVe`, `GiaVe`, `SoLuongMoB
 (14, 11, 'Day dứt nỗi đau', 2800000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-20 23:59:59', NULL),
 (15, 11, 'Khóc cùng em 1', 1200000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-20 23:59:59', NULL),
 (16, 12, 'Khóc cùng em 2', 800000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-20 23:59:59', NULL),
-(17, 12, 'Dưới những cơn mưa', 2400000.00, 200, 0, '2026-06-01 00:00:00', '2026-06-20 23:59:59', NULL),
+(17, 12, 'Dưới những cơn mưa', 2400000.00, 200, 1, '2026-06-01 00:00:00', '2026-06-20 23:59:59', NULL),
 (18, 13, 'VIP', 1199000.00, 200, 0, '2026-06-01 00:00:00', '2026-07-11 23:59:59', NULL),
 (19, 14, 'STANDARD', 855000.00, 200, 0, '2026-06-01 00:00:00', '2026-07-11 23:59:59', NULL),
 (20, 15, 'SWAN', 3000000.00, 200, 0, '2026-06-01 00:00:00', '2026-08-07 23:59:59', NULL),
@@ -467,7 +500,7 @@ INSERT INTO `merchandise` (`MaMerch`, `TenMerch`, `MoTa`, `GiaBan`, `SoLuongTon`
 (3, 'Anh Trai \"Say Hi\" Bandana / The Last Chapter', 'Khăn bandana chính thức từ concert Anh Trai Say Hi.', 179000.00, 50, 'merch3.png', 'DangBan', NULL, NULL),
 (4, 'Anh Trai \"Say Hi\" Lightstick set / Eternal Shine', 'Lightstick chính thức với hiệu ứng ánh sáng đặc biệt.\r\n\r\nChất liệu: Nhựa ABS + LED\r\nKích thước: 25 cm (dài', 499000.00, 50, 'merch4.png', 'DangBan', NULL, NULL),
 (5, 'Em Xinh \"Say Hi\" Lightstick set / The real Aura', 'Lightstick Em Xinh với aura đặc biệt và màu sắc rực rỡ.\r\n\r\nChất liệu: Nhựa ABS + LED RGB\r\nKích thước: 25 cm (dài)', 499000.00, 50, 'merch5.png', 'DangBan', NULL, NULL),
-(6, 'EM XINH \"Say Hi\" Cap / Xinh Sập Xình Sập Sàn', 'Mũ lưỡi trai Em Xinh với slogan độc đáo và thiết kế trendy.\r\n\r\nChất liệu: Cotton twill\r\nKích thước: Free size (56-60 cm)', 249000.00, 50, 'merch6.png', 'DangBan', NULL, NULL);
+(6, 'EM XINH \"Say Hi\" Cap / Xinh Sập Xình Sập Sàn', 'Mũ lưỡi trai Em Xinh với slogan độc đáo và thiết kế trendy.\r\n\r\nChất liệu: Cotton twill\r\nKích thước: Free size (56-60 cm)', 249000.00, 50, 'merch6.png', 'NgungBan', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -582,7 +615,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('SZUCPXnUTLCMMWwGZVeYWSOT3rJ8CE8iNEs1NCuX', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoic28yRDdqZzN0Sk1RVFBwNzhZa3JhcHVRazVFQzUyZkY3WVgwQk53RSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDk6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9FY2hvZXNCRS9FY2hvZXMvcHVibGljL25ld3MiO3M6NToicm91dGUiO3M6MTA6Im5ld3MuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjExOiJNYUtoYWNoSGFuZyI7aToxO3M6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1780910940);
+('PJxuqJpYYbz4mIkL1CVrz6D0sWHRZaFtaLGPJF3c', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiRUJiczVxSFl5YURpWVdSSmkzY2F6bk1mWGxzemcyQ3cxQlc5UjdGciI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NTg6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9FY2hvZXNCRS9FY2hvZXMvcHVibGljL21lcmNoYW5kaXNlLzQiO3M6NToicm91dGUiO3M6MTY6Im1lcmNoYW5kaXNlLnNob3ciO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO3M6MTE6Ik1hS2hhY2hIYW5nIjtpOjE7fQ==', 1780915392);
 
 -- --------------------------------------------------------
 
@@ -659,12 +692,12 @@ CREATE TABLE `tai_khoan` (
 
 INSERT INTO `tai_khoan` (`MaTaiKhoan`, `TenDangNhap`, `MatKhau`, `HoTen`, `Email`, `SoDienThoai`, `VaiTro`, `TrangThai`) VALUES
 (1, 'quan.nguyen', '$2y$12$ivlBxyFgxIl0mBw9Fi9dg.ksYcUcjEXP/MeAoMIxc4ExSmENlRnnO', 'Nguyễn Minh Quân', 'quan.nguyen@echoes.vn', '0901234567', 'Admin', 'HoatDong'),
-(2, 'ha.tran', 'nhanvien1@123', 'Trần Thu Hà', 'ha.tran@echoes.vn', '0912345678', 'NhanVien', 'HoatDong'),
-(3, 'nam.le', 'nhanvien2@123', 'Lê Hoàng Nam', 'nam.le@echoes.vn', '0923456789', 'NhanVien', 'HoatDong'),
-(4, 'anh.pham', 'khachhang1@123', 'Phạm Đức Anh', 'anhpham@gmail.com', '0934567890', 'KhachHang', 'HoatDong'),
-(5, 'my.nguyen', 'khachhang2@123', 'Nguyễn Thảo My', 'thaomy.nguyen@gmail.com', '0945678901', 'KhachHang', 'HoatDong'),
-(6, 'linh.do', 'khachhang3@123', 'Đỗ Khánh Linh', 'linhdo@gmail.com', '0961234567', 'KhachHang', 'HoatDong'),
-(7, 'tung.bui', 'khachhang4@123', 'Bùi Minh Tùng', 'tungbui@gmail.com', '0973456789', 'KhachHang', 'HoatDong');
+(2, 'ha.tran', '$2y$12$5AHOZ8oyXOgFE4w2Az6t6eYcZXs3JEMOG39GMCmH6Mqmz7EHJ.T0G', 'Trần Thu Hà', 'ha.tran@echoes.vn', '0912345678', 'NhanVien', 'HoatDong'),
+(3, 'nam.le', '$2y$12$5AHOZ8oyXOgFE4w2Az6t6eYcZXs3JEMOG39GMCmH6Mqmz7EHJ.T0G', 'Lê Hoàng Nam', 'nam.le@echoes.vn', '0923456789', 'NhanVien', 'HoatDong'),
+(4, 'anh.pham', '$2y$12$jBGBZL8a9Z5T3lXU5B6wPupolEADoxgap6PwJXx3/A.fBJy64leVG', 'Phạm Đức Anh', 'anhpham@gmail.com', '0934567890', 'KhachHang', 'HoatDong'),
+(5, 'my.nguyen', '$2y$12$jBGBZL8a9Z5T3lXU5B6wPupolEADoxgap6PwJXx3/A.fBJy64leVG', 'Nguyễn Thảo My', 'thaomy.nguyen@gmail.com', '0945678901', 'KhachHang', 'HoatDong'),
+(6, 'linh.do', '$2y$12$jBGBZL8a9Z5T3lXU5B6wPupolEADoxgap6PwJXx3/A.fBJy64leVG', 'Đỗ Khánh Linh', 'linhdo@gmail.com', '0961234567', 'KhachHang', 'HoatDong'),
+(7, 'tung.bui', '$2y$12$jBGBZL8a9Z5T3lXU5B6wPupolEADoxgap6PwJXx3/A.fBJy64leVG', 'Bùi Minh Tùng', 'tungbui@gmail.com', '0973456789', 'KhachHang', 'HoatDong');
 
 -- --------------------------------------------------------
 
@@ -694,6 +727,17 @@ CREATE TABLE `thanh_toan` (
   `MaGiaoDich` varchar(100) DEFAULT NULL,
   `TrangThai` enum('ChoThanhToan','ThanhCong','ThatBai') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `thanh_toan`
+--
+
+INSERT INTO `thanh_toan` (`MaThanhToan`, `MaDonHang`, `PhuongThucThanhToan`, `SoTien`, `ThoiGianThanhToan`, `MaGiaoDich`, `TrangThai`) VALUES
+(1, 2, 'ChuyenKhoanQR', 2400000.00, '2026-06-08 10:27:15', 'ECHOES-ORDER-2-102654-F4MC', 'ThanhCong'),
+(2, 3, 'ChuyenKhoanQR', 1600000.00, '2026-06-08 10:30:24', 'ECHOES-ORDER-3-102923-ADTK', 'ThatBai'),
+(3, 4, 'ChuyenKhoanQR', 3500000.00, '2026-06-08 10:35:53', 'ECHOES-ORDER-4-103546-4EJW', 'ThanhCong'),
+(4, 5, 'ChuyenKhoanQR', 3500000.00, '2026-06-08 10:40:15', 'ECHOES-ORDER-5-103914-VPXK', 'ThatBai'),
+(5, 5, 'ChuyenKhoanQR', 3500000.00, '2026-06-08 10:42:24', 'ECHOES-ORDER-5-104209-OTXS', 'ThanhCong');
 
 -- --------------------------------------------------------
 
@@ -780,6 +824,17 @@ CREATE TABLE `ve` (
   `TrangThai` enum('ChoSuDung','DaSuDung','DaHuy') NOT NULL,
   `ThoiGianCheckIn` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `ve`
+--
+
+INSERT INTO `ve` (`MaVe`, `MaDonHang`, `MaHangVe`, `MaGhe`, `MaSuKien`, `MaQR`, `MaVeDienTu`, `TrangThai`, `ThoiGianCheckIn`) VALUES
+(1, 1, 8, NULL, 3, 'a1069c92b213bb12828146ad0a9a59c431cc57e02d849c98fb7040d1793b4ec9', 'VE-1-8-S16VU8LJ-01', 'DaHuy', NULL),
+(2, 2, 17, NULL, 5, '808ceb19cf6ad692da51a85433ad560b8c4f3d819e938b7bf22b59f1c91aa34f', 'VE-2-17-LBULKU8E-01', 'ChoSuDung', NULL),
+(3, 3, 8, NULL, 3, 'a456d917ba3dfee27b5c9f990a1b3d98a4eb050866b31a5d5530014306448319', 'VE-3-8-GHVTCRKF-01', 'DaHuy', NULL),
+(4, 4, 5, NULL, 1, '8c26f1068fc6ce503d6f798d2c6f9b2b1b221d92cd4fb7cb16caa6b0dbc8930f', 'VE-4-5-QVWHKEQU-01', 'ChoSuDung', NULL),
+(5, 5, 5, NULL, 1, '937a8bc2b58b43888dc82ae73fbedf20176a3a882e7bb79716d632e78171343c', 'VE-5-5-PDDI0GVW-01', 'ChoSuDung', NULL);
 
 -- --------------------------------------------------------
 
@@ -1081,7 +1136,7 @@ ALTER TABLE `dia_diem_to_chuc`
 -- AUTO_INCREMENT cho bảng `don_hang`
 --
 ALTER TABLE `don_hang`
-  MODIFY `MaDonHang` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaDonHang` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `failed_jobs`
@@ -1099,7 +1154,7 @@ ALTER TABLE `ghe_ngoi`
 -- AUTO_INCREMENT cho bảng `giu_cho_ve`
 --
 ALTER TABLE `giu_cho_ve`
-  MODIFY `MaGiuCho` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaGiuCho` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `hang_ve`
@@ -1177,7 +1232,7 @@ ALTER TABLE `tai_khoan`
 -- AUTO_INCREMENT cho bảng `thanh_toan`
 --
 ALTER TABLE `thanh_toan`
-  MODIFY `MaThanhToan` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaThanhToan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `the_loai_am_nhac`
@@ -1201,7 +1256,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `ve`
 --
 ALTER TABLE `ve`
-  MODIFY `MaVe` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaVe` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `ve_tang`

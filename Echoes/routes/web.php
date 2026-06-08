@@ -52,15 +52,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])
         ->name('register')
         ->middleware('throttle:5,1');
+});
 
 // Booking
 Route::get('/my-ticket', [BookingPageController::class, 'myTickets'])->name('my-ticket')->middleware('auth.custom');
-Route::get('/cart', [BookingPageController::class, 'cart'])->name('cart');
-Route::post('/cart/tickets', [BookingPageController::class, 'addToCart'])->name('cart.add');
-Route::post('/orders', [BookingPageController::class, 'createOrder'])->name('orders.create');
-Route::post('/orders/{orderId}/cancel', [BookingPageController::class, 'cancelOrder'])
-    ->where('orderId', '[0-9]+')
-    ->name('orders.cancel');
+Route::get('/booking/{event}', [BookingPageController::class, 'show'])->name('booking.show');
 
 // Merchandise
 Route::get('/merchandise', [MerchandiseController::class, 'index'])->name('merchandise.index');
@@ -79,6 +75,9 @@ Route::get('/cart', [BookingPageController::class, 'cart'])->name('cart');
 
 Route::post('/cart/tickets', [BookingPageController::class, 'addToCart'])
     ->name('cart.add');
+
+Route::post('/booking/{event}', [BookingPageController::class, 'store'])
+    ->name('booking.add');
 
 Route::post('/cart/merchandise/{id}', [MerchandiseController::class, 'addToCart'])
     ->where('id', '[0-9]+')
@@ -148,9 +147,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+});
+
 // Concert
 Route::get('/concert', [ConcertController::class, 'publicIndex'])->name('concert.index');
 Route::get('/concert/{id}', [ConcertController::class, 'show'])->name('concert.show');
+
+// Music
+Route::get('/music', [MusicController::class, 'index'])->name('music.index');
+Route::get('/music/{id}', [MusicController::class, 'show'])->name('music.show');
+
+// News
+Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.show');
 
 // Auth
 Route::middleware('guest')->group(function () {
@@ -161,8 +170,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:10,1');
     Route::post('/register', [AuthController::class, 'register'])->name('register')->middleware('throttle:5,1');
 });
-
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth.custom');
 
 // Google OAuth
 Route::middleware('guest')->group(function () {
@@ -184,6 +191,8 @@ Route::middleware('auth.custom')->prefix('profile')->name('profile.')->group(fun
     Route::put('/update', [ProfileController::class, 'update'])->name('update');
     Route::put('/password', [ProfileController::class, 'changePassword'])->name('password');
 });
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth.custom');
 
 // Admin
 Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
@@ -358,7 +367,4 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
         ->name('reports.revenue.export');
 
     Route::get('/reports/tickets', [ReportController::class, 'tickets'])->name('reports.tickets');
-    Route::put('/merchandise/{id}', [MerchandiseController::class, 'adminUpdate'])->name('merchandise.update');
-    Route::delete('/merchandise/{id}', [MerchandiseController::class, 'adminDestroy'])->name('merchandise.destroy');
-});
 });

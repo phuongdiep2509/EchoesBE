@@ -32,7 +32,7 @@ class PaymentController extends Controller
         $order = DonHang::with(['khachHang.taiKhoan', 'latestPayment'])->findOrFail($orderId);
          if ($order->TrangThai === 'DaThanhToan') {
         return redirect('/my-ticket')
-            ->with('success', 'ÄÆ¡n hÃ ng nÃ y Ä‘Ã£ thanh toÃ¡n thÃ nh cÃ´ng. VÃ© cá»§a báº¡n náº±m trong má»¥c VÃ© cá»§a tÃ´i.');
+            ->with('success', 'Đơn hàng này đã thanh toán thành công. Vé của bạn nằm trong mục “Vé của tôi”.');
         }
 
 
@@ -96,12 +96,12 @@ class PaymentController extends Controller
 
         if ($order->TrangThai === 'DaHuy') {
             return redirect()->route('payment.show', $order->MaDonHang)
-                ->with('error', 'ÄÆ¡n hÃ ng Ä‘Ã£ háº¿t thá»i gian giá»¯ vÃ© hoáº·c Ä‘Ã£ bá»‹ há»§y. KhÃ´ng thá»ƒ táº¡o mÃ£ QR thanh toÃ¡n.');
+                ->with('error', 'Đơn hàng đã hết thời gian giữ vé hoặc đã bị hủy. Không thể tạo mã QR thanh toán.');
         }
 
         if ($order->TrangThai === 'DaThanhToan') {
             return redirect()->route('payment.show', $order->MaDonHang)
-                ->with('success', 'ÄÆ¡n hÃ ng nÃ y Ä‘Ã£ Ä‘Æ°á»£c thanh toÃ¡n thÃ nh cÃ´ng trÆ°á»›c Ä‘Ã³.');
+                ->with('success', 'Đơn hàng này đã được thanh toán thành công trước đó.');
         }
 
         $this->expirePendingPaymentIfNeeded($order->MaDonHang);
@@ -113,7 +113,7 @@ class PaymentController extends Controller
 
         if ($activePayment && !$this->isQrExpired($activePayment)) {
             return redirect()->route('payment.show', $order->MaDonHang)
-                ->with('success', 'MÃ£ QR thanh toÃ¡n váº«n cÃ²n hiá»‡u lá»±c. Vui lÃ²ng hoÃ n táº¥t thanh toÃ¡n trong thá»i gian cÃ²n láº¡i.');
+                ->with('success', 'Mã QR thanh toán vẫn còn hiệu lực. Vui lòng hoàn tất thanh toán trong thời gian còn lại.');
         }
 
         $method = $request->input('payment_method', 'ChuyenKhoanQR');
@@ -131,7 +131,7 @@ class PaymentController extends Controller
         ]);
 
         return redirect()->route('payment.show', $order->MaDonHang)
-            ->with('success', 'Echoes Ä‘Ã£ táº¡o mÃ£ QR thanh toÃ¡n. Vui lÃ²ng hoÃ n táº¥t trong 01 phÃºt.');
+            ->with('success', 'Echoes đã tạo mã QR thanh toán. Vui lòng hoàn tất trong 01 phút.');
     }
 
     /**
@@ -204,22 +204,22 @@ class PaymentController extends Controller
 
     if ($result === 'already_paid') {
         return redirect('/my-ticket')
-            ->with('success', 'ÄÆ¡n hÃ ng nÃ y Ä‘Ã£ Ä‘Æ°á»£c thanh toÃ¡n thÃ nh cÃ´ng trÆ°á»›c Ä‘Ã³. VÃ© cá»§a báº¡n náº±m trong má»¥c VÃ© cá»§a tÃ´i.');
+            ->with('success', 'Đơn hàng này đã được thanh toán thành công trước đó. Vé của bạn nằm trong mục “Vé của tôi”.');
     }
 
     if ($result === 'order_expired') {
         return redirect()->route('payment.show', $orderId)
-            ->with('error', 'ÄÆ¡n hÃ ng Ä‘Ã£ háº¿t thá»i gian giá»¯ vÃ© 10 phÃºt nÃªn khÃ´ng thá»ƒ thanh toÃ¡n.');
+            ->with('error', 'Đơn hàng đã hết thời gian giữ vé 10 phút nên không thể thanh toán.');
     }
 
     if ($result === 'missing_payment') {
         return redirect()->route('payment.show', $orderId)
-            ->with('error', 'ChÆ°a cÃ³ mÃ£ QR thanh toÃ¡n há»£p lá»‡. Vui lÃ²ng táº¡o mÃ£ QR trÆ°á»›c khi xÃ¡c nháº­n.');
+            ->with('error', 'Chưa có mã QR thanh toán hợp lệ. Vui lòng tạo mã QR trước khi xác nhận.');
     }
 
     if ($result === 'qr_expired') {
         return redirect()->route('payment.show', $orderId)
-            ->with('error', 'MÃ£ QR Ä‘Ã£ háº¿t hiá»‡u lá»±c sau 01 phÃºt. Vui lÃ²ng táº¡o mÃ£ QR má»›i Ä‘á»ƒ tiáº¿p tá»¥c thanh toÃ¡n.');
+            ->with('error', 'Mã QR đã hết hiệu lực sau 01 phút. Vui lòng tạo mã QR mới để tiếp tục thanh toán.');
     }
 
     $mailStatus = 'not_sent';
@@ -230,12 +230,12 @@ class PaymentController extends Controller
 
     if ($mailStatus !== 'sent') {
         return redirect('/my-ticket')
-            ->with('success', 'Thanh toÃ¡n thÃ nh cÃ´ng. VÃ© cá»§a báº¡n Ä‘Ã£ Ä‘Æ°á»£c cáº­p nháº­t trong má»¥c VÃ© cá»§a tÃ´i.')
-            ->with('warning', 'Email xÃ¡c nháº­n chÆ°a gá»­i Ä‘Æ°á»£c. Echoes sáº½ cá»‘ gáº¯ng gá»­i láº¡i email xÃ¡c nháº­n trong vÃ i phÃºt tá»›i. Vui lÃ²ng kiá»ƒm tra há»™p thÆ° cá»§a báº¡n sau.');
+            ->with('success', 'Thanh toán thành công. Vé của bạn đã được cập nhật trong mục “Vé của tôi”.')
+            ->with('warning', 'Email xác nhận chưa gửi được. Echoes sẽ cố gắng gửi lại email xác nhận trong vài phút tới. Vui lòng kiểm tra hộp thư của bạn sau.');
     }
 
     return redirect('/my-ticket')
-        ->with('success', 'Thanh toÃ¡n thÃ nh cÃ´ng. Echoes Ä‘Ã£ gá»­i email xÃ¡c nháº­n Ä‘áº·t vÃ© cho khÃ¡ch hÃ ng.');
+        ->with('success', 'Thanh toán thành công. Echoes đã gửi email xác nhận đặt vé cho khách hàng.');
 }
     /**
      * ÄÆ°á»£c gá»i báº±ng JavaScript khi Ä‘á»“ng há»“ QR háº¿t 60 giÃ¢y.
@@ -250,14 +250,14 @@ class PaymentController extends Controller
         if (!$payment) {
             return response()->json([
                 'status' => 'no_pending_payment',
-                'message' => 'KhÃ´ng cÃ³ giao dá»‹ch chá» thanh toÃ¡n.',
+                'message' => 'Không có giao dịch chờ thanh toán.',
             ]);
         }
 
         if (!$this->isQrExpired($payment)) {
             return response()->json([
                 'status' => 'still_active',
-                'message' => 'MÃ£ QR váº«n cÃ²n hiá»‡u lá»±c.',
+                'message' => 'Mã QR vẫn còn hiệu lực.',
             ]);
         }
 
@@ -267,7 +267,7 @@ class PaymentController extends Controller
 
         return response()->json([
             'status' => 'expired',
-            'message' => 'MÃ£ QR Ä‘Ã£ háº¿t hiá»‡u lá»±c.',
+            'message' => 'Mã QR đã hết hiệu lực.',
         ]);
     }
 
@@ -295,7 +295,7 @@ class PaymentController extends Controller
         $this->expirePendingPaymentIfNeeded($orderId, force: true);
 
         return redirect()->route('payment.show', $orderId)
-            ->with('error', 'Giao dá»‹ch thanh toÃ¡n Ä‘Ã£ Ä‘Æ°á»£c chuyá»ƒn sang tráº¡ng thÃ¡i tháº¥t báº¡i.');
+            ->with('error', 'Giao dịch thanh toán đã được chuyển sang trạng thái thất bại.');
     }
 
     private function getOrderDeadline(DonHang $order): ?Carbon
@@ -464,7 +464,7 @@ class PaymentController extends Controller
             Mail::to($email)->send(new OrderPaymentSuccessMail($order, $ticketItems, $payment));
             return 'sent';
         } catch (Throwable $exception) {
-            Log::error('KhÃ´ng gá»­i Ä‘Æ°á»£c email xÃ¡c nháº­n thanh toÃ¡n Echoes', [
+            Log::error('Không gửi được email xác nhận thanh toán Echoes.', [
                 'MaDonHang' => $order->MaDonHang,
                 'email' => $email,
                 'error' => $exception->getMessage(),
@@ -483,11 +483,11 @@ class PaymentController extends Controller
     {
         return [
             'brand_name' => env('ECHOES_PAYMENT_BRAND_NAME', 'Echoes'),
-            'method_label' => env('ECHOES_PAYMENT_METHOD_LABEL', 'Chuyá»ƒn khoáº£n QR'),
+            'method_label' => env('ECHOES_PAYMENT_METHOD_LABEL', 'Chuyển khoản QR'),
             'qr_image' => env('ECHOES_PAYMENT_QR_IMAGE', 'images/payment/qr-payment.png'),
-            'bank_name' => env('ECHOES_PAYMENT_BANK_NAME', 'NgÃ¢n hÃ ng thanh toÃ¡n'),
+            'bank_name' => env('ECHOES_PAYMENT_BANK_NAME', 'Ngân hàng thanh toán'),
             'account_name' => env('ECHOES_PAYMENT_ACCOUNT_NAME', 'ECHOES'),
-            'account_number' => env('ECHOES_PAYMENT_ACCOUNT_NUMBER', 'Vui lÃ²ng cáº¥u hÃ¬nh trong .env'),
+            'account_number' => env('ECHOES_PAYMENT_ACCOUNT_NUMBER', 'Vui lòng cấu hình trong .env'),
             'note_prefix' => env('ECHOES_PAYMENT_NOTE_PREFIX', 'ECHOES'),
         ];
     }
