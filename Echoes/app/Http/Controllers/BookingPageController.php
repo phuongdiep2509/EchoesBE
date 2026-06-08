@@ -24,6 +24,7 @@ class BookingPageController extends Controller
         return view('pages.cart', [
             'customerId' => $customerId,
             'cart' => $this->cartData($customerId),
+            'merchandiseCart' => $this->merchandiseCartData($request),
         ]);
     }
 
@@ -49,15 +50,16 @@ class BookingPageController extends Controller
         ]);
 
         $customerId = $this->customerId($request);
-
         $ticketClass = $this->findTicketClass((int) $data['MaHangVe']);
+
         if (!$ticketClass) {
-            return back()->with('error', 'Hạng vé không tồn tại.');
+            return back()->with('error', 'Hang ve khong ton tai.');
         }
 
         $available = $this->availableTickets((int) $data['MaHangVe']);
+
         if ($available < (int) $data['SoLuong']) {
-            return back()->with('error', 'Số lượng vé còn lại không đủ.');
+            return back()->with('error', 'So luong ve con lai khong du.');
         }
 
         DB::transaction(function () use ($data, $customerId): void {
@@ -68,7 +70,7 @@ class BookingPageController extends Controller
                 $hold = TicketHold::create([
                     'MaKhachHang' => $customerId,
                     'ThoiGianBatDau' => now(),
-                    'ThoiGianHetHan' => now()->addMinutes(15),
+                    'ThoiGianHetHan' => now()->addMinutes(10),
                     'TrangThai' => self::HOLD_ACTIVE,
                 ]);
             }
@@ -82,59 +84,87 @@ class BookingPageController extends Controller
                 DB::table('chi_tiet_giu_cho')
                     ->where('MaGiuCho', $hold->MaGiuCho)
                     ->where('MaHangVe', $data['MaHangVe'])
-                    ->update(['SoLuong' => $detail->SoLuong + (int) $data['SoLuong']]);
+                    ->update(['SoLuong' => (int) $detail->SoLuong + (int) $data['SoLuong']]);
             } else {
                 DB::table('chi_tiet_giu_cho')->insert([
                     'MaGiuCho' => $hold->MaGiuCho,
                     'MaHangVe' => $data['MaHangVe'],
-                    'SoLuong' => $data['SoLuong'],
+                    'SoLuong' => (int) $data['SoLuong'],
                 ]);
             }
         });
 
-        return redirect()->route('cart')->with('success', 'Đã thêm vé vào giỏ hàng.');
+        return redirect()->route('cart')->with('success', 'Da them ve vao gio hang.');
     }
 
     public function createOrder(Request $request)
     {
         $customerId = $this->customerId($request);
         $cart = $this->cartData($customerId);
+        $merchandiseCart = $this->merchandiseCartData($request);
+        $hasTicketItems = $cart && $cart['ChiTiet']->isNotEmpty();
+        $hasMerchandiseItems = $merchandiseCart['ChiTiet']->isNotEmpty();
 
-        if (!$cart || $cart['ChiTiet']->isEmpty()) {
-            return redirect()->route('cart')->with('error', 'Giỏ hàng rỗng hoặc đã hết hạn.');
+        if (!$hasTicketItems && !$hasMerchandiseItems) {
+            return redirect()->route('cart')->with('error', 'Gio hang rong hoac da het han.');
         }
 
-        DB::transaction(function () use ($customerId, $cart): void {
+        $orderId = DB::transaction(function () use ($customerId, $cart, $merchandiseCart, $hasTicketItems, $hasMerchandiseItems): int {
             $order = Order::create([
                 'MaKhachHang' => $customerId,
                 'NgayDat' => now(),
-                'TongTien' => $cart['TongTien'],
+                'TongTien' => (float) ($cart['TongTien'] ?? 0) + (float) $merchandiseCart['TongTien'],
                 'TrangThai' => Order::STATUS_PENDING,
             ]);
 
-            foreach ($cart['ChiTiet'] as $item) {
-                $ticketClass = $this->findTicketClass((int) $item->MaHangVe);
-                for ($i = 1; $i <= (int) $item->SoLuong; $i++) {
-                    $code = sprintf('VE-%d-%d-%s-%02d', $order->MaDonHang, $item->MaHangVe, strtoupper(Str::random(8)), $i);
-                    Ticket::create([
-                        'MaDonHang' => $order->MaDonHang,
-                        'MaHangVe' => $item->MaHangVe,
-                        'MaGhe' => null,
-                        'MaSuKien' => $ticketClass->MaSuKien,
-                        'MaQR' => hash('sha256', $code),
-                        'MaVeDienTu' => $code,
-                        'TrangThai' => self::TICKET_ACTIVE,
-                        'ThoiGianCheckIn' => null,
-                    ]);
+            if ($hasTicketItems) {
+                foreach ($cart['ChiTiet'] as $item) {
+                    $ticketClass = $this->findTicketClass((int) $item->MaHangVe);
+
+                    if (!$ticketClass) {
+                        throw new \RuntimeException('Khong tim thay hang ve khi tao don hang.');
+                    }
+
+                    for ($i = 1; $i <= (int) $item->SoLuong; $i++) {
+                        $code = sprintf('VE-%d-%d-%s-%02d', $order->MaDonHang, $item->MaHangVe, strtoupper(Str::random(8)), $i);
+                        Ticket::create([
+                            'MaDonHang' => $order->MaDonHang,
+                            'MaHangVe' => $item->MaHangVe,
+                            'MaGhe' => null,
+                            'MaSuKien' => $ticketClass->MaSuKien,
+                            'MaQR' => hash('sha256', $code),
+                            'MaVeDienTu' => $code,
+                            'TrangThai' => self::TICKET_ACTIVE,
+                            'ThoiGianCheckIn' => null,
+                        ]);
+                    }
+
+                    DB::table('hang_ve')
+                        ->where('MaHangVe', $item->MaHangVe)
+                        ->increment('SoLuongDaBan', (int) $item->SoLuong);
                 }
 
-                DB::table('hang_ve')->where('MaHangVe', $item->MaHangVe)->increment('SoLuongDaBan', (int) $item->SoLuong);
+                TicketHold::where('MaGiuCho', $cart['MaGiuCho'])->update(['TrangThai' => self::HOLD_CONVERTED]);
             }
 
-            TicketHold::where('MaGiuCho', $cart['MaGiuCho'])->update(['TrangThai' => self::HOLD_CONVERTED]);
+            if ($hasMerchandiseItems) {
+                foreach ($merchandiseCart['ChiTiet'] as $item) {
+                    DB::table('ct_don_hang_merchandise')->insert([
+                        'MaDonHang' => $order->MaDonHang,
+                        'MaMerch' => $item->MaMerch,
+                        'SoLuong' => $item->SoLuong,
+                        'DonGia' => $item->GiaBan,
+                    ]);
+                }
+            }
+
+            return (int) $order->MaDonHang;
         });
 
-        return redirect()->route('my-ticket')->with('success', 'Đã tạo đơn đặt vé.');
+        $request->session()->forget('merchandise_cart');
+
+        return redirect()->route('payment.show', $orderId)
+            ->with('success', 'Da tao don hang. Vui long hoan tat thanh toan.');
     }
 
     public function cancelOrder(Request $request, int $orderId)
@@ -143,7 +173,7 @@ class BookingPageController extends Controller
         $order = Order::where('MaDonHang', $orderId)->where('MaKhachHang', $customerId)->first();
 
         if (!$order || $order->TrangThai === Order::STATUS_PAID) {
-            return back()->with('error', 'Không thể hủy đơn này.');
+            return back()->with('error', 'Khong the huy don nay.');
         }
 
         DB::transaction(function () use ($order, $orderId): void {
@@ -164,7 +194,7 @@ class BookingPageController extends Controller
             $order->update(['TrangThai' => Order::STATUS_CANCELLED]);
         });
 
-        return back()->with('success', 'Đã hủy đơn hàng.');
+        return back()->with('success', 'Da huy don hang.');
     }
 
     private function customerId(Request $request): int
@@ -216,6 +246,38 @@ class BookingPageController extends Controller
         ];
     }
 
+    private function merchandiseCartData(Request $request): array
+    {
+        $cart = $request->session()->get('merchandise_cart', []);
+        $ids = collect($cart)->pluck('MaMerch')->filter()->map(fn ($id) => (int) $id)->values();
+
+        if ($ids->isEmpty()) {
+            return ['TongTien' => 0, 'ChiTiet' => collect()];
+        }
+
+        $products = DB::table('merchandise')
+            ->whereIn('MaMerch', $ids)
+            ->get()
+            ->keyBy('MaMerch');
+
+        $items = $ids->map(function (int $id) use ($cart, $products) {
+            $product = $products->get($id);
+
+            if (!$product) {
+                return null;
+            }
+
+            $quantity = max(1, (int) ($cart[$id]['SoLuong'] ?? 1));
+            $item = clone $product;
+            $item->SoLuong = $quantity;
+            $item->ThanhTien = (float) $item->GiaBan * $quantity;
+
+            return $item;
+        })->filter()->values();
+
+        return ['TongTien' => $items->sum('ThanhTien'), 'ChiTiet' => $items];
+    }
+
     private function activeHold(int $customerId): ?TicketHold
     {
         return TicketHold::where('MaKhachHang', $customerId)
@@ -245,6 +307,11 @@ class BookingPageController extends Controller
     private function availableTickets(int $ticketClassId): int
     {
         $ticketClass = $this->findTicketClass($ticketClassId);
+
+        if (!$ticketClass) {
+            return 0;
+        }
+
         $held = DB::table('giu_cho_ve as gc')
             ->join('chi_tiet_giu_cho as ct', 'ct.MaGiuCho', '=', 'gc.MaGiuCho')
             ->where('ct.MaHangVe', $ticketClassId)

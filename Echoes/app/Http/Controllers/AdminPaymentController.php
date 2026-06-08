@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DonHang;
 use App\Models\ThanhToan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class AdminPaymentController extends Controller
 {
@@ -66,37 +63,5 @@ class AdminPaymentController extends Controller
             ->findOrFail($id);
 
         return view('admin.payments.show', compact('payment'));
-    }
-
-    public function markSuccess(int $id)
-    {
-        DB::transaction(function () use ($id) {
-            $payment = ThanhToan::lockForUpdate()->findOrFail($id);
-            $order = DonHang::lockForUpdate()->findOrFail($payment->MaDonHang);
-
-            if ($order->TrangThai === 'DaHuy') {
-                abort(422, 'Không thể xác nhận thanh toán cho đơn hàng đã hủy.');
-            }
-
-            $payment->TrangThai = 'ThanhCong';
-            $payment->ThoiGianThanhToan = $payment->ThoiGianThanhToan ?: now();
-            $payment->MaGiaoDich = $payment->MaGiaoDich ?: 'ADMIN-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(6));
-            $payment->save();
-
-            $order->TrangThai = 'DaThanhToan';
-            $order->save();
-        });
-
-        return back()->with('success', 'Đã xác nhận giao dịch thành công.');
-    }
-
-    public function markFailed(int $id)
-    {
-        $payment = ThanhToan::findOrFail($id);
-        $payment->TrangThai = 'ThatBai';
-        $payment->ThoiGianThanhToan = $payment->ThoiGianThanhToan ?: now();
-        $payment->save();
-
-        return back()->with('success', 'Đã chuyển giao dịch sang trạng thái thất bại.');
     }
 }
