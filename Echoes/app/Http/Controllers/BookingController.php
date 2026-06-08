@@ -203,32 +203,6 @@ class BookingController extends Controller
         return response()->json(['data' => $orders]);
     }
 
-    public function updateStatus(Request $request, int $orderId): JsonResponse
-    {
-        $data = $request->validate([
-            'TrangThai' => ['required', 'in:ChoThanhToan,DaThanhToan,DaHuy'],
-        ]);
-
-        $order = $this->findOrder($orderId);
-        if (!$order) {
-            return $this->error('Don hang khong ton tai.', 404);
-        }
-
-        if ($order->TrangThai === Order::STATUS_CANCELLED && $data['TrangThai'] !== Order::STATUS_CANCELLED) {
-            return $this->error('Don hang da huy, khong the doi sang trang thai khac.', 409);
-        }
-
-        if ($data['TrangThai'] === Order::STATUS_CANCELLED) {
-            return $this->cancelOrderInternal($orderId, true);
-        }
-
-        $order->update(['TrangThai' => $data['TrangThai']]);
-
-        return response()->json([
-            'message' => 'Da cap nhat trang thai don hang.',
-            'data' => $this->orderDetail($orderId),
-        ]);
-    }
 
     private function cartData(int $customerId): ?array
     {

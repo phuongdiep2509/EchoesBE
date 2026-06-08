@@ -2,55 +2,90 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Music;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class MusicController extends Controller
 {
-    // ─── Helper query ────────────────────────────────────
+    // ─── Constants ───────────────────────────────────────
+    const CONCERT_TYPE_ID = 1; // MaLoaiSuKien = 1 là concert, còn lại là nhạc sống
+
+    // ─── Helper: resolve image path ──────────────────────
+    private function resolveImage(string $filename, string $folder = 'music'): string
+    {
+        if (empty($filename)) return '';
+        if (str_contains($filename, '/')) return $filename;
+
+        $folders = [$folder, $folder === 'music' ? 'concert' : 'music'];
+        foreach ($folders as $f) {
+            $base = "assets/images/{$f}/{$filename}";
+            if (file_exists(public_path($base))) return $base;
+
+            $name = pathinfo($filename, PATHINFO_FILENAME);
+            foreach (['jpg','jpeg','png','webp','gif','avif'] as $ext) {
+                $try = "assets/images/{$f}/{$name}.{$ext}";
+                if (file_exists(public_path($try))) return $try;
+            }
+        }
+
+        return "assets/images/{$folder}/{$filename}";
+    }
+
+    // ─── Helper: base query ──────────────────────────────
     private function musicQuery()
     {
         return DB::table('su_kien as sk')
             ->leftJoin('dia_diem_to_chuc as dd', 'sk.MaDiaDiem', '=', 'dd.MaDiaDiem')
             ->leftJoin('loai_su_kien as ls', 'sk.MaLoaiSuKien', '=', 'ls.MaLoaiSuKien')
             ->select([
-                'sk.MaSuKien        as id',
-                'sk.TenSuKien       as title',
-                'sk.AnhBia          as image',
-                'sk.MoTa            as description',
-                'sk.DiemNoiBat      as highlights',
-                'sk.ThoiGianBatDau  as event_date',
-                'sk.ThoiGianKetThuc as event_end',
-                'sk.TrangThai       as status',
-                'sk.MaDiaDiem       as dia_diem_id',
-                'sk.MaBTC           as btc_id',
-                'sk.MaLoaiSuKien    as loai_id',
-                'dd.TenDiaDiem      as location',
-                'dd.DiaChiChiTiet   as address',
-                'dd.ThanhPho        as city',
-                'ls.TenLoai         as event_type',
+                'sk.MaSuKien            as id',
+                'sk.TenSuKien           as title',
+                'sk.AnhBia              as image',
+                'sk.MoTa                as description',
+                'sk.DiemNoiBat          as highlights',
+                'sk.ThoiGianBatDau      as event_date',
+                'sk.ThoiGianKetThuc     as event_end',
+                'sk.TrangThai           as status',
+                'sk.DieuKienVaDieuKhoan as terms',
+                'dd.TenDiaDiem          as location',
+                'dd.DiaChiChiTiet       as address',
+                'dd.ThanhPho            as city',
+                'ls.TenLoai             as event_type',
             ]);
     }
 
-    // ─── PUBLIC ──────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // PUBLIC (user-facing)
+    // ═══════════════════════════════════════════════════════
 
+    /**
+     * Danh sách nhạc sống (MaLoaiSuKien != 1)
+     */
     public function index()
     {
         $events = $this->musicQuery()
+            ->where('sk.MaLoaiSuKien', '!=', self::CONCERT_TYPE_ID)
             ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
             ->orderBy('sk.ThoiGianBatDau', 'asc')
-            ->get();
+            ->get()
+            ->each(fn($e) => $e->image = $this->resolveImage($e->image ?? '', 'music'));
 
         return view('pages.music', compact('events'));
     }
 
+    /**
+     * Chi tiết nhạc sống
+     */
     public function show($id)
     {
         $event = $this->findMusicByKey($id);
 
         if (!$event) {
             $event = $this->fallbackMusic($id);
+        } else {
+            $event->image = $this->resolveImage($event->image ?? '', 'music');
         }
 
         $eventId = $event->id ?? null;
@@ -59,15 +94,15 @@ class MusicController extends Controller
             ->join('khu_vuc_su_kien as kv', 'hv.MaKhuVuc', '=', 'kv.MaKhuVuc')
             ->where('kv.MaSuKien', $eventId)
             ->select([
-                'hv.MaHangVe             as id',
-                'kv.TenKhuVuc           as zone',
-                'hv.TenHangVe           as ticket_name',
-                'hv.GiaVe               as price',
-                'hv.SoLuongMoBan        as total',
-                'hv.SoLuongDaBan        as sold',
-                'hv.QuyenLoi            as benefits',
-                'hv.ThoiGianMoBan       as open_at',
-                'hv.ThoiGianKetThucBan  as close_at',
+                'hv.MaHangVe           as id',
+                'kv.TenKhuVuc          as zone',
+                'hv.TenHangVe          as ticket_name',
+                'hv.GiaVe              as price',
+                'hv.SoLuongMoBan       as total',
+                'hv.SoLuongDaBan       as sold',
+                'hv.QuyenLoi           as benefits',
+                'hv.ThoiGianMoBan      as open_at',
+                'hv.ThoiGianKetThucBan as close_at',
             ])
             ->get() : collect();
 
@@ -85,80 +120,42 @@ class MusicController extends Controller
             ->get() : collect();
 
         $related = $eventId ? $this->musicQuery()
+            ->where('sk.MaLoaiSuKien', '!=', self::CONCERT_TYPE_ID)
             ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
             ->where('sk.MaSuKien', '!=', $eventId)
             ->orderBy('sk.ThoiGianBatDau', 'asc')
             ->take(4)
-            ->get() : collect();
+            ->get()
+            ->each(fn($r) => $r->image = $this->resolveImage($r->image ?? '', 'music'))
+            : collect();
 
+        // $event is the main object; also pass as $concert for reuse in music-detail
         return view('pages.music-detail', compact('event', 'hangVe', 'artists', 'related'));
     }
 
-    private function findMusicByKey($key)
-    {
-        if (ctype_digit((string) $key)) {
-            return $this->musicQuery()->where('sk.MaSuKien', (int) $key)->first();
-        }
-
-        $aliases = [
-            'concert-bon-canh-chim-troi' => 'Bốn Cánh Chim Trời',
-            'a-tale-of-two-christmas' => 'A Tale Of Two Christmas',
-            'when-i-remember-this-life' => 'When I Remember This Life',
-            'concert-the-rose' => 'The Rose',
-        ];
-
-        $needle = Str::slug($aliases[$key] ?? $key);
-
-        return $this->musicQuery()
-            ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
-            ->get()
-            ->first(function ($item) use ($needle) {
-                return Str::contains(Str::slug($item->title), $needle)
-                    || Str::contains($needle, Str::slug($item->title));
-            });
-    }
-
-    private function fallbackMusic($key): object
-    {
-        $titles = [
-            'concert-bon-canh-chim-troi' => 'Bốn Cánh Chim Trời',
-            'a-tale-of-two-christmas' => 'A Tale Of Two Christmas',
-            'when-i-remember-this-life' => 'When I Remember This Life',
-            'concert-the-rose' => 'The Rose',
-        ];
-
-        return (object) [
-            'id' => null,
-            'title' => $titles[$key] ?? Str::headline(str_replace('-', ' ', (string) $key)),
-            'image' => 'assets/images/music/lc16.1.jpg',
-            'description' => 'Thông tin sự kiện sẽ được cập nhật từ trang admin khi dữ liệu được thêm vào hệ thống.',
-            'highlights' => null,
-            'event_date' => 'Đang cập nhật',
-            'event_end' => null,
-            'status' => 'SapDienRa',
-            'location' => 'Đang cập nhật',
-            'address' => 'Đang cập nhật',
-            'city' => null,
-            'event_type' => 'Nhạc sống',
-        ];
-    }
-
-    // ─── ADMIN ───────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // ADMIN
+    // ═══════════════════════════════════════════════════════
 
     public function adminIndex()
     {
         $events = $this->musicQuery()
+            ->where('sk.MaLoaiSuKien', '!=', self::CONCERT_TYPE_ID)
             ->orderBy('sk.ThoiGianBatDau', 'desc')
-            ->get();
+            ->get()
+            ->each(fn($e) => $e->image = $this->resolveImage($e->image ?? '', 'music'));
 
         return view('admin.music.index', compact('events'));
     }
 
     public function adminCreate()
     {
-        $diaDiems = DB::table('dia_diem_to_chuc')->select('MaDiaDiem', 'TenDiaDiem')->get();
-        $loaiSuKiens = DB::table('loai_su_kien')->select('MaLoaiSuKien', 'TenLoai')->get();
-        $banToChuc = DB::table('ban_to_chuc')->select('MaBTC', 'TenToChuc')->get();
+        $diaDiems    = DB::table('dia_diem_to_chuc')->select('MaDiaDiem', 'TenDiaDiem')->get();
+        $loaiSuKiens = DB::table('loai_su_kien')
+            ->where('MaLoaiSuKien', '!=', self::CONCERT_TYPE_ID)
+            ->select('MaLoaiSuKien', 'TenLoai')
+            ->get();
+        $banToChuc   = DB::table('ban_to_chuc')->select('MaBTC', 'TenToChuc')->get();
 
         return view('admin.music.create', compact('diaDiems', 'loaiSuKiens', 'banToChuc'));
     }
@@ -198,7 +195,10 @@ class MusicController extends Controller
         if (!$event) abort(404);
 
         $diaDiems    = DB::table('dia_diem_to_chuc')->select('MaDiaDiem', 'TenDiaDiem')->get();
-        $loaiSuKiens = DB::table('loai_su_kien')->select('MaLoaiSuKien', 'TenLoai')->get();
+        $loaiSuKiens = DB::table('loai_su_kien')
+            ->where('MaLoaiSuKien', '!=', self::CONCERT_TYPE_ID)
+            ->select('MaLoaiSuKien', 'TenLoai')
+            ->get();
         $banToChuc   = DB::table('ban_to_chuc')->select('MaBTC', 'TenToChuc')->get();
 
         return view('admin.music.edit', compact('event', 'diaDiems', 'loaiSuKiens', 'banToChuc'));
@@ -227,5 +227,46 @@ class MusicController extends Controller
     {
         DB::table('su_kien')->where('MaSuKien', $id)->delete();
         return redirect()->route('admin.music.index')->with('success', 'Đã xóa sự kiện nhạc sống.');
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // PRIVATE HELPERS
+    // ═══════════════════════════════════════════════════════
+
+    private function findMusicByKey($key): ?object
+    {
+        if (ctype_digit((string) $key)) {
+            return $this->musicQuery()->where('sk.MaSuKien', (int) $key)->first();
+        }
+
+        $needle = Str::slug($key);
+
+        return $this->musicQuery()
+            ->where('sk.MaLoaiSuKien', '!=', self::CONCERT_TYPE_ID)
+            ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
+            ->get()
+            ->first(function ($item) use ($needle) {
+                return Str::contains(Str::slug($item->title), $needle)
+                    || Str::contains($needle, Str::slug($item->title));
+            });
+    }
+
+    private function fallbackMusic($key): object
+    {
+        return (object) [
+            'id'          => null,
+            'title'       => Str::headline(str_replace('-', ' ', (string) $key)),
+            'image'       => '',
+            'description' => 'Thông tin sự kiện đang được cập nhật.',
+            'highlights'  => null,
+            'terms'       => null,
+            'event_date'  => null,
+            'event_end'   => null,
+            'status'      => 'SapDienRa',
+            'location'    => null,
+            'address'     => null,
+            'city'        => null,
+            'event_type'  => 'Nhạc sống',
+        ];
     }
 }

@@ -1,28 +1,39 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Quản lý đơn hàng')
+@section('title', 'Quan ly don hang')
 
 @section('content')
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>Đơn đặt vé</strong>
+        <strong>Don dat ve</strong>
     </div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Mã đơn</th>
-                        <th>Khách hàng</th>
-                        <th>Ngày đặt</th>
-                        <th>Số vé</th>
-                        <th>Tổng tiền</th>
-                        <th>Trạng thái</th>
-                        <th>Cập nhật</th>
+                        <th>Ma don</th>
+                        <th>Khach hang</th>
+                        <th>Ngay dat</th>
+                        <th>So ve</th>
+                        <th>Tong tien</th>
+                        <th>Trang thai</th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($orders as $order)
+                    @php
+                        $statusLabels = [
+                            'ChoThanhToan' => 'Cho thanh toan',
+                            'DaThanhToan' => 'Da thanh toan',
+                            'DaHuy' => 'Da huy',
+                        ];
+                        $statusClasses = [
+                            'ChoThanhToan' => 'warning',
+                            'DaThanhToan' => 'success',
+                            'DaHuy' => 'danger',
+                        ];
+                    @endphp
                     <tr>
                         <td>#{{ $order->MaDonHang }}</td>
                         <td>
@@ -31,23 +42,15 @@
                         </td>
                         <td>{{ $order->NgayDat }}</td>
                         <td>{{ $order->SoLuongVe }}</td>
-                        <td>{{ number_format($order->TongTien, 0, ',', '.') }}đ</td>
-                        <td>{{ $order->TrangThai }}</td>
+                        <td>{{ number_format($order->TongTien, 0, ',', '.') }}d</td>
                         <td>
-                            <form class="d-flex gap-2" method="POST" action="{{ route('admin.orders.status', $order->MaDonHang) }}">
-                                @csrf
-                                @method('PATCH')
-                                <select class="form-select form-select-sm" name="TrangThai">
-                                    <option value="ChoThanhToan" @selected($order->TrangThai === 'ChoThanhToan')>Chờ thanh toán</option>
-                                    <option value="DaThanhToan" @selected($order->TrangThai === 'DaThanhToan')>Đã thanh toán</option>
-                                    <option value="DaHuy" @selected($order->TrangThai === 'DaHuy')>Đã hủy</option>
-                                </select>
-                                <button class="btn btn-sm btn-primary">Lưu</button>
-                            </form>
+                            <span class="badge bg-{{ $statusClasses[$order->TrangThai] ?? 'secondary' }}">
+                                {{ $statusLabels[$order->TrangThai] ?? $order->TrangThai }}
+                            </span>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-center text-muted">Chưa có đơn đặt vé.</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted">Chua co don dat ve.</td></tr>
                 @endforelse
                 </tbody>
             </table>

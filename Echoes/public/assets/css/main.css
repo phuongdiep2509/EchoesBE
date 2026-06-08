@@ -158,55 +158,183 @@
     }
 }
 .section-1 {
-    width: 100%;           
-    max-width: 2000px;     
-    margin-left: auto;     
-    margin-right: auto;   
-    overflow: hidden;
-    height: 1000px;
-    background: url(../images/index/backgroundsection1.png) center / cover no-repeat;
-    display: flex;
-    justify-content: center; /* CHỈ căn giữa ngang */
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 2000px;
+    margin: 0 auto;
+    overflow: visible;
+    background: transparent;
+    display: block;
+    box-shadow: none;
+    border-radius: 12px;
+    padding: 30px 0 20px;
 }
 
 /* Wrapper nội dung */
 .section-content {
     max-width: 1200px;
-    width: 100%;    
-    padding: 30px 0;    
+    width: 100%;
+    padding: 28px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(12,12,12,0.06);
 }
 /* Title */
 .inner-title {
-    color: var(--color-red);
-    text-align: center;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    font-size: 60px;
+    color: #111;
+    text-align: left;
+    margin: 0 0 16px;
+    font-size: 34px;
+    letter-spacing: 0.2px;
 }
 
-/* Grid */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding: 0;
+    background: transparent;
+}
+
+.section-header .see-more {
+    font-family: var(--font);
+    color: #0d6efd;
+    text-decoration: none;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
 .event-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* responsive tự động */
-    gap: 110px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
     justify-content: center;
-    max-width: 1200px;       /* giới hạn chiều rộng tổng */
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 90px 0;
+    padding: 0;
 }
 
 .event-wrapper {
-    border: 1px solid var(--color-red);
-    position: relative;
-    width: 100%;            /* chiếm 100% vùng lưới con */
-    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    width: 100%;
+    border-radius: 28px;
     overflow: hidden;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    transition: transform 0.4s ease;
+    box-shadow: 0 18px 40px rgba(12, 47, 95, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
+}
+
+.event-thumb {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    position: relative;
+    background: #f6fbff;
+}
+
+.event-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.event-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #d90429;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    box-shadow: 0 12px 26px rgba(216, 4, 41, 0.18);
+}
+
+.event-content {
+    padding: 24px;
+    text-align: left;
+    font-family: var(--font);
+    color: #111;
+}
+
+.event-content h4 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+}
+
+.event-location {
+    margin: 0 0 14px;
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.event-details {
+    display: inline-flex;
     align-items: center;
+    gap: 10px;
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 22px;
+}
+
+.event-details img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.event-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.event-price {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111;
+}
+
+.btn.buy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 26px;
+    border: none;
+    border-radius: 16px;
+    background: #111;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn.buy:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(17, 17, 17, 0.18);
+    background: #222;
+}
+
+.event-wrapper:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 26px 68px rgba(12, 47, 95, 0.12);
 }
 /* --- Popup Modal --- */
 .modal-overlay {

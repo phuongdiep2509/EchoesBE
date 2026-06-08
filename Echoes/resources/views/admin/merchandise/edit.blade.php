@@ -9,7 +9,7 @@
     <a href="{{ route('admin.merchandise.index') }}" class="btn btn-outline-secondary">← Quay lại</a>
 </div>
 
-<form method="POST" action="{{ route('admin.merchandise.update', $product->MaMerch) }}" style="max-width:700px">
+<form method="POST" action="{{ route('admin.merchandise.update', $product->MaMerch) }}" style="max-width:700px" onsubmit="return confirmSaveProduct()">
     @csrf
     @method('PUT')
 
@@ -76,5 +76,11 @@
         <a href="{{ route('admin.merchandise.index') }}" class="btn btn-secondary ms-2">Hủy</a>
     </div>
 </form>
+
+<script>
+function confirmSaveProduct() {
+    return confirm('Bạn có chắc muốn lưu thông tin sản phẩm này không?');
+}
+</script>
 
 @endsection

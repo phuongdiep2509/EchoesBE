@@ -3,7 +3,7 @@
 <div class="news-item-horizontal" onclick="location.href='{{ $link }}'">
 
     <div class="news-image-wrapper">
-        <img src="{{ asset($image) }}" alt="{{ $title }}">
+        <img src="{{ preg_match('/^https?:\/\//i', $image) ? $image : asset($image) }}" alt="{{ $title }}">
     </div>
 
     <div class="news-content-wrapper">

@@ -31,7 +31,7 @@
                 @forelse($articles as $a)
                     <x-news-card
                         :title="$a->title"
-                        :image="$a->image ?? 'assets/images/news/default.png'"
+                        :image="$a->image ?? 'https://images.unsplash.com/photo-1497493292307-31c376b6e479?auto=format&fit=crop&w=1200&q=80'"
                         :link="url('/news/' . $a->id)"
                     />
                 @empty
@@ -54,7 +54,8 @@
                 @forelse($featured as $f)
                     <a href="{{ url('/news/' . $f->id) }}"
                        style="display: flex; gap: 12px; align-items: center; color: inherit">
-                        <img src="{{ asset($f->image ?? 'assets/images/news/default.png') }}"
+                        @php $fImage = $f->image ?? 'https://images.unsplash.com/photo-1497493292307-31c376b6e479?auto=format&fit=crop&w=1200&q=80'; @endphp
+                        <img src="{{ preg_match('/^https?:\/\//i', $fImage) ? $fImage : asset($fImage) }}"
                              alt="{{ $f->title }}"
                              style="width: 80px; height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0">
                         <div>

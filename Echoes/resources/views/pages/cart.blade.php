@@ -18,12 +18,31 @@
             </div>
         </div>
 
-        @if(session('success'))
-            <div class="booking-alert">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="booking-alert error">{{ session('error') }}</div>
-        @endif
+    @if(session('success'))
+        <div style="background:rgba(70,70,42,.1);border:1px solid var(--color-green,#46462a);
+                    color:var(--color-green,#46462a);border-radius:8px;
+                    padding:14px 20px;margin-bottom:24px;font-weight:600">
+            ✓ {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div style="background:rgba(116,7,13,.08);border:1px solid var(--color-red,#74070d);
+                    color:var(--color-red,#74070d);border-radius:8px;
+                    padding:14px 20px;margin-bottom:24px;font-weight:600">
+            ✗ {{ session('error') }}
+        </div>
+    @endif
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start">
+
+        {{-- ─── LEFT: Cart items ─── --}}
+        <div>
+            <h1 style="font-size:1.75rem;font-weight:900;color:var(--color-green,#46462a);
+                       margin-bottom:8px">Giỏ hàng của bạn</h1>
+            <p style="font-size:0.875rem;color:#888;margin-bottom:28px">
+                Vé được giữ trong <strong style="color:var(--color-red,#74070d)">15 phút</strong>.
+                Vui lòng thanh toán trước khi hết thời gian.
+            </p>
 
         @if(!$cart || $cart['ChiTiet']->isEmpty())
             <div class="booking-empty">Giỏ hàng đang trống hoặc đã hết hạn. Hãy chọn vé từ trang chi tiết sự kiện.</div>
@@ -61,6 +80,32 @@
                 </form>
             </div>
         @endif
-    </section>
-</main>
+        </div>
+
+    </div>
+</div>
+
+@endsection
+
+@section('scripts')
+@if($cart && !$cart['ChiTiet']->isEmpty())
+<script>
+let seconds = {{ $secondsLeft ?? 0 }};
+const el = document.getElementById('countdown');
+if (el && seconds > 0) {
+    const t = setInterval(() => {
+        seconds--;
+        if (seconds <= 0) {
+            clearInterval(t);
+            el.textContent = '00:00';
+            el.closest('div').style.background = 'rgba(116,7,13,.15)';
+            return;
+        }
+        const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const s = String(seconds % 60).padStart(2, '0');
+        el.textContent = `${m}:${s}`;
+    }, 1000);
+}
+</script>
+@endif
 @endsection

@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
-@section('title', $product->TenMerch ?? 'Merchandise')
+@section('title', ($product->TenMerch ?? 'Chi tiết sản phẩm') . ' | Echoes')
+
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/merchandiseDetail.css') }}">
+@endsection
 
 @section('content')
 <main class="booking-page">

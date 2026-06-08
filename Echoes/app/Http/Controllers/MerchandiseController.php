@@ -33,6 +33,39 @@ class MerchandiseController extends Controller
         return view('pages.merchandise-detail', compact('product', 'related'));
     }
 
+    public function addToCart(Request $request, $id)
+    {
+        $data = $request->validate([
+            'SoLuong' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $product = DB::table('merchandise')
+            ->where('MaMerch', $id)
+            ->where('TrangThai', 'DangBan')
+            ->first();
+
+        if (!$product) {
+            return back()->with('error', 'San pham khong ton tai hoac da ngung ban.');
+        }
+
+        $quantity = (int) $data['SoLuong'];
+        $cart = session('merchandise_cart', []);
+        $currentQuantity = (int) ($cart[$product->MaMerch]['SoLuong'] ?? 0);
+
+        if ($product->SoLuongTon !== null && $currentQuantity + $quantity > (int) $product->SoLuongTon) {
+            return back()->with('error', 'So luong san pham trong kho khong du.');
+        }
+
+        $cart[$product->MaMerch] = [
+            'MaMerch' => (int) $product->MaMerch,
+            'SoLuong' => $currentQuantity + $quantity,
+        ];
+
+        session(['merchandise_cart' => $cart]);
+
+        return redirect()->route('cart')->with('success', 'Da them merchandise vao gio hang.');
+    }
+
     // ─── ADMIN ───────────────────────────────────────────
 
     public function adminIndex()
@@ -94,6 +127,23 @@ class MerchandiseController extends Controller
         ]);
 
         return redirect()->route('admin.merchandise.index')->with('success', 'Đã cập nhật sản phẩm.');
+    }
+
+    public function adminToggleStatus($id)
+    {
+        $product = DB::table('merchandise')->where('MaMerch', $id)->first();
+        if (!$product) {
+            abort(404);
+        }
+
+        $newStatus = $product->TrangThai === 'DangBan' ? 'NgungBan' : 'DangBan';
+        DB::table('merchandise')->where('MaMerch', $id)->update(['TrangThai' => $newStatus]);
+
+        $message = $newStatus === 'NgungBan'
+            ? 'Đã ẩn sản phẩm.'
+            : 'Đã hiển thị lại sản phẩm.';
+
+        return redirect()->route('admin.merchandise.index')->with('success', $message);
     }
 
     public function adminDestroy($id)
