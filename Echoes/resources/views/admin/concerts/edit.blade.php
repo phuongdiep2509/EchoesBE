@@ -52,7 +52,7 @@
             <label class="form-label">Ảnh bìa (đường dẫn)</label>
             <input type="text" name="AnhBia" class="form-control" value="{{ old('AnhBia', $concert->AnhBia) }}">
             @if($concert->AnhBia)
-                <img src="{{ asset($concert->AnhBia) }}" class="mt-2" style="height:80px;border-radius:4px">
+                <img src="{{ $concert->AnhBiaUrl }}" class="mt-2" style="height:80px;border-radius:4px">
             @endif
         </div>
 

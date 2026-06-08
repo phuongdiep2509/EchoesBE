@@ -51,4 +51,17 @@ class Concert extends Model
     {
         return $this->belongsTo(DiaDiem::class, 'MaDiaDiem', 'MaDiaDiem');
     }
+
+    public function getAnhBiaUrlAttribute(): ?string
+    {
+        if (empty($this->AnhBia)) {
+            return null;
+        }
+
+        if (\Illuminate\Support\Str::startsWith($this->AnhBia, ['http://', 'https://'])) {
+            return $this->AnhBia;
+        }
+
+        return asset($this->AnhBia);
+    }
 }

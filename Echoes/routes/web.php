@@ -20,8 +20,109 @@ use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\Admin\TaiKhoanController;
 use App\Http\Controllers\Admin\KhachHangController;
 use App\Http\Controllers\Admin\NhanVienController;
+use Illuminate\Support\Facades\DB;
 
-Route::get('/', fn() => view('pages.home'))->name('home');
+Route::get('/', function () {
+    $resolveImage = function (string $filename = '', string $folder = 'music'): string {
+        if (empty($filename)) {
+            return '';
+        }
+        if (str_contains($filename, '/')) {
+            return $filename;
+        }
+
+        $folders = [$folder, $folder === 'music' ? 'concert' : 'music'];
+        foreach ($folders as $f) {
+            $base = "assets/images/{$f}/{$filename}";
+            if (file_exists(public_path($base))) {
+                return $base;
+            }
+            $name = pathinfo($filename, PATHINFO_FILENAME);
+            foreach (['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'] as $ext) {
+                $try = "assets/images/{$f}/{$name}.{$ext}";
+                if (file_exists(public_path($try))) {
+                    return $try;
+                }
+            }
+        }
+
+        return "assets/images/{$folder}/{$filename}";
+    };
+
+    $latestMusic = DB::table('su_kien as sk')
+        ->leftJoin('dia_diem_to_chuc as dd', 'sk.MaDiaDiem', '=', 'dd.MaDiaDiem')
+        ->leftJoin('khu_vuc_su_kien as kv', 'sk.MaSuKien', '=', 'kv.MaSuKien')
+        ->leftJoin('hang_ve as hv', 'kv.MaKhuVuc', '=', 'hv.MaKhuVuc')
+        ->where('sk.MaLoaiSuKien', '!=', 1)
+        ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
+        ->select([
+            'sk.MaSuKien       as id',
+            'sk.TenSuKien      as title',
+            'sk.AnhBia         as image',
+            'sk.ThoiGianBatDau as event_date',
+            'dd.TenDiaDiem     as location',
+            'dd.ThanhPho       as city',
+            DB::raw('MIN(hv.GiaVe) as min_price'),
+        ])
+        ->groupBy('sk.MaSuKien', 'sk.TenSuKien', 'sk.AnhBia', 'sk.ThoiGianBatDau', 'dd.TenDiaDiem', 'dd.ThanhPho')
+        ->orderByDesc('sk.MaSuKien')
+        ->take(4)
+        ->get()
+        ->map(function ($item) use ($resolveImage) {
+            $item->image = $resolveImage($item->image ?? '', 'music');
+            $item->location = $item->location ?: ($item->city ?: 'Đang cập nhật');
+            $item->date = $item->event_date
+                ? \Carbon\Carbon::parse($item->event_date)->format('d/m/Y H:i')
+                : 'Đang cập nhật';
+            $item->price = $item->min_price
+                ? 'Từ ' . number_format($item->min_price, 0, ',', '.') . 'đ'
+                : 'Giá vé đang cập nhật';
+            $item->type = 'NHẠC SỐNG';
+            $item->link = url('/music/' . $item->id);
+            return $item;
+        });
+
+    $latestConcerts = DB::table('su_kien as sk')
+        ->leftJoin('dia_diem_to_chuc as dd', 'sk.MaDiaDiem', '=', 'dd.MaDiaDiem')
+        ->leftJoin('khu_vuc_su_kien as kv', 'sk.MaSuKien', '=', 'kv.MaSuKien')
+        ->leftJoin('hang_ve as hv', 'kv.MaKhuVuc', '=', 'hv.MaKhuVuc')
+        ->where('sk.MaLoaiSuKien', 1)
+        ->whereIn('sk.TrangThai', ['SapDienRa', 'DangMoBan'])
+        ->select([
+            'sk.MaSuKien       as id',
+            'sk.TenSuKien      as title',
+            'sk.AnhBia         as image',
+            'sk.ThoiGianBatDau as event_date',
+            'dd.TenDiaDiem     as location',
+            'dd.ThanhPho       as city',
+            DB::raw('MIN(hv.GiaVe) as min_price'),
+        ])
+        ->groupBy('sk.MaSuKien', 'sk.TenSuKien', 'sk.AnhBia', 'sk.ThoiGianBatDau', 'dd.TenDiaDiem', 'dd.ThanhPho')
+        ->orderByDesc('sk.MaSuKien')
+        ->take(4)
+        ->get()
+        ->map(function ($item) use ($resolveImage) {
+            $item->image = $resolveImage($item->image ?? '', 'concert');
+            $item->location = $item->location ?: ($item->city ?: 'Đang cập nhật');
+            $item->date = $item->event_date
+                ? \Carbon\Carbon::parse($item->event_date)->format('d/m/Y H:i')
+                : 'Đang cập nhật';
+            $item->price = $item->min_price
+                ? 'Từ ' . number_format($item->min_price, 0, ',', '.') . 'đ'
+                : 'Giá vé đang cập nhật';
+            $item->type = 'CONCERT';
+            $item->link = url('/concert/' . $item->id);
+            return $item;
+        });
+
+    $hotEvents = $latestConcerts
+        ->merge($latestMusic)
+        ->sortByDesc('id')
+        ->take(3)
+        ->values();
+
+    return view('pages.home', compact('latestMusic', 'latestConcerts', 'hotEvents'));
+})->name('home');
 
 // ─── Public pages ────────────────────────────────────
 Route::get('/about',       fn() => view('pages.about'))->name('about');
@@ -33,6 +134,7 @@ Route::get('/rules', fn() => view('pages.rules'))->name('rules');
 Route::get('/auth/login', fn() => redirect()->route('auth.page'))->name('auth.login');
 
 // Booking
+Route::get('/booking/{id}', [ConcertController::class, 'booking'])->name('booking.show');
 Route::get('/my-ticket', [BookingPageController::class, 'myTickets'])->name('my-ticket')->middleware('auth.custom');
 Route::get('/cart', [BookingPageController::class, 'cart'])->name('cart');
 Route::post('/cart/tickets', [BookingPageController::class, 'addToCart'])->name('cart.add');
@@ -94,7 +196,7 @@ Route::middleware('auth.custom')->prefix('profile')->name('profile.')->group(fun
 
 // Admin
 Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
-    Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::patch('/orders/{orderId}/status', [AdminOrderController::class, 'updateStatus'])
@@ -156,6 +258,7 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
     Route::post('/merchandise', [MerchandiseController::class, 'adminStore'])->name('merchandise.store');
     Route::get('/merchandise/{id}/edit', [MerchandiseController::class, 'adminEdit'])->name('merchandise.edit');
     Route::put('/merchandise/{id}',      [MerchandiseController::class, 'adminUpdate'])->name('merchandise.update');
+    Route::patch('/merchandise/{id}/status', [MerchandiseController::class, 'adminToggleStatus'])->name('merchandise.toggle');
     Route::delete('/merchandise/{id}',   [MerchandiseController::class, 'adminDestroy'])->name('merchandise.destroy');
 
         // Payment Management
@@ -178,5 +281,4 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
     Route::get('/reports/tickets', [ReportController::class, 'tickets'])->name('reports.tickets');
     Route::put('/merchandise/{id}', [MerchandiseController::class, 'adminUpdate'])->name('merchandise.update');
     Route::delete('/merchandise/{id}', [MerchandiseController::class, 'adminDestroy'])->name('merchandise.destroy');
-});
 });

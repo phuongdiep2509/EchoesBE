@@ -49,6 +49,7 @@ class ConcertController extends Controller
                 'sk.MaSuKien            as id',
                 'sk.TenSuKien           as title',
                 'sk.AnhBia              as image',
+                'sk.AnhSeatMap          as AnhSeatMap',
                 'sk.MoTa                as description',
                 'sk.DiemNoiBat          as highlights',
                 'sk.ThoiGianBatDau      as event_date',
@@ -125,15 +126,16 @@ class ConcertController extends Controller
     // ─── Booking page ────────────────────────────────────
     public function booking($id)
     {
-        $concert = $this->concertQuery()
-            ->where('sk.MaSuKien', $id)
-            ->first();
+        $concert = $this->findConcertByKey($id);
+        if (!$concert) {
+            $concert = $this->fallbackConcert($id);
+        }
 
-        if (!$concert) abort(404);
+        $concertId = $concert->id ?? null;
 
         $hangVe = DB::table('hang_ve as hv')
             ->join('khu_vuc_su_kien as kv', 'hv.MaKhuVuc', '=', 'kv.MaKhuVuc')
-            ->where('kv.MaSuKien', $id)
+            ->when($concertId, fn($query) => $query->where('kv.MaSuKien', $concertId))
             ->select([
                 'kv.MaKhuVuc          as zone_id',
                 'kv.TenKhuVuc         as zone',
@@ -150,7 +152,7 @@ class ConcertController extends Controller
 
         $gheNgoi = DB::table('ghe_ngoi as g')
             ->join('khu_vuc_su_kien as kv', 'g.MaKhuVuc', '=', 'kv.MaKhuVuc')
-            ->where('kv.MaSuKien', $id)
+            ->when($concertId, fn($query) => $query->where('kv.MaSuKien', $concertId))
             ->select([
                 'g.MaGhe      as seat_id',
                 'g.HangGhe    as row',
@@ -273,6 +275,7 @@ class ConcertController extends Controller
             'id' => null,
             'title' => $titles[$key] ?? Str::headline(str_replace('-', ' ', (string) $key)),
             'image' => 'assets/images/concert/hot1.png',
+            'AnhSeatMap' => null,
             'description' => 'Thông tin sự kiện sẽ được cập nhật từ trang admin khi dữ liệu được thêm vào hệ thống.',
             'highlights' => null,
             'event_date' => 'Đang cập nhật',

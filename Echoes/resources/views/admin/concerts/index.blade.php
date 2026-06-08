@@ -29,7 +29,7 @@
             <td>{{ $c->TenSuKien }}</td>
             <td>
                 @if($c->AnhBia)
-                    <img src="{{ asset($c->AnhBia) }}" width="80" style="border-radius:4px">
+                    <img src="{{ $c->AnhBiaUrl }}" width="80" style="border-radius:4px">
                 @else
                     <span class="text-muted">—</span>
                 @endif

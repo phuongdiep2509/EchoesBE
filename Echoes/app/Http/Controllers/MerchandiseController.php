@@ -96,6 +96,23 @@ class MerchandiseController extends Controller
         return redirect()->route('admin.merchandise.index')->with('success', 'Đã cập nhật sản phẩm.');
     }
 
+    public function adminToggleStatus($id)
+    {
+        $product = DB::table('merchandise')->where('MaMerch', $id)->first();
+        if (!$product) {
+            abort(404);
+        }
+
+        $newStatus = $product->TrangThai === 'DangBan' ? 'NgungBan' : 'DangBan';
+        DB::table('merchandise')->where('MaMerch', $id)->update(['TrangThai' => $newStatus]);
+
+        $message = $newStatus === 'NgungBan'
+            ? 'Đã ẩn sản phẩm.'
+            : 'Đã hiển thị lại sản phẩm.';
+
+        return redirect()->route('admin.merchandise.index')->with('success', $message);
+    }
+
     public function adminDestroy($id)
     {
         DB::table('merchandise')->where('MaMerch', $id)->delete();

@@ -1,62 +1,135 @@
 @extends('layouts.app')
 
 @section('title', 'Echoes - Trang chủ')
+ 
+@section('styles')
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#a00a12;--accent-dark:#74070d;--muted:#777}
+.home-root{font-family:Inter, system-ui, Arial, sans-serif;color:#222}
+/* Carousel */
+.carousel{width:100%;margin:0 auto;border-radius:12px;overflow:hidden;box-shadow:0 14px 40px rgba(15,15,15,.08);position:relative;background:#000}
+.carousel-track{position:relative;height:100vh}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity .7s ease, transform .7s ease;display:block}
+.slide.active{opacity:1;z-index:2}
+.slide img{width:100%;height:100%;object-fit:cover;display:block;filter:contrast(.95) saturate(1.05);opacity:0;transform:scale(1.02);transition:opacity .6s ease, transform .9s cubic-bezier(.2,.9,.3,1)}
+.slide img.loaded{opacity:1;transform:none}
+.slide::after{content:'';position:absolute;inset:auto 0 0 0;height:48%;background:linear-gradient(180deg,rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 50%, rgba(0,0,0,.72) 100%);pointer-events:none}
+.slide .overlay{position:absolute;left:0;right:0;bottom:12%;padding:22px 28px;color:#fff;text-shadow:0 6px 18px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:8px}
+.slide .title{font-family:'Cal Sans',serif;font-size:2.2rem;margin:0 0 6px;letter-spacing:.4px}
+.slide .cta{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent-dark));padding:10px 16px;border-radius:8px;color:#fff;font-weight:700;text-decoration:none;width:fit-content}
+.slide:hover img{transform:scale(1.03)}
+.slide .cta:hover{filter:brightness(.96);transform:translateY(-2px)}
+.carousel-button-prev,.carousel-button-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);backdrop-filter:blur(2px);color:#fff;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;border:1px solid rgba(255,255,255,.08)}
+.carousel-button-prev{left:12px}.carousel-button-next{right:12px}
+.carousel-indicators{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;display:flex;gap:8px;z-index:20}
+.carousel-indicators button{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.35);border:none;cursor:pointer}
+.carousel-indicators button:focus{outline:2px solid rgba(255,255,255,.12);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.carousel-indicators button.active{background:var(--accent)}
+.carousel-counter{position:absolute;bottom:12px;right:16px;background:rgba(255,255,255,.92);padding:6px 10px;border-radius:999px;font-weight:700;color:#222}
+
+/* Layout */
+.container{max-width:1200px;margin:32px auto;padding:0 20px}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin:18px 0}
+.section-title,.inner-title{font-family:'Cal Sans',serif;color:#f0efeb;font-size:1.5rem;margin:0}
+.see-more{color:var(--muted);text-decoration:none;font-weight:600}
+
+/* Event cards */
+.event-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;align-items:stretch;min-height:360px}
+.event-card{position:relative;overflow:hidden;border-radius:18px;min-height:420px;background:#0b131e;box-shadow:none;transition:none;color:#fff;text-decoration:none;display:flex;flex-direction:column}
+.event-card:hover{transform:none;box-shadow:none}
+.event-image{position:relative;width:100%;min-height:220px;background-size:cover;background-position:center}
+.event-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.62) 65%);pointer-events:none}
+.event-rank{position:absolute;top:18px;left:18px;z-index:2;width:44px;height:44px;border-radius:16px;background:#2fd67c;color:#08110a;font-weight:800;font-size:1rem;display:grid;place-items:center;text-transform:uppercase;letter-spacing:.04em}
+.event-meta{position:absolute;left:0;right:0;bottom:0;padding:20px;z-index:2;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.75) 100%)}
+.event-badge{align-self:flex-start;padding:8px 14px;border-radius:999px;background:rgba(110,220,135,.16);color:#6edc87;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.event-title{margin:0;font-size:1.16rem;line-height:1.3;font-weight:800}
+.event-location,.event-date{margin:0;color:rgba(255,255,255,.72);font-size:.95rem}
+.event-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+.price-pill{background:#0f1e30;border:1px solid rgba(110,220,135,.24);color:#6edc87;padding:8px 12px;border-radius:999px;font-weight:700;font-size:.88rem}
+.btn.buy{background:rgba(110,220,135,.18);color:#6edc87;border:1px solid rgba(110,220,135,.24);padding:8px 14px;border-radius:999px;text-decoration:none;font-size:.85rem;font-weight:700}
+.btn.buy:hover{background:#6edc87;color:#08110a;border-color:transparent}
+
+/* Responsive tweaks */
+@media (max-width:900px){.slide img{height:240px}.event-thumb img{height:160px}}
+@media (max-width:768px){.carousel{width:100%}.carousel-track{height:60vh}}
+</style>
+@endsection
 
 @section('content')
 
 {{-- ===== CAROUSEL ===== --}}
-<div class="carousel">
-    <div class="carousel-list">
-
-        <div class="carousel-image">
-            <a href="{{ url('/concert/YConcert') }}">
-                <img src="{{ asset('assets/images/index/main_banner_1.png') }}" alt="Y Concert Banner">
-            </a>
+<div class="carousel home-root" aria-roledescription="carousel">
+    <div class="carousel-track">
+        <div class="slide" data-title="mason" data-link="{{ url('/concert/mason') }}">
+            <a href="{{ url('/concert/mason') }}"><img src="{{ asset('assets/images/concert/mason.webp') }}" alt="Mason Concert Banner" loading="lazy" decoding="async"></a>
+            <div class="overlay">
+                <h3 class="title">MASON NGUYỄN FAN MEETING 2026</h3>
+                <a class="cta" href="{{ url('/concert/mason') }}">XEM CHI TIẾT</a>
+            </div>
         </div>
 
-        <div class="carousel-image">
-            <a href="{{ url('/concert/nhung-thanh-pho-mo-mang') }}">
-                <img src="{{ asset('assets/images/index/main_banner_2.png') }}" alt="NTPMM Banner">
-            </a>
+        <div class="slide" data-title="Những Thành Phố Mơ Màng" data-link="{{ url('/concert/nhung-thanh-pho-mo-mang') }}">
+            <a href="{{ url('/concert/nhung-thanh-pho-mo-mang') }}"><img src="{{ asset('assets/images/concert/ntpmm.png') }}" alt="NTPMM Banner" loading="lazy" decoding="async"></a>
+            <div class="overlay">
+                <h3 class="title">NHỮNG THÀNH PHỐ MƠ MÀNG SUMMER 2026</h3>
+                <a class="cta" href="{{ url('/concert/nhung-thanh-pho-mo-mang') }}">XEM CHI TIẾT</a>
+            </div>
         </div>
 
-        <div class="carousel-image">
-            <a href="{{ url('/concert/anh-trai-say-hi-2025') }}">
-                <img src="{{ asset('assets/images/index/main_banner_3.png') }}" alt="ATSH Banner">
-            </a>
+        <div class="slide" data-title="Ánh sáng màn đêm" data-link="{{ url('/concert/greyd') }}">
+            <a href="{{ url('/concert/greyd') }}"><img src="{{ asset('assets/images/concert/greyd.webp') }}" alt="Greyd Banner" loading="lazy" decoding="async"></a>
+            <div class="overlay">
+                <h3 class="title">ÁNH SÁNG MÀN ĐÊM - GREY D LIVE CONCERT</h3>
+                <a class="cta" href="{{ url('/concert/greyd') }}">XEM CHI TIẾT</a>
+            </div>
         </div>
-
     </div>
 
-    <div class="carousel-button-prev">&#8249;</div>
-    <div class="carousel-button-next">&#8250;</div>
-    <div class="carousel-counter">1 / 3</div>
+    <button class="carousel-button-prev" aria-label="Previous slide">&#8249;</button>
+    <button class="carousel-button-next" aria-label="Next slide">&#8250;</button>
+    <div class="carousel-indicators" aria-hidden="true"></div>
 </div>
 
 {{-- ===== SECTION 1: SỰ KIỆN HOT ===== --}}
-<div class="section-1">
-    <div class="section-content">
-        <h2 class="inner-title">SỰ KIỆN HOT THÁNG 12</h2>
+<div class="container">
+
+    <div class="section-header">
+        <h2 class="section-title">SỰ KIỆN HOT</h2>
+        <a href="{{ url('/music') }}" class="see-more">XEM THÊM ›</a>
+    </div>
 
         <div class="event-list">
-            <div class="event-wrapper">
-                <img src="{{ asset('assets/images/concert/hot1.png') }}" alt="Y Concert">
-                <div class="event-content">
-                    <button class="event-btn" onclick="location.href='{{ url('/concert/YConcert') }}'">MUA NGAY</button>
+            @forelse($hotEvents ?? [] as $event)
+                @if($loop->index < 4)
+                    <a href="{{ $event->link }}" class="event-card">
+                        <div class="event-image" style="background-image:url('{{ asset($event->image ?: 'assets/images/concert/default.png') }}')"></div>
+                        <div class="event-rank">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</div>
+                        <div class="event-meta">
+                            <span class="event-badge">{{ $event->type }}</span>
+                            <h3 class="event-title">{{ $event->title }}</h3>
+                            <p class="event-location">{{ $event->location }}</p>
+                            <p class="event-date">{{ $event->date }}</p>
+                            <div class="event-footer">
+                                <div class="price-pill">{{ $event->price }}</div>
+                                <span class="btn buy">XEM CHI TIẾT</span>
+                            </div>
+                        </div>
+                    </a>
+                @endif
+            @empty
+                <div class="event-list">
+                    <div class="event-card">
+                        <div class="event-image" style="background-image:url('{{ asset('assets/images/concert/default.png') }}')"></div>
+                        <div class="event-rank">01</div>
+                        <div class="event-meta">
+                            <span class="event-badge">SỰ KIỆN</span>
+                            <h3 class="event-title">Không có sự kiện hot</h3>
+                            <p class="event-location">Vui lòng kiểm tra lại sau</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="event-wrapper">
-                <img src="{{ asset('assets/images/concert/hot2.png') }}" alt="Anh Trai Say Hi">
-                <div class="event-content">
-                    <button class="event-btn" onclick="location.href='{{ url('/concert/anh-trai-say-hi-2025') }}'">MUA NGAY</button>
-                </div>
-            </div>
-            <div class="event-wrapper">
-                <img src="{{ asset('assets/images/music/lc16.1.jpg') }}" alt="Bốn Cánh Chim Trời">
-                <div class="event-content">
-                    <button class="event-btn" onclick="location.href='{{ url('/music/concert-bon-canh-chim-troi') }}'">MUA NGAY</button>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </div>
@@ -70,43 +143,52 @@
     </div>
 
     <div class="music-grid">
+        @forelse($latestMusic ?? [] as $event)
+            <x-music-card
+                title="{{ $event->title }}"
+                location="{{ $event->location }}"
+                price="{{ $event->price }}"
+                date="{{ $event->date }}"
+                image="{{ $event->image }}"
+                link="{{ $event->link }}"
+            />
+        @empty
+            <x-music-card
+                title="BỐN CÁNH CHIM TRỜI"
+                location="Nhà hát Lớn Hà Nội"
+                price="Từ 500.000đ - 800.000đ"
+                date="27/12/2025 - 20:00"
+                image="assets/images/music/lc16.1.jpg"
+                link="{{ url('/music/concert-bon-canh-chim-troi') }}"
+            />
 
-        <x-music-card
-            title="BỐN CÁNH CHIM TRỜI"
-            location="Nhà hát Lớn Hà Nội"
-            price="Từ 500.000đ - 800.000đ"
-            date="27/12/2025 - 20:00"
-            image="assets/images/music/lc16.1.jpg"
-            link="{{ url('/music/concert-bon-canh-chim-troi') }}"
-        />
+            <x-music-card
+                title="A TALE OF TWO CHRISTMAS"
+                location="Rock Club, TP.HCM"
+                price="Từ 500.000đ - 800.000đ"
+                date="29/12/2025 - 21:30"
+                image="assets/images/music/lc7.1.jpg"
+                link="{{ url('/music/a-tale-of-two-christmas') }}"
+            />
 
-        <x-music-card
-            title="A TALE OF TWO CHRISTMAS"
-            location="Rock Club, TP.HCM"
-            price="Từ 500.000đ - 800.000đ"
-            date="29/12/2025 - 21:30"
-            image="assets/images/music/lc7.1.jpg"
-            link="{{ url('/music/a-tale-of-two-christmas') }}"
-        />
+            <x-music-card
+                title="WHEN I REMEMBER THIS LIFE"
+                location="Nhà hát Tuổi trẻ, TP.HCM"
+                price="Từ 500.000đ - 800.000đ"
+                date="25/12/2025 - 20:30"
+                image="assets/images/music/lc8.1.jpg"
+                link="{{ url('/music/when-i-remember-this-life') }}"
+            />
 
-        <x-music-card
-            title="WHEN I REMEMBER THIS LIFE"
-            location="Nhà hát Tuổi trẻ, TP.HCM"
-            price="Từ 500.000đ - 800.000đ"
-            date="25/12/2025 - 20:30"
-            image="assets/images/music/lc8.1.jpg"
-            link="{{ url('/music/when-i-remember-this-life') }}"
-        />
-
-        <x-music-card
-            title="THE ROSE"
-            location="Sân vận động Đà Lạt"
-            price="Từ 500.000đ - 800.000đ"
-            date="17/01/2026 - 20:00"
-            image="assets/images/music/lc4.2.webp"
-            link="{{ url('/music/concert-the-rose') }}"
-        />
-
+            <x-music-card
+                title="THE ROSE"
+                location="Sân vận động Đà Lạt"
+                price="Từ 500.000đ - 800.000đ"
+                date="17/01/2026 - 20:00"
+                image="assets/images/music/lc4.2.webp"
+                link="{{ url('/music/concert-the-rose') }}"
+            />
+        @endforelse
     </div>
 
     {{-- ===== CONCERT ÂM NHẠC ===== --}}
@@ -116,43 +198,52 @@
     </div>
 
     <div class="music-grid">
+        @forelse($latestConcerts ?? [] as $event)
+            <x-concert-card
+                title="{{ $event->title }}"
+                location="{{ $event->location }}"
+                price="{{ $event->price }}"
+                date="{{ $event->date }}"
+                image="{{ $event->image }}"
+                link="{{ $event->link }}"
+            />
+        @empty
+            <x-concert-card
+                title="Y CONCERT 2025"
+                location="Vinhomes Ocean Park 3"
+                price="Từ 1.000.000đ - 5.000.000đ"
+                date="20/12/2026 - 14:00"
+                image="assets/images/concert/hot1.png"
+                link="{{ url('/concert/YConcert') }}"
+            />
 
-        <x-concert-card
-            title="Y CONCERT 2025"
-            location="Vinhomes Ocean Park 3"
-            price="Từ 1.000.000đ - 5.000.000đ"
-            date="20/12/2026 - 14:00"
-            image="assets/images/concert/hot1.png"
-            link="{{ url('/concert/YConcert') }}"   
-        />
+            <x-concert-card
+                title="Những Thành Phố Mơ Màng Year End 2025"
+                location="Công Viên Yên Sở, Hà Nội"
+                price="Từ 750.000đ - 4.000.000đ"
+                date="21/12/2025 - 15:30"
+                image="assets/images/concert/hot2.png"
+                link="{{ url('/concert/nhung-thanh-pho-mo-mang') }}"
+            />
 
-        <x-concert-card
-            title="Những Thành Phố Mơ Màng Year End 2025"
-            location="Công Viên Yên Sở, Hà Nội"
-            price="Từ 750.000đ - 4.000.000đ"
-            date="21/12/2025 - 15:30"
-            image="assets/images/concert/hot2.png"
-            link="{{ url('/concert/nhung-thanh-pho-mo-mang') }}"
-        />
+            <x-concert-card
+                title="ANH TRAI SAY HI 2025 CONCERT"
+                location="Khu đô thị Vạn Phúc"
+                price="Từ 1.000.000đ - 10.000.000đ"
+                date="27/12/2025 - 12:00"
+                image="assets/images/concert/hot3.png"
+                link="{{ url('/concert/anh-trai-say-hi-2025') }}"
+            />
 
-        <x-concert-card
-            title="ANH TRAI SAY HI 2025 CONCERT"
-            location="Khu đô thị Vạn Phúc"
-            price="Từ 1.000.000đ - 10.000.000đ"
-            date="27/12/2025 - 12:00"
-            image="assets/images/concert/hot3.png"
-            link="{{ url('/concert/anh-trai-say-hi-2025') }}"
-        />
-
-        <x-concert-card
-            title="Ai Cũng Giấu Trong Lòng Tảng Băng"
-            location="Nhà Hát Quân Đội Phía Nam"
-            price="Từ 600.000đ - 2.800.000đ"
-            date="10/01/2025 - 19:00"
-            image="assets/images/concert/hot4.png"
-            link="{{ url('/concert/mr-siro-concert') }}"
-        />
-
+            <x-concert-card
+                title="Ai Cũng Giấu Trong Lòng Tảng Băng"
+                location="Nhà Hát Quân Đội Phía Nam"
+                price="Từ 600.000đ - 2.800.000đ"
+                date="10/01/2025 - 19:00"
+                image="assets/images/concert/hot4.png"
+                link="{{ url('/concert/mr-siro-concert') }}"
+            />
+        @endforelse
     </div>
 
 </div>
@@ -166,7 +257,7 @@
 
             {{-- Big box --}}
             <div class="stats-box big-box">
-                <img src="{{ asset('assets/images/index/cart.png') }}" alt="cart" class="big-cart-img">
+                <img src="{{ asset('assets/images/index/cart.png') }}" alt="cart" class="big-cart-img" loading="lazy" decoding="async">
                 <p class="big-number-text">23.5K+</p>
                 <p class="label">NGƯỜI LỰA CHỌN</p>
             </div>
@@ -175,14 +266,14 @@
             <div class="stats-column">
                 <div class="stats-box small-box">
                     <div class="number-wrapper">
-                        <img src="{{ asset('assets/images/index/followers.png') }}" alt="users" class="number">
+                        <img src="{{ asset('assets/images/index/followers.png') }}" alt="users" class="number" loading="lazy" decoding="async">
                         <p class="number">2.5K+</p>
                     </div>
                     <p class="label">NGƯỜI DÙNG MỚI</p>
                 </div>
                 <div class="stats-box small-box">
                     <div class="number-wrapper">
-                        <img src="{{ asset('assets/images/index/partners.png') }}" alt="partners" class="number">
+                        <img src="{{ asset('assets/images/index/partners.png') }}" alt="partners" class="number" loading="lazy" decoding="async">
                         <p class="number">100+</p>
                     </div>
                     <p class="label">ĐỐI TÁC ĐỒNG HÀNH</p>
@@ -195,19 +286,19 @@
                 <ul class="social-list">
                     <li>
                         <a href="https://www.facebook.com/albumechoes" target="_blank" rel="noopener">
-                            <img src="{{ asset('assets/images/index/facebook_icon.png') }}" class="social-icon" alt="Facebook">
+                            <img src="{{ asset('assets/images/index/facebook_icon.png') }}" class="social-icon" alt="Facebook" loading="lazy" decoding="async">
                             ECHOES
                         </a>
                     </li>
                     <li>
                         <a href="https://www.instagram.com/echoesalbum" target="_blank" rel="noopener">
-                            <img src="{{ asset('assets/images/index/insta_icon.png') }}" class="social-icon" alt="Instagram">
+                            <img src="{{ asset('assets/images/index/insta_icon.png') }}" class="social-icon" alt="Instagram" loading="lazy" decoding="async">
                             echoes
                         </a>
                     </li>
                     <li>
                         <a href="https://www.facebook.com/albumechoes" target="_blank" rel="noopener">
-                            <img src="{{ asset('assets/images/index/tiktok_icon.png') }}" class="social-icon" alt="TikTok">
+                            <img src="{{ asset('assets/images/index/tiktok_icon.png') }}" class="social-icon" alt="TikTok" loading="lazy" decoding="async">
                             echoes.m
                         </a>
                     </li>
@@ -233,22 +324,22 @@
 
         <x-news-card
             title='CHUỖI CONCERT "ANH TRAI VƯỢT NGÀN CHÔNG GAI" CHÍNH THỨC KHÉP LẠI SAU 8 ĐÊM DIỄN'
-            description="Tối 7/9, chuỗi concert "Anh trai vượt ngàn chông gai" đã chính thức khép lại bằng đêm diễn thứ 8 tổ chức tại The Global City, (Thủ Đức, Thành phố Hồ Chí Minh). 33 "anh tài" đã cháy hết mình cùng hàng chục nghìn khán giả."
-            image="assets/images/news/atvncg.png"
+            description='Tối 7/9, chuỗi concert "Anh trai vượt ngàn chông gai" đã chính thức khép lại bằng đêm diễn thứ 8 tổ chức tại The Global City, (Thủ Đức, Thành phố Hồ Chí Minh). 33 "anh tài" đã cháy hết mình cùng hàng chục nghìn khán giả.'
+            image="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80"
             link="{{ url('/news/atvncg') }}"
         />
 
         <x-news-card
             title='HỒNG NHUNG, CHILLIES HÒA GIỌNG CÙNG KHÁN GIẢ Ở "TỰ HÀO BẢN SẮC VIỆT"'
-            description="Đêm nhạc "Tự Hào Bản Sắc Việt" diễn ra trong bầu không khí tự hào, sôi động. Hồng Nhung, Chillies cùng hàng chục nghìn khán giả ca vang trên quảng trường Đông Kinh Nghĩa Thục."
-            image="assets/images/news/THBSV.png"
+            description='Đêm nhạc "Tự Hào Bản Sắc Việt" diễn ra trong bầu không khí tự hào, sôi động. Hồng Nhung, Chillies cùng hàng chục nghìn khán giả ca vang trên quảng trường Đông Kinh Nghĩa Thục.'
+            image="https://images.unsplash.com/photo-1526948531399-320e7e40f0ca?auto=format&fit=crop&w=1200&q=80"
             link="{{ url('/news/tu-hao-ban-sac-viet') }}"
         />
 
         <x-news-card
             title='WATERBOMB ĐÃ KẾT THÚC NHƯNG DƯ ÂM RỰC RỠ VẪN "NÍU CHÂN" KHIẾN AI CŨNG MUỐN QUAY LẠI MÙA TỚI'
             description="Một trong những lễ hội mùa hè được mong chờ nhất châu Á đã chính thức đổ bộ Việt Nam, biến Khu đô thị Vạn Phúc City thành tâm điểm giải trí suốt hai ngày liên tiếp."
-            image="assets/images/news/wtb3.png"
+            image="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
             link="{{ url('/news/waterbomb-2025') }}"
         />
 
@@ -264,4 +355,58 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+(() => {
+    const carousel = document.querySelector('.carousel');
+    if (!carousel) return;
+    const slides = Array.from(carousel.querySelectorAll('.slide'));
+    const prev = carousel.querySelector('.carousel-button-prev');
+    const next = carousel.querySelector('.carousel-button-next');
+    const indicators = carousel.querySelector('.carousel-indicators');
+    let index = 0; let timer = null; const interval = 4500;
+
+    slides.forEach((s,i)=>{
+        const btn = document.createElement('button');
+        if(i===0) btn.classList.add('active');
+        btn.setAttribute('aria-label', `Slide ${i+1}`);
+        btn.addEventListener('click',()=> goTo(i));
+        indicators.appendChild(btn);
+    });
+
+    function update(){
+        slides.forEach((s,idx)=> s.classList.toggle('active', idx===index));
+        indicators.querySelectorAll('button').forEach((b,idx)=> b.classList.toggle('active', idx===index));
+    }
+
+    function goTo(i){ index = (i+slides.length)%slides.length; update(); restart(); }
+    function nextSlide(){ goTo(index+1); }
+    function prevSlide(){ goTo(index-1); }
+    function restart(){ clearInterval(timer); if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; timer = setInterval(nextSlide, interval); }
+
+    next.addEventListener('click', nextSlide);
+    prev.addEventListener('click', prevSlide);
+    carousel.addEventListener('mouseenter', ()=> clearInterval(timer));
+    carousel.addEventListener('mouseleave', restart);
+
+    document.addEventListener('keydown', e=>{ if(e.key==='ArrowLeft') prevSlide(); if(e.key==='ArrowRight') nextSlide(); });
+
+    // init
+    update(); restart();
+
+    // image fade-in when loaded
+    slides.forEach(s=>{
+        const img = s.querySelector('img');
+        if(!img) return;
+        if(img.complete) img.classList.add('loaded');
+        else img.addEventListener('load', ()=> img.classList.add('loaded'));
+    });
+
+    // reveal event cards
+    const observer = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); }); },{threshold:0.12});
+    document.querySelectorAll('.event-wrapper').forEach(el=> observer.observe(el));
+})();
+</script>
 @endsection

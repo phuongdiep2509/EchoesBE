@@ -439,10 +439,10 @@
 
             {{-- CTA --}}
             @if(!empty($concert->id))
-                <a href="{{ url('/booking/' . $concert->id) }}" class="btn-buy-now">
+                <a href="{{ route('booking.show', \Illuminate\Support\Str::slug($concert->title)) }}?eventId={{ \Illuminate\Support\Str::slug($concert->title) }}" class="btn-buy-now">
                     🎫 ĐẶT NGAY
                 </a>
-                <a href="{{ url('/booking/' . $concert->id . '?gift=1') }}"
+                <a href="{{ route('booking.show', \Illuminate\Support\Str::slug($concert->title)) }}?eventId={{ \Illuminate\Support\Str::slug($concert->title) }}&gift=1"
                    style="display:block;text-align:center;color:var(--color-green,#46462a);
                           font-size:0.875rem;font-weight:600;padding:8px;
                           border:2px solid var(--color-green,#46462a);border-radius:8px;
@@ -457,33 +457,20 @@
                 </button>
             @endif
 
-            @forelse($hangVe as $ticket)
-                <form method="POST" action="{{ route('cart.add') }}" class="ticket-option">
-                    @csrf
-                    <input type="hidden" name="MaHangVe" value="{{ $ticket->id }}">
-                    <div class="ticket-option-title">{{ $ticket->ticket_name }}</div>
-                    <div class="ticket-option-note">{{ $ticket->zone }}</div>
-                    <div class="ticket-option-price">{{ number_format($ticket->price, 0, ',', '.') }}đ</div>
-                    <div class="ticket-option-note">Còn {{ max(0, $ticket->total - $ticket->sold) }} vé</div>
-
-                    <div class="booking-form-row">
-                        <div>
-                            <label>Mã khách hàng</label>
-                            <input class="booking-input" type="number" min="1" name="MaKhachHang" value="{{ session('MaKhachHang', 1) }}">
-                        </div>
-                        <div>
-                            <label>Số lượng</label>
-                            <input class="booking-input" type="number" min="1" name="SoLuong" value="1">
-                        </div>
-                    </div>
-                </a>
-            @endforeach
+            <div class="note-box" style="margin-top:1.5rem;">
+                <div class="note-title">💡 LƯU Ý QUAN TRỌNG:</div>
+                <ul>
+                    <li>Vé đã mua không được hoàn trả</li>
+                    <li>Vui lòng đến trước 30 phút</li>
+                    <li>Không mang đồ uống có cồn, rượu bia, các chất gây nghiện</li>
+                    <li>Không dẫn theo thú cưng</li>
+                </ul>
+            </div>
         </div>
     </div>
 </section>
 @endif
 
-@endif
 
 @endsection
 

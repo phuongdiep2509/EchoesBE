@@ -62,7 +62,7 @@
         {{-- Featured image --}}
         @if(!empty($article->image))
             <figure style="margin:0 0 36px">
-                <img src="{{ asset($article->image) }}"
+                <img src="{{ preg_match('/^https?:\/\//i', $article->image) ? $article->image : asset($article->image) }}"
                      alt="{{ $article->title }}"
                      style="width:100%;max-height:480px;object-fit:cover;
                             border-radius:14px;
@@ -115,7 +115,8 @@
 
                             {{-- Thumbnail --}}
                             @if(!empty($r->image))
-                                <img src="{{ asset($r->image) }}"
+                                @php $relatedImage = $r->image ?? ''; @endphp
+                                <img src="{{ preg_match('/^https?:\/\//i', $relatedImage) ? $relatedImage : asset($relatedImage) }}"
                                      alt="{{ $r->title }}"
                                      style="width:72px;height:54px;object-fit:cover;
                                             border-radius:8px;flex-shrink:0">
