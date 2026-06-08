@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Echoes - Thanh toán đơn hàng')
+@section('title', 'Echoes - Thanh toÃ¡n Ä‘Æ¡n hÃ ng')
 
 @section('styles')
 <style>
@@ -495,17 +495,17 @@
 
 @section('content')
 @php
-    $money = fn($amount) => number_format((float) $amount, 0, ',', '.') . 'đ';
+    $money = fn($amount) => number_format((float) $amount, 0, ',', '.') . 'Ä‘';
     $eventImage = $event && !empty($event->AnhBia)
         ? asset($event->AnhBia)
         : asset('assets/images/index/favicon.png');
     $eventName = $event->TenSuKien ?? 'Echoes Event';
     $paymentStatus = $payment->TrangThai ?? null;
     $paymentStatusLabel = match($paymentStatus) {
-        'ThanhCong' => 'Thành công',
-        'ChoThanhToan' => 'Chờ thanh toán',
-        'ThatBai' => 'Thất bại',
-        default => 'Chưa tạo giao dịch',
+        'ThanhCong' => 'ThÃ nh cÃ´ng',
+        'ChoThanhToan' => 'Chá» thanh toÃ¡n',
+        'ThatBai' => 'Tháº¥t báº¡i',
+        default => 'ChÆ°a táº¡o giao dá»‹ch',
     };
     $paymentStatusClass = match($paymentStatus) {
         'ThanhCong' => 'status-success',
@@ -514,9 +514,9 @@
         default => 'status-cancelled',
     };
     $orderStatusLabel = match($order->TrangThai) {
-        'DaThanhToan' => 'Đã thanh toán',
-        'ChoThanhToan' => 'Chờ thanh toán',
-        'DaHuy' => 'Đã hủy',
+        'DaThanhToan' => 'ÄÃ£ thanh toÃ¡n',
+        'ChoThanhToan' => 'Chá» thanh toÃ¡n',
+        'DaHuy' => 'ÄÃ£ há»§y',
         default => $order->TrangThai,
     };
     $orderStatusClass = match($order->TrangThai) {
@@ -533,12 +533,12 @@
         <div class="checkout-heading">
             <div>
                 <div class="checkout-eyebrow">Echoes Checkout</div>
-                <h1 class="checkout-title">Thanh toán đơn hàng</h1>
+                <h1 class="checkout-title">Thanh toÃ¡n Ä‘Æ¡n hÃ ng</h1>
                 <p class="checkout-subtitle">
-                    Hoàn tất thanh toán toàn bộ đơn hàng để Echoes xác nhận vé và gửi email đặt vé thành công cho bạn.
+                    HoÃ n táº¥t thanh toÃ¡n toÃ n bá»™ Ä‘Æ¡n hÃ ng Ä‘á»ƒ Echoes xÃ¡c nháº­n vÃ© vÃ  gá»­i email Ä‘áº·t vÃ© thÃ nh cÃ´ng cho báº¡n.
                 </p>
             </div>
-            <div class="checkout-order-badge">Đơn hàng #{{ $order->MaDonHang }}</div>
+            <div class="checkout-order-badge">ÄÆ¡n hÃ ng #{{ $order->MaDonHang }}</div>
         </div>
 
         @if(session('success'))
@@ -556,8 +556,8 @@
                 <div class="checkout-section">
                     <div class="section-title">
                         <div>
-                            <div class="section-kicker">Sự kiện</div>
-                            <h2>Thông tin vé đã đặt</h2>
+                            <div class="section-kicker">Sá»± kiá»‡n</div>
+                            <h2>ThÃ´ng tin vÃ© Ä‘Ã£ Ä‘áº·t</h2>
                         </div>
                         <span class="status-badge {{ $orderStatusClass }}">{{ $orderStatusLabel }}</span>
                     </div>
@@ -569,32 +569,32 @@
                             <h2 class="event-name">{{ $eventName }}</h2>
                             <div class="info-list">
                                 <div class="info-row">
-                                    <div class="info-label">Thời gian</div>
+                                    <div class="info-label">Thá»i gian</div>
                                     <div class="info-value">
-                                        {{ $event && $event->ThoiGianBatDau ? \Carbon\Carbon::parse($event->ThoiGianBatDau)->format('H:i d/m/Y') : 'Đang cập nhật' }}
+                                        {{ $event && $event->ThoiGianBatDau ? \Carbon\Carbon::parse($event->ThoiGianBatDau)->format('H:i d/m/Y') : 'Äang cáº­p nháº­t' }}
                                     </div>
                                 </div>
                                 <div class="info-row">
-                                    <div class="info-label">Khách hàng</div>
+                                    <div class="info-label">KhÃ¡ch hÃ ng</div>
                                     <div class="info-value">
-                                        {{ $customerAccount->HoTen ?? $customerAccount->TenDangNhap ?? 'Khách hàng Echoes' }}
+                                        {{ $customerAccount->HoTen ?? $customerAccount->TenDangNhap ?? 'KhÃ¡ch hÃ ng Echoes' }}
                                     </div>
                                 </div>
                                 <div class="info-row">
                                     <div class="info-label">Email</div>
                                     <div class="info-value">
-                                        {{ $customerAccount->Email ?? 'Chưa có email' }}
+                                        {{ $customerAccount->Email ?? 'ChÆ°a cÃ³ email' }}
                                     </div>
                                 </div>
                                 <div class="info-row">
-                                    <div class="info-label">Giữ vé</div>
+                                    <div class="info-label">Giá»¯ vÃ©</div>
                                     <div class="info-value">
                                         @if($order->TrangThai === 'DaThanhToan')
-                                            Đơn hàng đã thanh toán thành công.
+                                            ÄÆ¡n hÃ ng Ä‘Ã£ thanh toÃ¡n thÃ nh cÃ´ng.
                                         @elseif($order->TrangThai === 'DaHuy')
-                                            Đơn hàng đã hết hạn hoặc đã bị hủy.
+                                            ÄÆ¡n hÃ ng Ä‘Ã£ háº¿t háº¡n hoáº·c Ä‘Ã£ bá»‹ há»§y.
                                         @else
-                                            Còn <span id="orderTimerText">--:--</span> trong thời gian giữ vé 10 phút.
+                                            CÃ²n <span id="orderTimerText">--:--</span> trong thá»i gian giá»¯ vÃ© 10 phÃºt.
                                         @endif
                                     </div>
                                 </div>
@@ -606,34 +606,34 @@
                 <div class="checkout-section">
                     <div class="section-title">
                         <div>
-                            <div class="section-kicker">Danh sách vé</div>
-                            <h3>Vé trong đơn hàng</h3>
+                            <div class="section-kicker">Danh sÃ¡ch vÃ©</div>
+                            <h3>VÃ© trong Ä‘Æ¡n hÃ ng</h3>
                         </div>
-                        <strong>{{ $ticketItems->count() }} vé</strong>
+                        <strong>{{ $ticketItems->count() }} vÃ©</strong>
                     </div>
 
                     @if($ticketItems->isEmpty())
                         <div class="empty-box">
-                            Chưa có dữ liệu vé trong đơn hàng này. Khi phần đặt vé tạo vé vào bảng <strong>ve</strong>, danh sách vé sẽ hiển thị tại đây.
+                            ChÆ°a cÃ³ dá»¯ liá»‡u vÃ© trong Ä‘Æ¡n hÃ ng nÃ y. Khi pháº§n Ä‘áº·t vÃ© táº¡o vÃ© vÃ o báº£ng <strong>ve</strong>, danh sÃ¡ch vÃ© sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y.
                         </div>
                     @else
                         <div class="ticket-list">
                             @foreach($ticketItems as $item)
                                 <div class="ticket-item">
                                     <div class="ticket-main">
-                                        <h4 class="ticket-name">{{ $item->TenHangVe ?? 'Hạng vé' }}</h4>
+                                        <h4 class="ticket-name">{{ $item->TenHangVe ?? 'Háº¡ng vÃ©' }}</h4>
                                         <div class="ticket-meta">
-                                            <span class="ticket-pill">Khu vực: {{ $item->TenKhuVuc ?? 'Không phân khu' }}</span>
+                                            <span class="ticket-pill">Khu vá»±c: {{ $item->TenKhuVuc ?? 'KhÃ´ng phÃ¢n khu' }}</span>
                                             <span class="ticket-pill">
-                                                Ghế:
+                                                Gháº¿:
                                                 @if($item->HangGhe || $item->SoGhe)
                                                     {{ trim(($item->HangGhe ?? '') . '-' . ($item->SoGhe ?? ''), '-') }}
                                                 @else
-                                                    Tự do
+                                                    Tá»± do
                                                 @endif
                                             </span>
-                                            <span class="ticket-pill">Mã vé: {{ $item->MaVeDienTu ?? '---' }}</span>
-                                            <span class="ticket-pill">Trạng thái: {{ $item->TrangThaiVe ?? '---' }}</span>
+                                            <span class="ticket-pill">MÃ£ vÃ©: {{ $item->MaVeDienTu ?? '---' }}</span>
+                                            <span class="ticket-pill">Tráº¡ng thÃ¡i: {{ $item->TrangThaiVe ?? '---' }}</span>
                                         </div>
                                     </div>
                                     <div class="ticket-price">{{ $money($item->GiaVe ?? 0) }}</div>
@@ -644,73 +644,100 @@
                 </div>
             </div>
 
+                <div class="checkout-section">
+                    <div class="section-title">
+                        <div>
+                            <div class="section-kicker">Merchandise</div>
+                            <h3>Merchandise trong don hang</h3>
+                        </div>
+                        <strong>{{ $merchandiseItems->count() }} san pham</strong>
+                    </div>
+
+                    @if($merchandiseItems->isNotEmpty())
+                        <div class="ticket-list">
+                            @foreach($merchandiseItems as $item)
+                                <div class="ticket-item">
+                                    <div class="ticket-main">
+                                        <h4 class="ticket-name">{{ $item->TenMerch }}</h4>
+                                        <div class="ticket-meta">
+                                            <span class="ticket-pill">So luong: {{ $item->SoLuong }}</span>
+                                            <span class="ticket-pill">Don gia: {{ $money($item->DonGia) }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="ticket-price">{{ $money($item->ThanhTien) }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
             <aside class="checkout-card payment-panel">
                 <div class="checkout-section">
                     <div class="section-title">
                         <div>
                             <div class="section-kicker">{{ $paymentConfig['brand_name'] ?? 'Echoes' }}</div>
-                            <h3>Thanh toán</h3>
+                            <h3>Thanh toÃ¡n</h3>
                         </div>
                         <span class="status-badge {{ $paymentStatusClass }}">{{ $paymentStatusLabel }}</span>
                     </div>
 
                     <div class="summary-line">
-                        <span class="summary-label">Mã đơn hàng</span>
+                        <span class="summary-label">MÃ£ Ä‘Æ¡n hÃ ng</span>
                         <span class="summary-value">#{{ $order->MaDonHang }}</span>
                     </div>
                     <div class="summary-line">
-                        <span class="summary-label">Mã giao dịch</span>
-                        <span class="summary-value">{{ $payment->MaGiaoDich ?? 'Chưa tạo' }}</span>
+                        <span class="summary-label">MÃ£ giao dá»‹ch</span>
+                        <span class="summary-value">{{ $payment->MaGiaoDich ?? 'ChÆ°a táº¡o' }}</span>
                     </div>
                     <div class="summary-line">
-                        <span class="summary-label">Phương thức</span>
-                        <span class="summary-value">{{ $paymentConfig['method_label'] ?? 'Chuyển khoản QR' }}</span>
+                        <span class="summary-label">PhÆ°Æ¡ng thá»©c</span>
+                        <span class="summary-value">{{ $paymentConfig['method_label'] ?? 'Chuyá»ƒn khoáº£n QR' }}</span>
                     </div>
                     <div class="summary-line">
-                        <span class="summary-label">Hình thức</span>
-                        <span class="summary-value">Thanh toán full 100%</span>
+                        <span class="summary-label">HÃ¬nh thá»©c</span>
+                        <span class="summary-value">Thanh toÃ¡n full 100%</span>
                     </div>
                     <div class="summary-total">
-                        <span>Tổng tiền</span>
+                        <span>Tá»•ng tiá»n</span>
                         <span>{{ $money($order->TongTien) }}</span>
                     </div>
 
                     <div class="method-box">
                         <div class="method-name">
-                            <span>QR chuyển khoản Echoes</span>
+                            <span>QR chuyá»ƒn khoáº£n Echoes</span>
                             <span>01:00</span>
                         </div>
                         <p class="method-desc">
-                            Tạo mã QR, chuyển khoản đúng số tiền và nội dung. Sau đó bấm <strong>Tôi đã thanh toán</strong> trong thời gian hiệu lực.
+                            Táº¡o mÃ£ QR, chuyá»ƒn khoáº£n Ä‘Ãºng sá»‘ tiá»n vÃ  ná»™i dung. Sau Ä‘Ã³ báº¥m <strong>TÃ´i Ä‘Ã£ thanh toÃ¡n</strong> trong thá»i gian hiá»‡u lá»±c.
                         </p>
                     </div>
 
                     @if($order->TrangThai === 'DaThanhToan')
                         <div class="checkout-alert success" style="margin-top:18px;">
-                            Đơn hàng đã thanh toán thành công. Email xác nhận đã được gửi nếu cấu hình email hợp lệ.
+                            ÄÆ¡n hÃ ng Ä‘Ã£ thanh toÃ¡n thÃ nh cÃ´ng. Email xÃ¡c nháº­n Ä‘Ã£ Ä‘Æ°á»£c gá»­i náº¿u cáº¥u hÃ¬nh email há»£p lá»‡.
                         </div>
                     @elseif($isOrderExpired)
                         <div class="checkout-alert error" style="margin-top:18px;">
-                            Đơn hàng đã hết thời gian giữ vé hoặc đã bị hủy. Vui lòng đặt vé lại.
+                            ÄÆ¡n hÃ ng Ä‘Ã£ háº¿t thá»i gian giá»¯ vÃ© hoáº·c Ä‘Ã£ bá»‹ há»§y. Vui lÃ²ng Ä‘áº·t vÃ© láº¡i.
                         </div>
                     @elseif($hasActiveQr)
                         <div class="qr-box">
-                            <img class="qr-image" src="{{ asset($paymentConfig['qr_image']) }}" alt="QR thanh toán Echoes">
+                            <img class="qr-image" src="{{ asset($paymentConfig['qr_image']) }}" alt="QR thanh toÃ¡n Echoes">
                             <p class="qr-note">
                                 <strong>{{ $paymentConfig['bank_name'] }}</strong><br>
-                                Chủ tài khoản: <strong>{{ $paymentConfig['account_name'] }}</strong><br>
-                                Số tài khoản: <strong>{{ $paymentConfig['account_number'] }}</strong><br>
-                                Nội dung: <strong>{{ $payment->MaGiaoDich ?: $transferNote }}</strong>
+                                Chá»§ tÃ i khoáº£n: <strong>{{ $paymentConfig['account_name'] }}</strong><br>
+                                Sá»‘ tÃ i khoáº£n: <strong>{{ $paymentConfig['account_number'] }}</strong><br>
+                                Ná»™i dung: <strong>{{ $payment->MaGiaoDich ?: $transferNote }}</strong>
                             </p>
                         </div>
 
                         <div class="timer-box">
                             <div class="timer-card">
-                                <div class="timer-label">QR còn hiệu lực</div>
+                                <div class="timer-label">QR cÃ²n hiá»‡u lá»±c</div>
                                 <div class="timer-value" id="qrTimerText">--:--</div>
                             </div>
                             <div class="timer-card">
-                                <div class="timer-label">Giữ vé còn lại</div>
+                                <div class="timer-label">Giá»¯ vÃ© cÃ²n láº¡i</div>
                                 <div class="timer-value" id="sideOrderTimerText">--:--</div>
                             </div>
                         </div>
@@ -718,24 +745,24 @@
                         <form method="POST" action="{{ route('payment.qr.confirm', $order->MaDonHang) }}" id="confirmPaymentForm">
                             @csrf
                             <button type="submit" class="checkout-btn primary" id="confirmPaymentBtn">
-                                Tôi đã thanh toán
+                                TÃ´i Ä‘Ã£ thanh toÃ¡n
                             </button>
                         </form>
 
                         <p class="small-muted" style="margin:14px 0 0;">
-                            Nếu quá 01 phút, mã QR sẽ hết hiệu lực và giao dịch chuyển sang trạng thái thất bại. Bạn có thể tạo lại mã QR nếu đơn hàng vẫn còn thời gian giữ vé.
+                            Náº¿u quÃ¡ 01 phÃºt, mÃ£ QR sáº½ háº¿t hiá»‡u lá»±c vÃ  giao dá»‹ch chuyá»ƒn sang tráº¡ng thÃ¡i tháº¥t báº¡i. Báº¡n cÃ³ thá»ƒ táº¡o láº¡i mÃ£ QR náº¿u Ä‘Æ¡n hÃ ng váº«n cÃ²n thá»i gian giá»¯ vÃ©.
                         </p>
                     @else
                         <form method="POST" action="{{ route('payment.qr.create', $order->MaDonHang) }}">
                             @csrf
                             <input type="hidden" name="payment_method" value="ChuyenKhoanQR">
                             <button type="submit" class="checkout-btn dark">
-                                Tạo mã QR thanh toán
+                                Táº¡o mÃ£ QR thanh toÃ¡n
                             </button>
                         </form>
 
                         <p class="small-muted" style="margin:14px 0 0;">
-                            Mã QR chỉ có hiệu lực 01 phút. Đơn hàng vẫn được giữ tối đa 10 phút kể từ thời điểm đặt vé.
+                            MÃ£ QR chá»‰ cÃ³ hiá»‡u lá»±c 01 phÃºt. ÄÆ¡n hÃ ng váº«n Ä‘Æ°á»£c giá»¯ tá»‘i Ä‘a 10 phÃºt ká»ƒ tá»« thá»i Ä‘iá»ƒm Ä‘áº·t vÃ©.
                         </p>
                     @endif
                 </div>
@@ -778,7 +805,7 @@
         function disablePaymentButton(message) {
             if (!confirmButton) return;
             confirmButton.disabled = true;
-            confirmButton.textContent = message || 'Mã QR đã hết hiệu lực';
+            confirmButton.textContent = message || 'MÃ£ QR Ä‘Ã£ háº¿t hiá»‡u lá»±c';
         }
 
         function callExpireEndpoint() {
@@ -809,12 +836,12 @@
             setText(qrTimerText, formatTime(qrRemaining));
 
             if (hasActiveQr && qrRemaining <= 0) {
-                disablePaymentButton('Mã QR đã hết hiệu lực');
+                disablePaymentButton('MÃ£ QR Ä‘Ã£ háº¿t hiá»‡u lá»±c');
                 callExpireEndpoint();
             }
 
             if (orderRemaining <= 0 && confirmButton) {
-                disablePaymentButton('Đơn hàng đã hết thời gian giữ vé');
+                disablePaymentButton('ÄÆ¡n hÃ ng Ä‘Ã£ háº¿t thá»i gian giá»¯ vÃ©');
             }
         }
 
@@ -826,7 +853,7 @@
             confirmForm.addEventListener('submit', function (event) {
                 if (qrRemaining <= 0 || orderRemaining <= 0) {
                     event.preventDefault();
-                    disablePaymentButton(qrRemaining <= 0 ? 'Mã QR đã hết hiệu lực' : 'Đơn hàng đã hết thời gian giữ vé');
+                    disablePaymentButton(qrRemaining <= 0 ? 'MÃ£ QR Ä‘Ã£ háº¿t hiá»‡u lá»±c' : 'ÄÆ¡n hÃ ng Ä‘Ã£ háº¿t thá»i gian giá»¯ vÃ©');
                 }
             });
         }

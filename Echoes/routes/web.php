@@ -58,7 +58,7 @@ Route::middleware('guest')->group(function () {
         ->name('register')
         ->middleware('throttle:5,1');
 
-    // Route phụ để tránh lỗi nếu Blade đang gọi route('register.post')
+    // Route phá»¥ Ä‘á»ƒ trÃ¡nh lá»—i náº¿u Blade Ä‘ang gá»i route('register.post')
     Route::post('/register/post', [AuthController::class, 'register'])
         ->name('register.post')
         ->middleware('throttle:5,1');
@@ -149,6 +149,10 @@ Route::get('/cart', [BookingPageController::class, 'cart'])->name('cart');
 Route::post('/cart/tickets', [BookingPageController::class, 'addToCart'])
     ->name('cart.add');
 
+Route::post('/cart/merchandise/{id}', [MerchandiseController::class, 'addToCart'])
+    ->where('id', '[0-9]+')
+    ->name('cart.merchandise.add');
+
 Route::post('/orders', [BookingPageController::class, 'createOrder'])
     ->name('orders.create');
 
@@ -237,9 +241,6 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
 
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
 
-    Route::patch('/orders/{orderId}/status', [AdminOrderController::class, 'updateStatus'])
-        ->where('orderId', '[0-9]+')
-        ->name('orders.status');
 
     /*
     |--------------------------------------------------------------------------
@@ -402,13 +403,7 @@ Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
         ->where('id', '[0-9]+')
         ->name('payments.show');
 
-    Route::post('/payments/{id}/mark-success', [AdminPaymentController::class, 'markSuccess'])
-        ->where('id', '[0-9]+')
-        ->name('payments.markSuccess');
 
-    Route::post('/payments/{id}/mark-failed', [AdminPaymentController::class, 'markFailed'])
-        ->where('id', '[0-9]+')
-        ->name('payments.markFailed');
 
     /*
     |--------------------------------------------------------------------------
